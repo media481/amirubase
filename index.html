@@ -10,7 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -48,7 +47,6 @@
             font-size: 14px;
         }
 
-        /* HEADER */
         .portal-header {
             background: linear-gradient(135deg, #1a6fa8 0%, #1559a0 100%);
             padding: 0 16px;
@@ -185,12 +183,10 @@
         .portal-footer-simple { padding: 20px 16px; text-align: center; border-top: 1px solid var(--border); background: white; margin-top: 28px; }
         .footer-text { font-size: 12px; color: var(--text-3); font-weight: 500; }
 
-        /* Loading */
         .loading-state { text-align: center; padding: 60px 20px; }
         .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Admin Modal */
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 20000; overflow-y: auto; padding: 20px; }
         .admin-modal.show { display: flex; align-items: center; justify-content: center; }
         .admin-modal-content { max-width: 1000px; width: 100%; background: #f0f4f8; border-radius: 20px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
@@ -328,14 +324,12 @@
     // ============================================================
     // 🔴🔴🔴 GANTI DENGAN CREDENTIALS SUPABASE ANDA 🔴🔴🔴
     // ============================================================
-    const SUPABASE_URL = "https://rkdhssbyqqyheczejtix.supabase.co";  // GANTI!
-    const SUPABASE_ANON_KEY = "sb_publishable_YzVUaQ-f53v3JId4art8zg_AQWSSMU_";  // GANTI!
+    const SUPABASE_URL = "https://rkdhssbyqqyheczejtix.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_YzVUaQ-f53v3JId4art8zg_AQWSSMU_";
     // ============================================================
 
-    // Inisialisasi Supabase client
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    // Global variables
     let dataUmroh = [];
     let currentData = [];
     let currentSort = { column: null, asc: true };
@@ -343,7 +337,6 @@
     let adminPrograms = [];
     let editingProgramId = null;
     
-    // Fungsi parse tanggal
     function parseDateFromString(dateStr) {
         if (!dateStr) return new Date();
         const months = {
@@ -362,7 +355,6 @@
         return new Date(dateStr);
     }
     
-    // Generate teks WA otomatis
     function generateAutoWAText(data) {
         let teks = `🕋 *${data.nama || 'Program Umroh'}* 🕋\n\n`;
         if (data.tgl) teks += `📅 ${data.tgl}\n`;
@@ -375,7 +367,7 @@
         return teks;
     }
     
-    // ========== DATABASE OPERATIONS ==========
+    // ========== DATABASE OPERATIONS (TANPA DEFAULT DATA) ==========
     
     async function loadDataFromSupabase() {
         const loadingEl = document.getElementById('loadingState');
@@ -392,17 +384,8 @@
             
             if (error) throw error;
             
-            if (data && data.length > 0) {
-                dataUmroh = data;
-            } else {
-                // Jika database kosong, buat data default
-                await seedDefaultData();
-                const { data: newData } = await supabaseClient
-                    .from('programs')
-                    .select('*')
-                    .order('created_at', { ascending: true });
-                dataUmroh = newData || [];
-            }
+            // LANGSUNG PAKAI DATA DARI DATABASE, TIDAK MENAMBAHKAN DATA DEFAULT
+            dataUmroh = data || [];
             
             // Konversi tanggal
             dataUmroh.forEach(p => {
@@ -422,57 +405,6 @@
         } catch (err) {
             console.error('Error loading data:', err);
             loadingEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Gagal memuat data: ${err.message}</p><button class="btn-reset" onclick="location.reload()">Coba Lagi</button></div>`;
-        }
-    }
-    
-    async function seedDefaultData() {
-        const defaultPrograms = [
-            {
-                nama: "Umroh Akbar Bareng UAS Landing Madinah",
-                tgl: "20 Agustus 2026",
-                durasi: "9 Hari",
-                maskapai: "Oman Air",
-                link_form: "https://drive.google.com/open?id=1m17Qjh25QB__hyvWIsJBjvO2YyHKZlo3&usp=drive_fs",
-                link_itinerary: "https://drive.google.com/open?id=12KcRpMGk3aLZkDkoeptxAgRUEZeEbOlJ&usp=drive_fs",
-                link_poster: "https://drive.google.com/open?id=1FLuVq5TzREA6WyoFFy-vnfZfnM8kFvgz&usp=drive_fs",
-                link_metaads: "https://drive.google.com/open?id=1Rf9NtvYDBlnSw7njdkRfXm1xEd5aUK36&usp=drive_fs",
-                link_dokumentasi: "https://drive.google.com/open?id=1pq444JhNYT8A5YYqihzxcghPerTDXHHA&usp=drive_fs",
-                harga_quint: "Rp 32.500.000",
-                teks_wa: "🕋 UMROH AKBAR LANDING MADINAH BARENG UAS\n📅 9 Hari: 20 – 28 Agustus 2026\n\n💰 Biaya: Quad/Quint: Rp 32.500.000\n\n📞 wa.me/6285122336300"
-            },
-            {
-                nama: "Umroh Akbar Premium bersama UAS by Oman",
-                tgl: "19 Agustus 2026",
-                durasi: "12 Hari",
-                maskapai: "Oman Air",
-                link_form: "https://drive.google.com/open?id=1m17Qjh25QB__hyvWIsJBjvO2YyHKZlo3&usp=drive_fs",
-                link_itinerary: "https://drive.google.com/open?id=1DEM9GX4hU6DCKq667IyX02dCgPjoEFiL&usp=drive_fs",
-                link_poster: "https://drive.google.com/open?id=1DEM9GX4hU6DCKq667IyX02dCgPjoEFiL&usp=drive_fs",
-                link_metaads: "https://drive.google.com/open?id=1DEM9GX4hU6DCKq667IyX02dCgPjoEFiL&usp=drive_fs",
-                link_dokumentasi: "https://drive.google.com/open?id=1DEM9GX4hU6DCKq667IyX02dCgPjoEFiL&usp=drive_fs",
-                harga_quint: "Rp 33.500.000",
-                teks_wa: "🕋 UMROH AKBAR BARENG UAS 12 HARI\n📅 19 – 30 Agustus 2026\n\n💰 Biaya: Quad/Quint: Rp 33.500.000\n\n📞 wa.me/6285122336300"
-            },
-            {
-                nama: "UMROH AKBAR PREMIUM BERSAMA UAS",
-                tgl: "18 Agustus 2026",
-                durasi: "13 Hari",
-                maskapai: "Saudia Airlines",
-                link_form: "https://drive.google.com/open?id=1m17Qjh25QB__hyvWIsJBjvO2YyHKZlo3&usp=drive_fs",
-                link_itinerary: "https://drive.google.com/open?id=1DEM9GX4hU6DCKq667IyX02dCgPjoEFiL&usp=drive_fs",
-                link_poster: "https://drive.google.com/open?id=1DEM9GX4hU6DCKq667IyX02dCgPjoEFiL&usp=drive_fs",
-                link_metaads: "https://drive.google.com/open?id=1DEM9GX4hU6DCKq667IyX02dCgPjoEFiL&usp=drive_fs",
-                link_dokumentasi: "https://drive.google.com/open?id=1DEM9GX4hU6DCKq667IyX02dCgPjoEFiL&usp=drive_fs",
-                harga_quint: "Rp 41.500.000",
-                teks_wa: "🕋 UMROH AKBAR PREMIUM BERSAMA UAS\n📅 18 – 30 Agustus 2026\n\n💰 Biaya: Quad/Quint: Rp 41.500.000\n\n📞 wa.me/6285122336300"
-            }
-        ];
-        
-        for (const prog of defaultPrograms) {
-            const { error } = await supabaseClient
-                .from('programs')
-                .insert([prog]);
-            if (error) console.error('Error seeding:', error);
         }
     }
     
@@ -510,7 +442,7 @@
         const now = new Date();
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah program.</p></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah program atau import JSON.</p></div></tr></tr>`;
             return;
         }
         
@@ -714,7 +646,7 @@
                     </div>
                 </div>
                 <div class="admin-table">
-                    </table>
+                    <table>
                         <thead><tr><th>No</th><th>Nama Program</th><th>Tanggal</th><th>Harga</th><th>Aksi</th></tr></thead>
                         <tbody id="adminTableBody"></tbody>
                     </table>
@@ -738,7 +670,7 @@
         const tbody = document.getElementById('adminTableBody');
         if (!tbody) return;
         if (adminPrograms.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada program. Klik "Program Baru" untuk menambah.<tr></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada program. Klik "Import JSON" untuk mengisi data.</td></tr>';
             return;
         }
         tbody.innerHTML = '';
@@ -978,7 +910,7 @@
     window.importAdminData = importAdminData;
     window.previewAdminWA = previewAdminWA;
     
-    // Start
+    // Start - Database akan kosong, siap diimport
     loadDataFromSupabase();
 </script>
 </body>
