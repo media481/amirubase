@@ -51,6 +51,7 @@
             font-size: 14px;
         }
 
+        /* HEADER */
         .portal-header {
             background: linear-gradient(135deg, #1a6fa8 0%, #1559a0 100%);
             padding: 0 16px;
@@ -82,6 +83,7 @@
         .hamburger-btn { display: none; background: none; border: none; cursor: pointer; color: white; font-size: 20px; padding: 6px; border-radius: 6px; transition: background var(--transition); }
         .hamburger-btn:hover { background: rgba(255,255,255,0.15); }
 
+        /* MOBILE DRAWER */
         .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 10000; opacity: 0; transition: opacity 0.25s; backdrop-filter: blur(2px); }
         .mobile-overlay.open { display: block; opacity: 1; }
         .mobile-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 10001; transition: right 0.28s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; box-shadow: -8px 0 32px rgba(0,0,0,0.12); }
@@ -101,6 +103,7 @@
         .drawer-admin a { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary); color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 13px; cursor: pointer; }
         .drawer-admin a:hover { background: var(--primary-light); }
 
+        /* TICKER */
         .ticker-wrapper { background: white; border-bottom: 1px solid var(--border); height: 36px; display: flex; align-items: center; overflow: hidden; }
         .ticker-label { background: #ef4444; color: white; padding: 0 16px; height: 100%; display: flex; align-items: center; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; position: relative; gap: 5px; }
         .ticker-label::after { content: ''; position: absolute; right: -9px; top: 0; border-top: 18px solid transparent; border-bottom: 18px solid transparent; border-left: 9px solid #ef4444; }
@@ -109,6 +112,7 @@
         @keyframes ticker-move { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+        /* PAGE HEADER */
         .page-header { padding: 24px 16px 0; max-width: 1600px; margin: 0 auto; }
         .page-header-inner { background: white; border-radius: var(--radius-lg); padding: 18px 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
         .page-title-row { display: flex; align-items: center; gap: 12px; }
@@ -122,6 +126,7 @@
         .stat-chip.inactive { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
         .stat-chip i { font-size: 11px; }
 
+        /* MAIN CONTENT & TABLE */
         .main-content { padding: 16px 16px 0; max-width: 1600px; margin: 0 auto; min-height: 60vh; }
         .table-container { overflow-x: auto; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
@@ -201,7 +206,7 @@
         .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ========== WHATSAPP FLOAT BUTTON ========== */
+        /* WHATSAPP FLOAT BUTTON */
         .wa-float {
             position: fixed;
             bottom: 24px;
@@ -266,7 +271,7 @@
             100% { transform: scale(1); }
         }
 
-        /* ========== MODAL DETAIL PROGRAM ========== */
+        /* MODAL DETAIL PROGRAM */
         .detail-modal {
             display: none;
             position: fixed;
@@ -427,86 +432,91 @@
         .btn-register:hover {
             background: var(--primary-light);
         }
-        
-        /* ========== ADMIN MODAL ========== */
-        .admin-modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.5); 
-            z-index: 20000; 
-            overflow-y: auto; 
-            padding: 24px; 
+
+        /* ADMIN MODAL - DIPERBAIKI */
+        .admin-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 20000;
+            overflow-y: auto;
+            padding: 20px;
         }
-        .admin-modal.show { display: flex; align-items: center; justify-content: center; }
-        .admin-modal-content { 
-            max-width: 1400px; 
-            width: 100%; 
+        .admin-modal.show {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .admin-modal-content {
+            max-width: 1200px;
+            width: 100%;
             background: var(--surface);
-            border-radius: var(--radius); 
-            max-height: 90vh; 
-            overflow-y: auto; 
+            border-radius: var(--radius);
+            margin: 40px auto;
             box-shadow: var(--shadow-lg);
         }
-        .admin-modal-header { 
-            background: linear-gradient(135deg, #1a6fa8 0%, #1559a0 100%); 
-            color: white; 
-            padding: 20px 28px; 
-            border-radius: var(--radius) var(--radius) 0 0; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 10; 
+        .admin-modal-header {
+            background: linear-gradient(135deg, #1a6fa8 0%, #1559a0 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: var(--radius) var(--radius) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-        .admin-modal-header h2 { 
-            font-size: 18px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
+        .admin-modal-header h2 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-weight: 700;
+            margin: 0;
         }
-        .admin-modal-header button { 
-            background: rgba(255,255,255,0.15); 
-            border: none; 
-            color: white; 
-            font-size: 18px; 
-            cursor: pointer; 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 6px; 
+        .admin-modal-header button {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
             transition: all var(--transition);
         }
-        .admin-modal-header button:hover { 
-            background: rgba(255,255,255,0.3); 
+        .admin-modal-header button:hover {
+            background: rgba(255,255,255,0.3);
         }
-        .admin-modal-body { 
-            padding: 28px; 
+        .admin-modal-body {
+            padding: 24px;
         }
-        
-        .admin-toolbar { 
-            display: flex; 
-            gap: 12px; 
-            flex-wrap: wrap; 
-            margin-bottom: 24px; 
-            background: var(--surface2); 
-            padding: 16px 20px; 
-            border-radius: var(--radius); 
-            border: 1px solid var(--border); 
+
+        /* ADMIN TOOLBAR */
+        .admin-toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            background: var(--surface2);
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
         }
-        .admin-btn { 
-            padding: 8px 18px; 
-            border-radius: 6px; 
-            font-size: 13px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            font-family: inherit; 
-            border: 1px solid var(--border); 
-            background: white; 
+        .admin-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            border: 1px solid var(--border);
+            background: white;
             transition: all var(--transition);
             display: inline-flex;
             align-items: center;
@@ -518,73 +528,223 @@
         .admin-btn-danger { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
         .admin-btn-danger:hover { background: #dc2626; color: white; }
         .admin-btn-success { background: #16a34a; color: white; border-color: #16a34a; }
-        
-        .admin-form { background: white; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 24px; overflow: hidden; }
-        .admin-form-header { background: var(--surface2); padding: 14px 20px; border-bottom: 1px solid var(--border); font-weight: 700; display: flex; justify-content: space-between; font-size: 14px; }
-        .admin-form-body { padding: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .admin-form-group { display: flex; flex-direction: column; gap: 6px; }
-        .admin-form-group label { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; }
-        .admin-form-group input, .admin-form-group select, .admin-form-group textarea { padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; transition: all var(--transition); background: white; }
-        .admin-form-group input:focus, .admin-form-group select:focus, .admin-form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,111,168,0.1); }
-        .admin-form-group select { cursor: pointer; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'); background-repeat: no-repeat; background-position: right 12px center; appearance: none; }
-        .admin-form-group textarea { resize: vertical; min-height: 80px; }
-        .admin-full-width { grid-column: 1 / -1; }
-        .form-actions { padding: 0 24px 24px 24px; display: flex; gap: 12px; }
-        
-        .admin-table { background: white; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; }
-        .admin-table table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        .admin-table th, .admin-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
-        .admin-table th { background: var(--surface2); font-weight: 700; color: var(--text-2); }
-        .admin-table th.sortable-header { cursor: pointer; user-select: none; transition: color var(--transition); }
-        .admin-table th.sortable-header:hover { color: var(--primary); }
-        .admin-table th i { margin-left: 6px; opacity: 0.5; font-size: 11px; }
-        .admin-action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-        .admin-action-btns button { padding: 5px 12px; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: all var(--transition); }
-        .admin-action-btns button:hover { transform: translateY(-1px); }
-        
-        .admin-login-box { background: white; border-radius: var(--radius); padding: 40px; text-align: center; max-width: 400px; margin: 60px auto; box-shadow: var(--shadow); }
-        .admin-login-box .icon { font-size: 48px; color: var(--primary); margin-bottom: 16px; }
-        .admin-login-box h3 { font-size: 20px; margin-bottom: 8px; color: var(--text-1); }
-        .admin-login-box .text-muted { font-size: 12px; color: var(--text-3); }
-        .admin-login-box input { width: 100%; padding: 12px 16px; margin: 20px 0; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; transition: all var(--transition); }
-        .admin-login-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,111,168,0.1); }
-        .admin-login-box button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all var(--transition); }
-        .admin-login-box button:hover { background: var(--primary-light); }
-        
-        input[type="date"] { color-scheme: light; }
-        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: opacity 0.15s; }
-        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
-        
-        @media (max-width: 1024px) { .nav-links, .search-wrapper { display: none; } .hamburger-btn { display: flex; align-items: center; } }
-        @media (max-width: 768px) { 
-            .page-header-inner { padding: 14px 16px; } 
-            .page-title h2 { font-size: 15px; } 
-            tbody td { padding: 12px 10px; } 
-            th { padding: 10px; } 
-            .portal-header { padding: 0 12px; } 
-            .page-header { padding: 20px 12px 0; } 
-            .main-content { padding: 12px 12px 0; } 
+
+        /* ADMIN FORM */
+        .admin-form {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .admin-form-header {
+            background: var(--surface2);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        .admin-form-body {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .admin-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .admin-form-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .admin-form-group input,
+        .admin-form-group select,
+        .admin-form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background: white;
+        }
+        .admin-form-group input:focus,
+        .admin-form-group select:focus,
+        .admin-form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26,111,168,0.1);
+        }
+        .admin-form-group select {
+            cursor: pointer;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23475569" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            appearance: none;
+        }
+        .admin-form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .admin-full-width {
+            grid-column: 1 / -1;
+        }
+        .form-actions {
+            padding: 0 20px 20px 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ADMIN TABLE */
+        .admin-table {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        .admin-table table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        .admin-table th,
+        .admin-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .admin-table th {
+            background: var(--surface2);
+            font-weight: 700;
+            color: var(--text-2);
+        }
+        .admin-table th.sortable-header {
+            cursor: pointer;
+            user-select: none;
+            transition: color var(--transition);
+        }
+        .admin-table th.sortable-header:hover {
+            color: var(--primary);
+        }
+        .admin-table th i {
+            margin-left: 6px;
+            opacity: 0.5;
+            font-size: 11px;
+        }
+        .admin-action-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .admin-action-btns button {
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition);
+        }
+        .admin-action-btns button:hover {
+            transform: translateY(-1px);
+        }
+
+        /* LOGIN BOX */
+        .admin-login-box {
+            background: white;
+            border-radius: var(--radius);
+            padding: 40px;
+            text-align: center;
+            max-width: 380px;
+            margin: 60px auto;
+            box-shadow: var(--shadow);
+        }
+        .admin-login-box .icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+        .admin-login-box h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--text-1);
+        }
+        .admin-login-box .text-muted {
+            font-size: 12px;
+            color: var(--text-3);
+        }
+        .admin-login-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .admin-login-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26,111,168,0.1);
+        }
+        .admin-login-box button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .admin-login-box button:hover {
+            background: var(--primary-light);
+        }
+
+        input[type="date"] {
+            color-scheme: light;
+        }
+
+        @media (max-width: 1024px) {
+            .nav-links, .search-wrapper { display: none; }
+            .hamburger-btn { display: flex; align-items: center; }
+        }
+        @media (max-width: 768px) {
+            .page-header-inner { padding: 14px 16px; }
+            .page-title h2 { font-size: 15px; }
+            tbody td { padding: 12px 10px; }
+            th { padding: 10px; }
+            .portal-header { padding: 0 12px; }
+            .page-header { padding: 20px 12px 0; }
+            .main-content { padding: 12px 12px 0; }
             .portal-footer-simple { padding: 16px 12px; }
-            .admin-modal-body { padding: 20px; }
-            .admin-form-body { padding: 20px; gap: 16px; grid-template-columns: 1fr; }
-            .admin-toolbar { padding: 12px 16px; }
-            .admin-modal-content { max-width: 95%; }
+            .admin-modal-body { padding: 16px; }
+            .admin-form-body { padding: 16px; gap: 12px; grid-template-columns: 1fr; }
+            .admin-toolbar { padding: 10px 12px; }
+            .admin-modal-content { margin: 20px; }
             .detail-info-grid { grid-template-columns: 1fr; }
             .detail-modal-content { max-width: 95%; }
             .wa-float { bottom: 16px; right: 16px; }
             .wa-float a { width: 50px; height: 50px; font-size: 26px; }
         }
-        @media (max-width: 520px) { 
-            .col-maskapai, .col-durasi { display: none; } 
-            .logo-area h3 { font-size: 13px; } 
+        @media (max-width: 520px) {
+            .col-maskapai, .col-durasi { display: none; }
+            .logo-area h3 { font-size: 13px; }
         }
-        @media (min-width: 1600px) { 
-            .page-header, .main-content { padding-left: 24px; padding-right: 24px; } 
-            .portal-header { padding-left: 24px; padding-right: 24px; } 
+        @media (min-width: 1600px) {
+            .page-header, .main-content { padding-left: 24px; padding-right: 24px; }
+            .portal-header { padding-left: 24px; padding-right: 24px; }
         }
-        @media (prefers-reduced-motion: reduce) { 
-            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } 
-            .ticker-text { animation: none; padding-left: 0; white-space: normal; } 
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            .ticker-text { animation: none; padding-left: 0; white-space: normal; }
         }
     </style>
 </head>
@@ -673,7 +833,7 @@
 
 <!-- WHATSAPP FLOAT BUTTON -->
 <div class="wa-float">
-    <a href="https://wa.me/6282234650150?text=Assalamualaikum%20Admin%20Amiru%20Tour%2C%20saya%20mau%20bertanya%20tentang%20program%20umroh" target="_blank" rel="noopener noreferrer">
+    <a href="https://wa.me/6282234650150?text=Assalamualaikum%20Mas%20Mmu%20Tanya" target="_blank" rel="noopener noreferrer">
         <i class="fab fa-whatsapp"></i>
         <span class="tooltip">Hubungi Admin</span>
     </a>
@@ -686,9 +846,7 @@
             <h3><i class="fas fa-info-circle"></i> Detail Program Umroh</h3>
             <button onclick="closeDetailModal()">&times;</button>
         </div>
-        <div class="detail-modal-body" id="detailModalBody">
-            <!-- Konten akan diisi via JS -->
-        </div>
+        <div class="detail-modal-body" id="detailModalBody"></div>
     </div>
 </div>
 
@@ -711,18 +869,7 @@
     const SUPABASE_ANON_KEY = "sb_publishable_YzVUaQ-f53v3JId4art8zg_AQWSSMU_";
     // ============================================================
 
-    // Daftar maskapai yang tersedia (dropdown)
-    const MASKAPAI_LIST = [
-        "Oman Air",
-        "Saudia Airlines",
-        "Lion Air",
-        "Garuda Indonesia",
-        "Emirates",
-        "Qatar Airways",
-        "Etihad Airways",
-        "Malindo Air",
-        "Air Asia"
-    ];
+    const MASKAPAI_LIST = ["Oman Air", "Saudia Airlines", "Lion Air", "Garuda Indonesia", "Emirates", "Qatar Airways", "Etihad Airways", "Malindo Air", "Air Asia"];
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
@@ -734,16 +881,11 @@
     let adminSortColumn = null;
     let adminSortAsc = true;
     let adminPrograms = [];
-    
-    // ========== FUNGSI PARSE TANGGAL ==========
+
+    // Helper functions
     function parseDateFromString(dateStr) {
         if (!dateStr) return new Date();
-        
-        const months = {
-            'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5,
-            'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
-        };
-        
+        const months = { 'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5, 'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11 };
         for (const [month, idx] of Object.entries(months)) {
             if (dateStr.includes(month)) {
                 const parts = dateStr.split(' ');
@@ -755,16 +897,13 @@
         }
         return new Date(dateStr);
     }
-    
+
     function formatDateToIndonesian(date) {
         if (!date || isNaN(date.getTime())) return '';
-        const months = [
-            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-        ];
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
     }
-    
+
     function generateAutoWAText(data) {
         let teks = `🕋 *${data.nama || 'Program Umroh'}* 🕋\n\n`;
         if (data.tgl) teks += `📅 ${data.tgl}\n`;
@@ -776,94 +915,78 @@
         teks += `\n*Segera daftar, kuota terbatas!*`;
         return teks;
     }
-    
-    // ========== DATABASE OPERATIONS ==========
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; });
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerHTML = `<i class="fa-solid fa-check"></i> ${msg}`;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // Database operations
     async function loadDataFromSupabase() {
         const loadingEl = document.getElementById('loadingState');
         const tableEl = document.getElementById('packageTable');
-        
         loadingEl.style.display = 'block';
         tableEl.style.display = 'none';
-        
         try {
-            const { data, error } = await supabaseClient
-                .from('programs')
-                .select('*')
-                .order('created_at', { ascending: true });
-            
+            const { data, error } = await supabaseClient.from('programs').select('*').order('created_at', { ascending: true });
             if (error) throw error;
-            
             dataUmroh = data || [];
-            
             dataUmroh.forEach(p => {
-                if (p.tgl && !p.dateObj) {
-                    p.dateObj = parseDateFromString(p.tgl);
-                }
+                if (p.tgl && !p.dateObj) p.dateObj = parseDateFromString(p.tgl);
                 p.isAvailable = p.dateObj >= new Date();
             });
-            
             currentData = [...dataUmroh];
             renderTable(currentData);
             renderStats();
             initTicker();
-            
             loadingEl.style.display = 'none';
             tableEl.style.display = 'table';
         } catch (err) {
-            console.error('Error loading data:', err);
             loadingEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Gagal memuat data: ${err.message}</p><button class="btn-reset" onclick="location.reload()">Coba Lagi</button></div>`;
         }
     }
-    
+
     async function insertProgram(programData) {
-        const { data, error } = await supabaseClient
-            .from('programs')
-            .insert([programData])
-            .select();
+        const { data, error } = await supabaseClient.from('programs').insert([programData]).select();
         if (error) throw error;
         return data[0];
     }
-    
+
     async function updateProgramById(id, programData) {
-        const { data, error } = await supabaseClient
-            .from('programs')
-            .update(programData)
-            .eq('id', id)
-            .select();
+        const { data, error } = await supabaseClient.from('programs').update(programData).eq('id', id).select();
         if (error) throw error;
         return data[0];
     }
-    
+
     async function deleteProgramById(id) {
-        const { error } = await supabaseClient
-            .from('programs')
-            .delete()
-            .eq('id', id);
+        const { error } = await supabaseClient.from('programs').delete().eq('id', id);
         if (error) throw error;
     }
-    
-    // ========== RENDER TABEL UTAMA (TANPA TOMBOL WA) ==========
+
+    // Render utama
     function renderTable(data) {
         const tbody = document.getElementById('tableBody');
         if (!tbody) return;
         const now = new Date();
-        
         if (!data || data.length === 0) {
             tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah program atau import JSON.</p></div></td></tr>`;
             return;
         }
-        
         tbody.innerHTML = '';
         data.forEach((item) => {
             const isAvailable = item.dateObj >= now;
-            const statusLabel = isAvailable ? "Tersedia" : "Expired";
             const statusClass = isAvailable ? "status-available" : "status-expired";
             const diffMs = item.dateObj - now;
             let cdText = "", cdClass = "expired";
-            
             if (diffMs < 0) {
                 cdText = "Sudah berangkat";
-                cdClass = "expired";
             } else {
                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                 const years = Math.floor(diffDays / 365);
@@ -877,7 +1000,6 @@
                 cdText = parts.join(" ") + (diffDays > 0 ? " lagi" : "");
                 cdClass = diffDays <= 30 ? "soon" : diffDays <= 90 ? "medium" : "far";
             }
-            
             const maskapaiLower = (item.maskapai || '').toLowerCase();
             let maskapaiDot = 'oman';
             if (maskapaiLower.includes('saudia')) maskapaiDot = 'saudia';
@@ -885,69 +1007,90 @@
             
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>
-                    <span class="package-name" onclick="openDetailModal('${item.id}')">${escapeHtml(item.nama || '')}</span>
-                    <span class="countdown ${cdClass}">🕐 ${escapeHtml(cdText)}</span>
-                </td>
+                <td><span class="package-name" onclick="openDetailModal('${item.id}')">${escapeHtml(item.nama || '')}</span><span class="countdown ${cdClass}">🕐 ${escapeHtml(cdText)}</span></td>
                 <td class="col-harga">${item.harga_quint ? `<span class="price-main">${escapeHtml(item.harga_quint)}</span><span class="price-sub">per orang (Quint)</span>` : '<span style="color:var(--text-3);">—</span>'}</td>
                 <td class="date-cell">📅 ${escapeHtml(item.tgl || '')}</td>
                 <td class="col-durasi"><span class="badge">⏱ ${escapeHtml(item.durasi || '')}</span></td>
                 <td class="col-maskapai"><div class="maskapai-cell"><span class="maskapai-dot ${maskapaiDot}"></span>${escapeHtml(item.maskapai || '')}</div></td>
                 <td><div class="actions-cell">
-                    ${item.link_form ? `<a href="${escapeHtml(item.link_form)}" target="_blank" rel="noopener noreferrer" class="btn-icon" data-tip="Form Daftar">📋</a>` : '<span class="btn-icon disabled" data-tip="Form Daftar">📋</span>'}
-                    ${item.link_itinerary ? `<a href="${escapeHtml(item.link_itinerary)}" target="_blank" rel="noopener noreferrer" class="btn-icon" data-tip="Itinerary">📄</a>` : '<span class="btn-icon disabled" data-tip="Itinerary">📄</span>'}
-                    ${item.link_poster ? `<a href="${escapeHtml(item.link_poster)}" target="_blank" rel="noopener noreferrer" class="btn-icon" data-tip="Poster">🖼️</a>` : '<span class="btn-icon disabled" data-tip="Poster">🖼️</span>'}
-                    ${item.link_metaads ? `<a href="${escapeHtml(item.link_metaads)}" target="_blank" rel="noopener noreferrer" class="btn-icon" data-tip="Meta Ads">🔗</a>` : '<span class="btn-icon disabled" data-tip="Meta Ads">🔗</span>'}
-                    ${item.link_dokumentasi ? `<a href="${escapeHtml(item.link_dokumentasi)}" target="_blank" rel="noopener noreferrer" class="btn-icon" data-tip="Dokumentasi">📂</a>` : '<span class="btn-icon disabled" data-tip="Dokumentasi">📂</span>'}
+                    ${item.link_form ? `<a href="${escapeHtml(item.link_form)}" target="_blank" class="btn-icon" data-tip="Form Daftar">📋</a>` : '<span class="btn-icon disabled" data-tip="Form Daftar">📋</span>'}
+                    ${item.link_itinerary ? `<a href="${escapeHtml(item.link_itinerary)}" target="_blank" class="btn-icon" data-tip="Itinerary">📄</a>` : '<span class="btn-icon disabled" data-tip="Itinerary">📄</span>'}
+                    ${item.link_poster ? `<a href="${escapeHtml(item.link_poster)}" target="_blank" class="btn-icon" data-tip="Poster">🖼️</a>` : '<span class="btn-icon disabled" data-tip="Poster">🖼️</span>'}
+                    ${item.link_metaads ? `<a href="${escapeHtml(item.link_metaads)}" target="_blank" class="btn-icon" data-tip="Meta Ads">🔗</a>` : '<span class="btn-icon disabled" data-tip="Meta Ads">🔗</span>'}
+                    ${item.link_dokumentasi ? `<a href="${escapeHtml(item.link_dokumentasi)}" target="_blank" class="btn-icon" data-tip="Dokumentasi">📂</a>` : '<span class="btn-icon disabled" data-tip="Dokumentasi">📂</span>'}
                 </div></td>
-                <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
+                <td><span class="status-pill ${statusClass}">${isAvailable ? "Tersedia" : "Expired"}</span></td>
             `;
             tbody.appendChild(row);
         });
     }
-    
-    // ========== MODAL DETAIL ==========
+
+    function renderStats() {
+        const now = new Date();
+        const total = dataUmroh.length;
+        const active = dataUmroh.filter(i => i.dateObj >= now).length;
+        const past = total - active;
+        const statsRow = document.getElementById('statsRow');
+        if (statsRow) statsRow.innerHTML = `<span class="stat-chip total"><i class="fa-solid fa-layer-group"></i> ${total} Paket</span><span class="stat-chip active"><i class="fa-solid fa-circle-check"></i> ${active} Tersedia</span><span class="stat-chip inactive"><i class="fa-solid fa-clock-rotate-left"></i> ${past} Expired</span>`;
+    }
+
+    function initTicker() {
+        const now = new Date();
+        const active = dataUmroh.filter(i => i.dateObj >= now).map(i => `✨ ${i.nama} — ${i.tgl} (${i.maskapai})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; ');
+        const ticker = document.getElementById('navTicker');
+        if (ticker) ticker.innerHTML = active || "PT Amiru Haramain Indonesia.";
+    }
+
+    // Sorting
+    function sortTable(column) {
+        currentSort.asc = currentSort.column === column ? !currentSort.asc : true;
+        currentSort.column = column;
+        currentData.sort((a, b) => {
+            if (column === 'tgl') return currentSort.asc ? a.dateObj - b.dateObj : b.dateObj - a.dateObj;
+            if (column === 'isAvailable') return currentSort.asc ? (a.isAvailable ? 1 : 0) - (b.isAvailable ? 1 : 0) : (b.isAvailable ? 1 : 0) - (a.isAvailable ? 1 : 0);
+            const vA = String(a[column] || '').toLowerCase();
+            const vB = String(b[column] || '').toLowerCase();
+            return currentSort.asc ? vA.localeCompare(vB) : vB.localeCompare(vA);
+        });
+        document.querySelectorAll('.sort-icon').forEach(el => el.textContent = "↕");
+        const iconSpan = document.getElementById(`icon-${column}`);
+        if (iconSpan) iconSpan.innerHTML = currentSort.asc ? "▲" : "▼";
+        renderTable(currentData);
+    }
+
+    function filterData(term) {
+        const t = term.toLowerCase().trim();
+        const now = new Date();
+        if (!t) currentData = [...dataUmroh];
+        else currentData = dataUmroh.filter(item => (item.nama || '').toLowerCase().includes(t) || (item.maskapai || '').toLowerCase().includes(t) || (item.tgl || '').toLowerCase().includes(t) || ((item.dateObj >= now ? "tersedia" : "expired").includes(t)));
+        if (currentSort.column) sortTable(currentSort.column);
+        else renderTable(currentData);
+    }
+
+    function resetSearch() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchInputMobile').value = '';
+        currentData = [...dataUmroh];
+        renderTable(currentData);
+    }
+
+    // Modal Detail
     function openDetailModal(programId) {
         const program = dataUmroh.find(p => p.id === programId);
         if (!program) return;
-        
         const modal = document.getElementById('detailModal');
         const body = document.getElementById('detailModalBody');
-        
         const waText = program.teks_wa || generateAutoWAText(program);
-        
         body.innerHTML = `
             <div class="detail-info-grid">
-                <div class="detail-info-item">
-                    <span class="detail-info-label"><i class="fas fa-tag"></i> Nama Program</span>
-                    <span class="detail-info-value">${escapeHtml(program.nama || '-')}</span>
-                </div>
-                <div class="detail-info-item">
-                    <span class="detail-info-label"><i class="fas fa-calendar-alt"></i> Tanggal Keberangkatan</span>
-                    <span class="detail-info-value">${escapeHtml(program.tgl || '-')}</span>
-                </div>
-                <div class="detail-info-item">
-                    <span class="detail-info-label"><i class="fas fa-hourglass-half"></i> Durasi</span>
-                    <span class="detail-info-value">${escapeHtml(program.durasi || '-')}</span>
-                </div>
-                <div class="detail-info-item">
-                    <span class="detail-info-label"><i class="fas fa-plane"></i> Maskapai</span>
-                    <span class="detail-info-value">${escapeHtml(program.maskapai || '-')}</span>
-                </div>
-                <div class="detail-info-item">
-                    <span class="detail-info-label"><i class="fas fa-money-bill-wave"></i> Harga (Quad/Quint)</span>
-                    <span class="detail-info-value">${escapeHtml(program.harga_quint || '-')}</span>
-                </div>
-                <div class="detail-info-item">
-                    <span class="detail-info-label"><i class="fas fa-check-circle"></i> Status</span>
-                    <span class="detail-info-value" style="color: ${program.isAvailable ? '#16a34a' : '#dc2626'}">${program.isAvailable ? 'Tersedia' : 'Expired'}</span>
-                </div>
+                <div class="detail-info-item"><span class="detail-info-label">Nama Program</span><span class="detail-info-value">${escapeHtml(program.nama || '-')}</span></div>
+                <div class="detail-info-item"><span class="detail-info-label">Tanggal Keberangkatan</span><span class="detail-info-value">${escapeHtml(program.tgl || '-')}</span></div>
+                <div class="detail-info-item"><span class="detail-info-label">Durasi</span><span class="detail-info-value">${escapeHtml(program.durasi || '-')}</span></div>
+                <div class="detail-info-item"><span class="detail-info-label">Maskapai</span><span class="detail-info-value">${escapeHtml(program.maskapai || '-')}</span></div>
+                <div class="detail-info-item"><span class="detail-info-label">Harga</span><span class="detail-info-value">${escapeHtml(program.harga_quint || '-')}</span></div>
+                <div class="detail-info-item"><span class="detail-info-label">Status</span><span class="detail-info-value" style="color: ${program.isAvailable ? '#16a34a' : '#dc2626'}">${program.isAvailable ? 'Tersedia' : 'Expired'}</span></div>
             </div>
-            <div class="detail-wa-section">
-                <div class="label"><i class="fab fa-whatsapp"></i> Teks Marketing WhatsApp</div>
-                <div class="detail-wa-text" id="detailWAText">${escapeHtml(waText).replace(/\n/g, '<br>')}</div>
-                <button class="btn btn-wa-copy" onclick="copyDetailWAText()"><i class="fas fa-copy"></i> Salin Teks WhatsApp</button>
-            </div>
+            <div class="detail-wa-section"><div class="label"><i class="fab fa-whatsapp"></i> Teks Marketing WhatsApp</div><div class="detail-wa-text" id="detailWAText">${escapeHtml(waText).replace(/\n/g, '<br>')}</div><button class="btn btn-wa-copy" onclick="copyDetailWAText()"><i class="fas fa-copy"></i> Salin Teks WhatsApp</button></div>
             <div class="detail-actions">
                 ${program.link_form ? `<a href="${escapeHtml(program.link_form)}" target="_blank" class="btn btn-register"><i class="fas fa-edit"></i> Form Pendaftaran</a>` : ''}
                 ${program.link_itinerary ? `<a href="${escapeHtml(program.link_itinerary)}" target="_blank" class="btn btn-link"><i class="fas fa-map"></i> Itinerary</a>` : ''}
@@ -956,160 +1099,43 @@
                 ${program.link_dokumentasi ? `<a href="${escapeHtml(program.link_dokumentasi)}" target="_blank" class="btn btn-link"><i class="fas fa-folder"></i> Dokumentasi</a>` : ''}
             </div>
         `;
-        
         window.currentDetailWAText = waText;
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
-    
+
     function closeDetailModal() {
-        const modal = document.getElementById('detailModal');
-        modal.classList.remove('show');
+        document.getElementById('detailModal').classList.remove('show');
         document.body.style.overflow = '';
     }
-    
+
     function copyDetailWAText() {
         const text = window.currentDetailWAText;
         if (!text) return;
-        navigator.clipboard.writeText(text).then(() => {
-            showToast('Teks berhasil disalin!');
-        }).catch(() => {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.cssText = 'position:fixed;opacity:0';
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-            showToast('Teks berhasil disalin!');
-        });
+        navigator.clipboard.writeText(text).then(() => showToast('Teks berhasil disalin!')).catch(() => { const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Teks berhasil disalin!'); });
     }
-    
-    // ========== RENDER STATS & TICKER ==========
-    function renderStats() {
-        const now = new Date();
-        const total = dataUmroh.length;
-        const active = dataUmroh.filter(i => i.dateObj >= now).length;
-        const past = total - active;
-        const statsRow = document.getElementById('statsRow');
-        if (statsRow) {
-            statsRow.innerHTML = `<span class="stat-chip total"><i class="fa-solid fa-layer-group"></i> ${total} Paket</span>
-                <span class="stat-chip active"><i class="fa-solid fa-circle-check"></i> ${active} Tersedia</span>
-                <span class="stat-chip inactive"><i class="fa-solid fa-clock-rotate-left"></i> ${past} Expired</span>`;
-        }
-    }
-    
-    function initTicker() {
-        const now = new Date();
-        const active = dataUmroh.filter(i => i.dateObj >= now).map(i => `✨ ${i.nama} — ${i.tgl} (${i.maskapai})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; ');
-        const ticker = document.getElementById('navTicker');
-        if (ticker) ticker.innerHTML = active || "PT Amiru Haramain Indonesia.";
-    }
-    
-    function showToast(msg) {
-        const toast = document.getElementById('toast');
-        toast.innerHTML = `<i class="fa-solid fa-check"></i> ${msg}`;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2500);
-    }
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, (m) => {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-    
-    // ========== SORTING UTAMA ==========
-    function sortTable(column) {
-        currentSort.asc = currentSort.column === column ? !currentSort.asc : true;
-        currentSort.column = column;
-        
-        currentData.sort((a, b) => {
-            let vA, vB;
-            
-            if (column === 'tgl') {
-                vA = a.dateObj ? a.dateObj.getTime() : 0;
-                vB = b.dateObj ? b.dateObj.getTime() : 0;
-                return currentSort.asc ? vA - vB : vB - vA;
-            }
-            
-            if (column === 'isAvailable') {
-                vA = a.dateObj >= new Date() ? 1 : 0;
-                vB = b.dateObj >= new Date() ? 1 : 0;
-                return currentSort.asc ? vA - vB : vB - vA;
-            }
-            
-            vA = String(a[column] || '').toLowerCase();
-            vB = String(b[column] || '').toLowerCase();
-            return currentSort.asc ? vA.localeCompare(vB) : vB.localeCompare(vA);
-        });
-        
-        document.querySelectorAll('.sort-icon').forEach(el => el.textContent = "↕");
-        const iconSpan = document.getElementById(`icon-${column}`);
-        if (iconSpan) iconSpan.innerHTML = currentSort.asc ? "▲" : "▼";
-        
-        renderTable(currentData);
-    }
-    
-    // ========== FILTER & SEARCH ==========
-    function filterData(term) {
-        const t = term.toLowerCase().trim();
-        const now = new Date();
-        if (!t) {
-            currentData = [...dataUmroh];
-        } else {
-            currentData = dataUmroh.filter(item =>
-                (item.nama || '').toLowerCase().includes(t) ||
-                (item.maskapai || '').toLowerCase().includes(t) ||
-                (item.tgl || '').toLowerCase().includes(t) ||
-                ((item.dateObj >= now ? "tersedia" : "expired").includes(t))
-            );
-        }
-        if (currentSort.column) {
-            sortTable(currentSort.column);
-        } else {
-            renderTable(currentData);
-        }
-    }
-    
-    function resetSearch() {
-        const searchInput = document.getElementById('searchInput');
-        const searchMobile = document.getElementById('searchInputMobile');
-        if (searchInput) searchInput.value = '';
-        if (searchMobile) searchMobile.value = '';
-        currentData = [...dataUmroh];
-        renderTable(currentData);
-    }
-    
-    // ========== ADMIN PANEL ==========
+
+    // Admin Panel Functions
     function openAdminModal() {
         document.getElementById('adminModal').classList.add('show');
         renderAdminPanel();
     }
-    
+
     function closeAdminModal() {
         document.getElementById('adminModal').classList.remove('show');
     }
-    
+
     function renderMaskapaiOptions(selectedValue = '') {
         let options = '<option value="">-- Pilih Maskapai --</option>';
-        MASKAPAI_LIST.forEach(maskapai => {
-            const selected = selectedValue === maskapai ? 'selected' : '';
-            options += `<option value="${maskapai}" ${selected}>${maskapai}</option>`;
-        });
+        MASKAPAI_LIST.forEach(m => { options += `<option value="${m}" ${selectedValue === m ? 'selected' : ''}>${m}</option>`; });
         return options;
     }
-    
+
     async function renderAdminPanel() {
         const container = document.getElementById('adminModalBody');
         if (adminLoggedIn) {
             const { data } = await supabaseClient.from('programs').select('*').order('created_at');
             adminPrograms = data || [];
-            
             container.innerHTML = `
                 <div class="admin-toolbar">
                     <button class="admin-btn admin-btn-primary" onclick="showAdminForm()"><i class="fas fa-plus"></i> Program Baru</button>
@@ -1119,13 +1145,10 @@
                     <button class="admin-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
                 <div id="adminFormContainer" style="display: none;" class="admin-form">
-                    <div class="admin-form-header">
-                        <span><i class="fas fa-edit"></i> <span id="adminFormTitle">Tambah Program Baru</span></span>
-                        <button class="admin-btn" style="background: none; border: none; font-size: 18px; cursor: pointer;" onclick="hideAdminForm()">&times;</button>
-                    </div>
+                    <div class="admin-form-header"><span><i class="fas fa-edit"></i> <span id="adminFormTitle">Tambah Program Baru</span></span><button class="admin-btn" onclick="hideAdminForm()">&times;</button></div>
                     <div class="admin-form-body">
                         <div class="admin-form-group admin-full-width"><label>Nama Program *</label><input type="text" id="admin_nama" placeholder="Contoh: Umroh Akbar Bareng UAS"></div>
-                        <div class="admin-form-group"><label>Tanggal Berangkat</label><input type="date" id="admin_tgl_date"><input type="hidden" id="admin_tgl"><small class="text-muted">Pilih tanggal dari kalender</small></div>
+                        <div class="admin-form-group"><label>Tanggal Berangkat</label><input type="date" id="admin_tgl_date"><input type="hidden" id="admin_tgl"><small style="color:#64748b">Pilih tanggal dari kalender</small></div>
                         <div class="admin-form-group"><label>Durasi</label><input type="text" id="admin_durasi" placeholder="9 Hari"></div>
                         <div class="admin-form-group"><label>Maskapai</label><select id="admin_maskapai">${renderMaskapaiOptions()}</select></div>
                         <div class="admin-form-group"><label>Harga (Quad/Quint)</label><input type="text" id="admin_harga_quint" placeholder="Rp 32.500.000"></div>
@@ -1136,64 +1159,31 @@
                         <div class="admin-form-group"><label>Link Dokumentasi</label><input type="text" id="admin_link_dokumentasi" placeholder="https://..."></div>
                         <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis"></textarea></div>
                     </div>
-                    <div class="form-actions">
-                        <button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button>
-                        <button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button>
-                        <button class="admin-btn" onclick="hideAdminForm()">Batal</button>
-                    </div>
+                    <div class="form-actions"><button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button><button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button><button class="admin-btn" onclick="hideAdminForm()">Batal</button></div>
                 </div>
                 <div class="admin-table">
-                    </table>
-                        <thead><tr><th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal Berangkat <i class="fas fa-sort"></i></th><th>Aksi</th></tr></thead>
-                        <tbody id="adminTableBody"></tbody>
-                    </table>
+                    <table><thead><tr><th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal Berangkat <i class="fas fa-sort"></i></th><th>Aksi</th></tr></thead><tbody id="adminTableBody"></tbody></table>
                 </div>
             `;
-            
             const dateInput = document.getElementById('admin_tgl_date');
-            if (dateInput) {
-                dateInput.addEventListener('change', function() {
-                    if (this.value) {
-                        const date = new Date(this.value);
-                        document.getElementById('admin_tgl').value = formatDateToIndonesian(date);
-                    } else {
-                        document.getElementById('admin_tgl').value = '';
-                    }
-                });
-            }
-            
+            if (dateInput) dateInput.addEventListener('change', function() { if (this.value) document.getElementById('admin_tgl').value = formatDateToIndonesian(new Date(this.value)); else document.getElementById('admin_tgl').value = ''; });
             renderAdminTable();
         } else {
-            container.innerHTML = `
-                <div class="admin-login-box">
-                    <div class="icon"><i class="fas fa-shield-alt"></i></div>
-                    <h3>Admin Panel</h3>
-                    <p class="text-muted">Masukkan password untuk mengelola program umroh</p>
-                    <input type="password" id="adminPasswordInput" placeholder="Password" autofocus>
-                    <button onclick="checkAdminLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button>
-                    <div id="adminLoginError" class="text-muted" style="color: red; margin-top: 16px;"></div>
-                </div>
-            `;
-            setTimeout(() => {
-                const pwdInput = document.getElementById('adminPasswordInput');
-                if (pwdInput) pwdInput.focus();
-            }, 100);
+            container.innerHTML = `<div class="admin-login-box"><div class="icon"><i class="fas fa-shield-alt"></i></div><h3>Admin Panel</h3><p class="text-muted">Masukkan password untuk mengelola program umroh</p><input type="password" id="adminPasswordInput" placeholder="Password" autofocus><button onclick="checkAdminLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button><div id="adminLoginError" style="color:red; font-size:12px; margin-top:16px;"></div></div>`;
+            setTimeout(() => { const pwd = document.getElementById('adminPasswordInput'); if (pwd) pwd.focus(); }, 100);
         }
     }
-    
+
     function renderAdminTable() {
         const tbody = document.getElementById('adminTableBody');
         if (!tbody) return;
-        if (adminPrograms.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">Belum ada program. Klik "Program Baru" untuk menambah.</td></tr>';
-            return;
-        }
+        if (adminPrograms.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px;">Belum ada program. Klik "Program Baru" untuk menambah.</td></tr>'; return; }
         tbody.innerHTML = '';
-        adminPrograms.forEach((prog, idx) => {
-            tbody.innerHTML += `<tr><td><strong>${escapeHtml(prog.nama || '-')}</strong><td>${escapeHtml(prog.harga_quint || '-')}</td><td>${escapeHtml(prog.tgl || '-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${prog.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${prog.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;
+        adminPrograms.forEach(prog => {
+            tbody.innerHTML += `<tr><td><strong>${escapeHtml(prog.nama || '-')}</strong></td><td>${escapeHtml(prog.harga_quint || '-')}</td><td>${escapeHtml(prog.tgl || '-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${prog.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${prog.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;
         });
     }
-    
+
     function getAdminFormData() {
         return {
             nama: document.getElementById('admin_nama')?.value || '',
@@ -1209,24 +1199,17 @@
             teks_wa: document.getElementById('admin_teks_wa')?.value || ''
         };
     }
-    
+
     function setAdminFormData(data) {
         if (document.getElementById('admin_nama')) document.getElementById('admin_nama').value = data.nama || '';
         if (document.getElementById('admin_tgl')) document.getElementById('admin_tgl').value = data.tgl || '';
         if (document.getElementById('admin_tgl_date')) {
             const date = parseDateFromString(data.tgl);
-            if (date && !isNaN(date.getTime())) {
-                document.getElementById('admin_tgl_date').value = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-            } else {
-                document.getElementById('admin_tgl_date').value = '';
-            }
+            if (date && !isNaN(date.getTime())) document.getElementById('admin_tgl_date').value = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+            else document.getElementById('admin_tgl_date').value = '';
         }
         if (document.getElementById('admin_durasi')) document.getElementById('admin_durasi').value = data.durasi || '';
-        if (document.getElementById('admin_maskapai')) {
-            const select = document.getElementById('admin_maskapai');
-            if (data.maskapai) select.value = data.maskapai;
-            else select.selectedIndex = 0;
-        }
+        if (document.getElementById('admin_maskapai')) { const sel = document.getElementById('admin_maskapai'); if (data.maskapai) sel.value = data.maskapai; else sel.selectedIndex = 0; }
         if (document.getElementById('admin_link_form')) document.getElementById('admin_link_form').value = data.link_form || '';
         if (document.getElementById('admin_link_itinerary')) document.getElementById('admin_link_itinerary').value = data.link_itinerary || '';
         if (document.getElementById('admin_link_poster')) document.getElementById('admin_link_poster').value = data.link_poster || '';
@@ -1235,10 +1218,10 @@
         if (document.getElementById('admin_harga_quint')) document.getElementById('admin_harga_quint').value = data.harga_quint || '';
         if (document.getElementById('admin_teks_wa')) document.getElementById('admin_teks_wa').value = data.teks_wa || '';
     }
-    
+
     function showAdminForm() { editingProgramId = null; document.getElementById('adminFormTitle').innerText = 'Tambah Program Baru'; setAdminFormData({}); document.getElementById('adminFormContainer').style.display = 'block'; }
     function hideAdminForm() { document.getElementById('adminFormContainer').style.display = 'none'; }
-    
+
     async function saveAdminProgram() {
         const nama = document.getElementById('admin_nama')?.value.trim();
         if (!nama) { alert('Nama program wajib diisi!'); return; }
@@ -1251,52 +1234,34 @@
             await renderAdminPanel();
             hideAdminForm();
             showToast('Program berhasil disimpan!');
-        } catch (err) { showToast('Gagal menyimpan: ' + err.message); }
+        } catch (err) { showToast('Gagal: ' + err.message); }
     }
-    
+
     async function editAdminProgram(id) {
         const { data } = await supabaseClient.from('programs').select('*').eq('id', id).single();
         if (data) { setAdminFormData(data); editingProgramId = id; document.getElementById('adminFormTitle').innerText = 'Edit Program'; document.getElementById('adminFormContainer').style.display = 'block'; }
     }
-    
+
     async function deleteAdminProgram(id) {
         if (confirm('Yakin hapus program ini?')) {
             try { await deleteProgramById(id); await loadDataFromSupabase(); await renderAdminPanel(); showToast('Program dihapus'); }
             catch (err) { showToast('Gagal hapus: ' + err.message); }
         }
     }
-    
+
     async function clearAllAdminData() {
         if (confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA program. Yakin melanjutkan?')) {
-            try {
-                const { data } = await supabaseClient.from('programs').select('id');
-                for (const prog of data) await deleteProgramById(prog.id);
-                await loadDataFromSupabase(); await renderAdminPanel(); showToast('Semua program dihapus');
-            } catch (err) { showToast('Gagal: ' + err.message); }
+            try { const { data } = await supabaseClient.from('programs').select('id'); for (const prog of data) await deleteProgramById(prog.id); await loadDataFromSupabase(); await renderAdminPanel(); showToast('Semua program dihapus'); }
+            catch (err) { showToast('Gagal: ' + err.message); }
         }
     }
-    
-    function previewAdminWA() {
-        const data = getAdminFormData();
-        const waText = data.teks_wa || generateAutoWAText(data);
-        alert('📱 Preview Teks WhatsApp:\n\n' + waText);
-    }
-    
-    function exportAdminData() {
-        const dataStr = JSON.stringify(adminPrograms, null, 2);
-        const blob = new Blob([dataStr], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `amiru_programs_${new Date().toISOString().slice(0,19)}.json`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-        showToast('✅ Data diexport');
-    }
-    
+
+    function previewAdminWA() { const data = getAdminFormData(); const waText = data.teks_wa || generateAutoWAText(data); alert('📱 Preview Teks WhatsApp:\n\n' + waText); }
+
+    function exportAdminData() { const dataStr = JSON.stringify(adminPrograms, null, 2); const blob = new Blob([dataStr], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `amiru_programs_${new Date().toISOString().slice(0,19)}.json`; a.click(); URL.revokeObjectURL(a.href); showToast('✅ Data diexport'); }
+
     function importAdminData() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
+        const input = document.createElement('input'); input.type = 'file'; input.accept = '.json';
         input.onchange = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -1304,64 +1269,38 @@
             reader.onload = async (event) => {
                 try {
                     const imported = JSON.parse(event.target.result);
-                    if (Array.isArray(imported)) {
-                        for (const prog of imported) await insertProgram(prog);
-                        await loadDataFromSupabase(); await renderAdminPanel(); showToast('✅ Import berhasil');
-                    } else showToast('❌ Format tidak valid');
+                    if (Array.isArray(imported)) { for (const prog of imported) await insertProgram(prog); await loadDataFromSupabase(); await renderAdminPanel(); showToast('✅ Import berhasil'); }
+                    else showToast('❌ Format tidak valid');
                 } catch (err) { showToast('❌ Gagal: ' + err.message); }
             };
             reader.readAsText(file);
         };
         input.click();
     }
-    
+
     function sortAdminTable(column) {
         adminSortAsc = adminSortColumn === column ? !adminSortAsc : true;
         adminSortColumn = column;
         const programs = [...adminPrograms];
         programs.sort((a, b) => {
-            if (column === 'tgl') {
-                const dateA = parseDateFromString(a.tgl);
-                const dateB = parseDateFromString(b.tgl);
-                return adminSortAsc ? dateA - dateB : dateB - dateA;
-            }
-            const vA = String(a[column] || '').toLowerCase();
-            const vB = String(b[column] || '').toLowerCase();
+            if (column === 'tgl') { const dateA = parseDateFromString(a.tgl); const dateB = parseDateFromString(b.tgl); return adminSortAsc ? dateA - dateB : dateB - dateA; }
+            const vA = String(a[column] || '').toLowerCase(); const vB = String(b[column] || '').toLowerCase();
             return adminSortAsc ? vA.localeCompare(vB) : vB.localeCompare(vA);
         });
         adminPrograms = programs;
         renderAdminTable();
     }
-    
+
     function logoutAdmin() { adminLoggedIn = false; renderAdminPanel(); }
-    function checkAdminLogin() {
-        const password = document.getElementById('adminPasswordInput')?.value;
-        if (password === 'amiru2026') { adminLoggedIn = true; renderAdminPanel(); }
-        else { const errDiv = document.getElementById('adminLoginError'); if (errDiv) errDiv.innerText = '❌ Password salah!'; }
-    }
-    
-    // ========== EVENT LISTENERS ==========
-    document.getElementById('searchInput')?.addEventListener('input', (e) => filterData(e.target.value));
-    document.getElementById('searchInputMobile')?.addEventListener('input', (e) => {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) searchInput.value = e.target.value;
-        filterData(e.target.value);
-    });
-    
-    document.querySelectorAll('th.sortable').forEach(th => {
-        const sortKey = th.getAttribute('data-sort');
-        if (sortKey) th.onclick = () => sortTable(sortKey);
-    });
-    
-    window.openDrawer = () => {
-        const overlay = document.getElementById('mobileOverlay');
-        if (overlay) { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
-    };
-    window.closeDrawer = () => {
-        const overlay = document.getElementById('mobileOverlay');
-        if (overlay) { overlay.classList.remove('open'); document.body.style.overflow = ''; }
-    };
-    
+    function checkAdminLogin() { const pwd = document.getElementById('adminPasswordInput')?.value; if (pwd === 'amiru2026') { adminLoggedIn = true; renderAdminPanel(); } else { const err = document.getElementById('adminLoginError'); if (err) err.innerText = '❌ Password salah!'; } }
+
+    // Event listeners
+    document.getElementById('searchInput')?.addEventListener('input', e => filterData(e.target.value));
+    document.getElementById('searchInputMobile')?.addEventListener('input', e => { document.getElementById('searchInput').value = e.target.value; filterData(e.target.value); });
+    document.querySelectorAll('th.sortable').forEach(th => { const key = th.getAttribute('data-sort'); if (key) th.onclick = () => sortTable(key); });
+
+    window.openDrawer = () => { document.getElementById('mobileOverlay').classList.add('open'); document.body.style.overflow = 'hidden'; };
+    window.closeDrawer = () => { document.getElementById('mobileOverlay').classList.remove('open'); document.body.style.overflow = ''; };
     window.resetSearch = resetSearch;
     window.openAdminModal = openAdminModal;
     window.closeAdminModal = closeAdminModal;
@@ -1380,8 +1319,7 @@
     window.openDetailModal = openDetailModal;
     window.closeDetailModal = closeDetailModal;
     window.copyDetailWAText = copyDetailWAText;
-    
-    // START
+
     loadDataFromSupabase();
 </script>
 </body>
