@@ -7,6 +7,11 @@
     <meta name="description" content="Portal program umroh PT Amiru Haramain Indonesia">
     <meta name="theme-color" content="#1a6fa8">
     
+    <!-- Security Headers via Meta Tags -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
     <!-- Preconnect untuk koneksi lebih cepat ke CDN -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -212,7 +217,7 @@
 
 <header class="portal-header">
     <a href="#" class="logo-area">
-        <div class="logo-icon">𝞚</div>
+        <div class="logo-icon">🕋</div>
         <div><h3>PT Amiru Haramain Indonesia</h3></div>
     </a>
     <div class="search-wrapper">
@@ -275,7 +280,7 @@
 <footer class="portal-footer-simple"><p class="footer-text">&copy; 2026 <b>PT Amiru Haramain Indonesia</b>. Data tersimpan di Cloud Database</p></footer>
 
 <div class="wa-float">
-    <a href="https://wa.me/6282234650150?text=Mas%mau%tanya" target="_blank" rel="noopener noreferrer">
+    <a href="https://wa.me/6282234650150?text=Assalamualaikum%20Admin%20Amiru%20Tour%2C%20saya%20mau%20bertanya%20tentang%20program%20umroh" target="_blank" rel="noopener noreferrer">
         <i class="fab fa-whatsapp"></i>
         <span class="tooltip">Hubungi Admin</span>
     </a>
@@ -293,14 +298,88 @@
     const CACHE_KEY = 'amiru_cached_data';
     const CACHE_TIME_KEY = 'amiru_cache_time';
     const CACHE_DURATION = 300000;
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB max file import
+    const SESSION_DURATION = 30 * 60 * 1000; // 30 menit
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     let dataUmroh = [], currentData = [], currentSort = { column: null, asc: true };
     let adminLoggedIn = false, editingProgramId = null, adminSortColumn = null, adminSortAsc = true, adminPrograms = [];
-    let debounceTimer = null;
-
-    // Helper Functions
+    let debounceTimer = null, sessionTimeout = null;
+    
+    // Security: Rate limiting untuk login
+    let loginAttempts = 0;
+    let loginLockTime = 0;
+    
+    // ========== SECURITY: VALIDASI URL ==========
+    function isValidUrl(string) {
+        if (!string) return true; // kosong dianggap valid
+        try {
+            const url = new URL(string);
+            return url.protocol === 'http:' || url.protocol === 'https:';
+        } catch (_) {
+            return false;
+        }
+    }
+    
+    // ========== SECURITY: SANITASI INPUT (Double Escape) ==========
+    function sanitizeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, (m) => {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[()]/g, (m) => {
+            if (m === '(') return '&#40;';
+            if (m === ')') return '&#41;';
+            return m;
+        }).replace(/javascript:/gi, 'blocked:');
+    }
+    
+    // ========== SECURITY: VALIDASI NAMA PROGRAM ==========
+    function isValidProgramName(name) {
+        if (!name) return false;
+        // Hanya huruf, angka, spasi, dan karakter umum yang aman
+        const validPattern = /^[a-zA-Z0-9\s\-\.\,\(\)\&\:\!\?]+$/;
+        return validPattern.test(name);
+    }
+    
+    // ========== SESSION MANAGEMENT ==========
+    function setAdminSession() {
+        adminLoggedIn = true;
+        sessionStorage.setItem('admin_logged_in', 'true');
+        sessionStorage.setItem('admin_login_time', Date.now().toString());
+        
+        if (sessionTimeout) clearTimeout(sessionTimeout);
+        sessionTimeout = setTimeout(() => {
+            if (adminLoggedIn) {
+                adminLoggedIn = false;
+                sessionStorage.removeItem('admin_logged_in');
+                sessionStorage.removeItem('admin_login_time');
+                const modal = document.getElementById('adminModal');
+                if (modal.classList.contains('show')) {
+                    closeAdminModal();
+                }
+                showToast('⏰ Sesi berakhir, silakan login ulang.');
+            }
+        }, SESSION_DURATION);
+    }
+    
+    function checkSession() {
+        const loggedIn = sessionStorage.getItem('admin_logged_in');
+        const loginTime = sessionStorage.getItem('admin_login_time');
+        if (loggedIn === 'true' && loginTime && (Date.now() - parseInt(loginTime) < SESSION_DURATION)) {
+            adminLoggedIn = true;
+            setAdminSession(); // refresh session
+        } else {
+            sessionStorage.removeItem('admin_logged_in');
+            sessionStorage.removeItem('admin_login_time');
+            adminLoggedIn = false;
+        }
+    }
+    
+    // ========== FUNGSI UTAMA ==========
     function parseDateFromString(dateStr) {
         if (!dateStr) return new Date();
         const months = {'Januari':0,'Februari':1,'Maret':2,'April':3,'Mei':4,'Juni':5,'Juli':6,'Agustus':7,'September':8,'Oktober':9,'November':10,'Desember':11};
@@ -321,18 +400,18 @@
     }
 
     function generateAutoWAText(data) {
-        let teks = `🕋 *${data.nama || 'Program Umroh'}* 🕋\n\n`;
-        if (data.tgl) teks += `📅 ${data.tgl}\n`;
-        if (data.durasi) teks += `⏳ Durasi: ${data.durasi}\n`;
-        if (data.maskapai) teks += `✈️ ${data.maskapai}\n`;
-        if (data.harga_quint) teks += `\n💰 *BIAYA PROGRAM:*\n• Quad/Quint: ${data.harga_quint}\n`;
+        let teks = `🕋 *${sanitizeHtml(data.nama || 'Program Umroh')}* 🕋\n\n`;
+        if (data.tgl) teks += `📅 ${sanitizeHtml(data.tgl)}\n`;
+        if (data.durasi) teks += `⏳ Durasi: ${sanitizeHtml(data.durasi)}\n`;
+        if (data.maskapai) teks += `✈️ ${sanitizeHtml(data.maskapai)}\n`;
+        if (data.harga_quint) teks += `\n💰 *BIAYA PROGRAM:*\n• Quad/Quint: ${sanitizeHtml(data.harga_quint)}\n`;
         teks += `\n✅ *FASILITAS LENGKAP:*\n• Tiket Pesawat PP + Visa Umroh\n• Bus AC Selama Program\n• Fullboard Makan Hotel\n• Perlengkapan Umroh Lengkap\n• Handling Bandara & Asuransi\n`;
         teks += `\n📞 *INFO & BOOKING:*\nwa.me/6285122336300\n*Segera daftar, kuota terbatas!*`;
         return teks;
     }
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-    function showToast(msg) { const t = document.getElementById('toast'); t.innerHTML = `<i class="fas fa-check"></i> ${msg}`; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+    function showToast(msg) { const t = document.getElementById('toast'); t.innerHTML = `<i class="fas fa-check"></i> ${sanitizeHtml(msg)}`; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
 
     // Database dengan CACHE
     async function loadDataFromSupabase(forceRefresh = false) {
@@ -360,7 +439,7 @@
             currentData = [...dataUmroh];
             renderTable(currentData); renderStats(); initTicker();
             loadingEl.style.display = 'none'; tableEl.style.display = 'table';
-        } catch (err) { loadingEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Gagal memuat data: ${err.message}</p><button class="btn-reset" onclick="location.reload()">Coba Lagi</button></div>`; }
+        } catch (err) { loadingEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Gagal memuat data: ${sanitizeHtml(err.message)}</p><button class="btn-reset" onclick="location.reload()">Coba Lagi</button></div>`; }
     }
 
     async function insertProgram(programData) { const { data, error } = await supabaseClient.from('programs').insert([programData]).select(); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); return data[0]; }
@@ -399,7 +478,7 @@
     }
 
     function renderStats() { const now = new Date(); const total = dataUmroh.length, active = dataUmroh.filter(i=>i.dateObj>=now).length, past = total-active; document.getElementById('statsRow') && (document.getElementById('statsRow').innerHTML = `<span class="stat-chip total"><i class="fa-solid fa-layer-group"></i> ${total} Paket</span><span class="stat-chip active"><i class="fa-solid fa-circle-check"></i> ${active} Tersedia</span><span class="stat-chip inactive"><i class="fa-solid fa-clock-rotate-left"></i> ${past} Expired</span>`); }
-    function initTicker() { const now = new Date(); const active = dataUmroh.filter(i=>i.dateObj>=now).map(i=>`✨ ${i.nama} — ${i.tgl} (${i.maskapai})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); const ticker = document.getElementById('navTicker'); ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); }
+    function initTicker() { const now = new Date(); const active = dataUmroh.filter(i=>i.dateObj>=now).map(i=>`✨ ${escapeHtml(i.nama)} — ${escapeHtml(i.tgl)} (${escapeHtml(i.maskapai)})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); const ticker = document.getElementById('navTicker'); ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); }
 
     // Sorting with debounce
     function sortTable(column) {
@@ -440,7 +519,7 @@
         const waText = program.teks_wa || generateAutoWAText(program);
         document.getElementById('detailModalBody').innerHTML = `
             <div class="detail-info-grid"><div class="detail-info-item"><span class="detail-info-label">Nama Program</span><span class="detail-info-value">${escapeHtml(program.nama||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Tanggal</span><span class="detail-info-value">${escapeHtml(program.tgl||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Durasi</span><span class="detail-info-value">${escapeHtml(program.durasi||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Maskapai</span><span class="detail-info-value">${escapeHtml(program.maskapai||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Harga</span><span class="detail-info-value">${escapeHtml(program.harga_quint||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Status</span><span class="detail-info-value" style="color:${program.isAvailable?'#16a34a':'#dc2626'}">${program.isAvailable?'Tersedia':'Expired'}</span></div></div>
-            <div class="detail-wa-section"><div class="label"><i class="fab fa-whatsapp"></i> Teks Marketing WhatsApp</div><div class="detail-wa-text" id="detailWAText">${escapeHtml(waText).replace(/\n/g,'<br>')}</div><button class="btn btn-wa-copy" onclick="copyDetailWAText()"><i class="fas fa-copy"></i> Salin Teks WA</button></div>
+            <div class="detail-wa-section"><div class="label"><i class="fab fa-whatsapp"></i> Teks Marketing WhatsApp</div><div class="detail-wa-text" id="detailWAText">${escapeHtml(waText).replace(/\n/g,'<br>').replace(/javascript:/gi,'blocked:')}</div><button class="btn btn-wa-copy" onclick="copyDetailWAText()"><i class="fas fa-copy"></i> Salin Teks WA</button></div>
             <div class="detail-actions">${program.link_form?`<a href="${escapeHtml(program.link_form)}" target="_blank" class="btn btn-register"><i class="fas fa-edit"></i> Form Pendaftaran</a>`:''}${program.link_itinerary?`<a href="${escapeHtml(program.link_itinerary)}" target="_blank" class="btn btn-link"><i class="fas fa-map"></i> Itinerary</a>`:''}${program.link_poster?`<a href="${escapeHtml(program.link_poster)}" target="_blank" class="btn btn-link"><i class="fas fa-image"></i> Poster</a>`:''}${program.link_metaads?`<a href="${escapeHtml(program.link_metaads)}" target="_blank" class="btn btn-link"><i class="fas fa-chart-line"></i> Meta Ads</a>`:''}${program.link_dokumentasi?`<a href="${escapeHtml(program.link_dokumentasi)}" target="_blank" class="btn btn-link"><i class="fas fa-folder"></i> Dokumentasi</a>`:''}</div>`;
         window.currentDetailWAText = waText;
         document.getElementById('detailModal').classList.add('show');
@@ -450,9 +529,14 @@
     function copyDetailWAText() { const text = window.currentDetailWAText; if (!text) return; navigator.clipboard.writeText(text).then(()=>showToast('Teks berhasil disalin!')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('Teks berhasil disalin!');}); }
 
     // Admin Panel (dengan cache refresh)
-    function openAdminModal() { document.getElementById('adminModal').classList.add('show'); renderAdminPanel(); }
+    function openAdminModal() { 
+        checkSession();
+        document.getElementById('adminModal').classList.add('show'); 
+        renderAdminPanel(); 
+    }
     function closeAdminModal() { document.getElementById('adminModal').classList.remove('show'); }
-    function renderMaskapaiOptions(selected='') { let opts='<option value="">-- Pilih Maskapai --</option>'; MASKAPAI_LIST.forEach(m=>opts+=`<option value="${m}" ${selected===m?'selected':''}>${m}</option>`); return opts; }
+    function renderMaskapaiOptions(selected='') { let opts='<option value="">-- Pilih Maskapai --</option>'; MASKAPAI_LIST.forEach(m=>opts+=`<option value="${escapeHtml(m)}" ${selected===m?'selected':''}>${escapeHtml(m)}</option>`); return opts; }
+    
     async function renderAdminPanel() {
         const container = document.getElementById('adminModalBody');
         if (adminLoggedIn) {
@@ -460,17 +544,17 @@
             adminPrograms = data || [];
             container.innerHTML = `<div class="admin-toolbar"><button class="admin-btn admin-btn-primary" onclick="showAdminForm()"><i class="fas fa-plus"></i> Program Baru</button><button class="admin-btn" onclick="exportAdminData()"><i class="fas fa-download"></i> Export JSON</button><button class="admin-btn" onclick="importAdminData()"><i class="fas fa-upload"></i> Import JSON</button><button class="admin-btn admin-btn-danger" onclick="clearAllAdminData()"><i class="fas fa-trash"></i> Hapus Semua</button><button class="admin-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
                 <div id="adminFormContainer" style="display:none;" class="admin-form"><div class="admin-form-header"><span><i class="fas fa-edit"></i> <span id="adminFormTitle">Tambah Program Baru</span></span><button class="admin-btn" onclick="hideAdminForm()">&times;</button></div>
-                <div class="admin-form-body"><div class="admin-form-group admin-full-width"><label>Nama Program *</label><input type="text" id="admin_nama" placeholder="Contoh: Umroh Akbar Bareng UAS"></div>
+                <div class="admin-form-body"><div class="admin-form-group admin-full-width"><label>Nama Program *</label><input type="text" id="admin_nama" placeholder="Contoh: Umroh Akbar Bareng UAS" maxlength="200"></div>
                 <div class="admin-form-group"><label>Tanggal</label><input type="date" id="admin_tgl_date"><input type="hidden" id="admin_tgl"><small style="color:#64748b">Pilih tanggal dari kalender</small></div>
-                <div class="admin-form-group"><label>Durasi</label><input type="text" id="admin_durasi" placeholder="9 Hari"></div>
+                <div class="admin-form-group"><label>Durasi</label><input type="text" id="admin_durasi" placeholder="9 Hari" maxlength="50"></div>
                 <div class="admin-form-group"><label>Maskapai</label><select id="admin_maskapai">${renderMaskapaiOptions()}</select></div>
-                <div class="admin-form-group"><label>Harga</label><input type="text" id="admin_harga_quint" placeholder="Rp 32.500.000"></div>
-                <div class="admin-form-group"><label>Link Form</label><input type="text" id="admin_link_form"></div>
-                <div class="admin-form-group"><label>Link Itinerary</label><input type="text" id="admin_link_itinerary"></div>
-                <div class="admin-form-group"><label>Link Poster</label><input type="text" id="admin_link_poster"></div>
-                <div class="admin-form-group"><label>Link Meta Ads</label><input type="text" id="admin_link_metaads"></div>
-                <div class="admin-form-group"><label>Link Dokumentasi</label><input type="text" id="admin_link_dokumentasi"></div>
-                <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis"></textarea></div></div>
+                <div class="admin-form-group"><label>Harga</label><input type="text" id="admin_harga_quint" placeholder="Rp 32.500.000" maxlength="50"></div>
+                <div class="admin-form-group"><label>Link Form</label><input type="url" id="admin_link_form" placeholder="https://..."></div>
+                <div class="admin-form-group"><label>Link Itinerary</label><input type="url" id="admin_link_itinerary" placeholder="https://..."></div>
+                <div class="admin-form-group"><label>Link Poster</label><input type="url" id="admin_link_poster" placeholder="https://..."></div>
+                <div class="admin-form-group"><label>Link Meta Ads</label><input type="url" id="admin_link_metaads" placeholder="https://..."></div>
+                <div class="admin-form-group"><label>Link Dokumentasi</label><input type="url" id="admin_link_dokumentasi" placeholder="https://..."></div>
+                <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis" maxlength="5000"></textarea></div></div>
                 <div class="form-actions"><button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button><button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button><button class="admin-btn" onclick="hideAdminForm()">Batal</button></div></div>
                 <div class="admin-table"><table><thead><tr><th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal <i class="fas fa-sort"></i></th><th>Aksi</th></tr></thead><tbody id="adminTableBody"></tbody></table></div>`;
             const dateInput = document.getElementById('admin_tgl_date'); if(dateInput) dateInput.addEventListener('change',function(){if(this.value)document.getElementById('admin_tgl').value=formatDateToIndonesian(new Date(this.value));else document.getElementById('admin_tgl').value='';});
@@ -480,26 +564,145 @@
             setTimeout(()=>{const pwd=document.getElementById('adminPasswordInput');pwd&&pwd.focus();},100);
         }
     }
-    function renderAdminTable() { const tbody=document.getElementById('adminTableBody'); if(!tbody) return; if(!adminPrograms.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:40px;">Belum ada program.</td></tr>';return;} tbody.innerHTML=''; adminPrograms.forEach(p=>{tbody.innerHTML+=`<tr><td><strong>${escapeHtml(p.nama||'-')}</strong></td><td>${escapeHtml(p.harga_quint||'-')}</td><td>${escapeHtml(p.tgl||'-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${p.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${p.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;}); }
-    function getAdminFormData() { return { nama: document.getElementById('admin_nama')?.value||'', tgl: document.getElementById('admin_tgl')?.value||(document.getElementById('admin_tgl_date')?.value?formatDateToIndonesian(new Date(document.getElementById('admin_tgl_date').value)):''), durasi: document.getElementById('admin_durasi')?.value||'', maskapai: document.getElementById('admin_maskapai')?.value||'', link_form: document.getElementById('admin_link_form')?.value||'', link_itinerary: document.getElementById('admin_link_itinerary')?.value||'', link_poster: document.getElementById('admin_link_poster')?.value||'', link_metaads: document.getElementById('admin_link_metaads')?.value||'', link_dokumentasi: document.getElementById('admin_link_dokumentasi')?.value||'', harga_quint: document.getElementById('admin_harga_quint')?.value||'', teks_wa: document.getElementById('admin_teks_wa')?.value||'' }; }
-    function setAdminFormData(data) { document.getElementById('admin_nama')&&(document.getElementById('admin_nama').value=data.nama||''); document.getElementById('admin_tgl')&&(document.getElementById('admin_tgl').value=data.tgl||''); if(document.getElementById('admin_tgl_date')){const d=parseDateFromString(data.tgl);if(d&&!isNaN(d.getTime()))document.getElementById('admin_tgl_date').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;else document.getElementById('admin_tgl_date').value='';} document.getElementById('admin_durasi')&&(document.getElementById('admin_durasi').value=data.durasi||''); const sel=document.getElementById('admin_maskapai');sel&&(data.maskapai?sel.value=data.maskapai:sel.selectedIndex=0); document.getElementById('admin_link_form')&&(document.getElementById('admin_link_form').value=data.link_form||''); document.getElementById('admin_link_itinerary')&&(document.getElementById('admin_link_itinerary').value=data.link_itinerary||''); document.getElementById('admin_link_poster')&&(document.getElementById('admin_link_poster').value=data.link_poster||''); document.getElementById('admin_link_metaads')&&(document.getElementById('admin_link_metaads').value=data.link_metaads||''); document.getElementById('admin_link_dokumentasi')&&(document.getElementById('admin_link_dokumentasi').value=data.link_dokumentasi||''); document.getElementById('admin_harga_quint')&&(document.getElementById('admin_harga_quint').value=data.harga_quint||''); document.getElementById('admin_teks_wa')&&(document.getElementById('admin_teks_wa').value=data.teks_wa||''); }
+    
+    function renderAdminTable() { const tbody=document.getElementById('adminTableBody'); if(!tbody) return; if(!adminPrograms.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:40px;">Belum ada program.点</td></tr>';return;} tbody.innerHTML=''; adminPrograms.forEach(p=>{tbody.innerHTML+=`<tr><td><strong>${escapeHtml(p.nama||'-')}</strong></td><td>${escapeHtml(p.harga_quint||'-')}</td><td>${escapeHtml(p.tgl||'-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${p.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${p.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;}); }
+    
+    function getAdminFormData() { 
+        return { 
+            nama: document.getElementById('admin_nama')?.value.trim()||'', 
+            tgl: document.getElementById('admin_tgl')?.value||(document.getElementById('admin_tgl_date')?.value?formatDateToIndonesian(new Date(document.getElementById('admin_tgl_date').value)):''), 
+            durasi: document.getElementById('admin_durasi')?.value||'', 
+            maskapai: document.getElementById('admin_maskapai')?.value||'', 
+            link_form: document.getElementById('admin_link_form')?.value||'', 
+            link_itinerary: document.getElementById('admin_link_itinerary')?.value||'', 
+            link_poster: document.getElementById('admin_link_poster')?.value||'', 
+            link_metaads: document.getElementById('admin_link_metaads')?.value||'', 
+            link_dokumentasi: document.getElementById('admin_link_dokumentasi')?.value||'', 
+            harga_quint: document.getElementById('admin_harga_quint')?.value||'', 
+            teks_wa: document.getElementById('admin_teks_wa')?.value||'' 
+        }; 
+    }
+    
+    function setAdminFormData(data) { 
+        document.getElementById('admin_nama')&&(document.getElementById('admin_nama').value=data.nama||''); 
+        document.getElementById('admin_tgl')&&(document.getElementById('admin_tgl').value=data.tgl||''); 
+        if(document.getElementById('admin_tgl_date')){const d=parseDateFromString(data.tgl);if(d&&!isNaN(d.getTime()))document.getElementById('admin_tgl_date').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;else document.getElementById('admin_tgl_date').value='';} 
+        document.getElementById('admin_durasi')&&(document.getElementById('admin_durasi').value=data.durasi||''); 
+        const sel=document.getElementById('admin_maskapai');sel&&(data.maskapai?sel.value=data.maskapai:sel.selectedIndex=0); 
+        document.getElementById('admin_link_form')&&(document.getElementById('admin_link_form').value=data.link_form||''); 
+        document.getElementById('admin_link_itinerary')&&(document.getElementById('admin_link_itinerary').value=data.link_itinerary||''); 
+        document.getElementById('admin_link_poster')&&(document.getElementById('admin_link_poster').value=data.link_poster||''); 
+        document.getElementById('admin_link_metaads')&&(document.getElementById('admin_link_metaads').value=data.link_metaads||''); 
+        document.getElementById('admin_link_dokumentasi')&&(document.getElementById('admin_link_dokumentasi').value=data.link_dokumentasi||''); 
+        document.getElementById('admin_harga_quint')&&(document.getElementById('admin_harga_quint').value=data.harga_quint||''); 
+        document.getElementById('admin_teks_wa')&&(document.getElementById('admin_teks_wa').value=data.teks_wa||''); 
+    }
+    
     function showAdminForm() { editingProgramId=null; document.getElementById('adminFormTitle').innerText='Tambah Program Baru'; setAdminFormData({}); document.getElementById('adminFormContainer').style.display='block'; }
     function hideAdminForm() { document.getElementById('adminFormContainer').style.display='none'; }
-    async function saveAdminProgram() { const nama=document.getElementById('admin_nama')?.value.trim(); if(!nama){alert('Nama program wajib diisi!');return;} const formData=getAdminFormData(); if(!formData.teks_wa)formData.teks_wa=generateAutoWAText(formData); try{if(editingProgramId)await updateProgramById(editingProgramId,formData);else await insertProgram(formData);await loadDataFromSupabase(true);await renderAdminPanel();hideAdminForm();showToast('Program berhasil disimpan!');}catch(err){showToast('Gagal: '+err.message);} }
+    
+    async function saveAdminProgram() { 
+        const nama=document.getElementById('admin_nama')?.value.trim(); 
+        if(!nama){alert('Nama program wajib diisi!');return;} 
+        
+        // Validasi keamanan nama program
+        if (!isValidProgramName(nama)) {
+            alert('Nama program mengandung karakter tidak valid!');
+            return;
+        }
+        
+        const formData=getAdminFormData(); 
+        
+        // Validasi keamanan URL
+        const urlFields = ['link_form', 'link_itinerary', 'link_poster', 'link_metaads', 'link_dokumentasi'];
+        for (const field of urlFields) {
+            if (formData[field] && !isValidUrl(formData[field])) {
+                alert(`Link ${field.replace('_',' ')} tidak valid! Gunakan format https://...`);
+                return;
+            }
+        }
+        
+        if(!formData.teks_wa)formData.teks_wa=generateAutoWAText(formData); 
+        try{if(editingProgramId)await updateProgramById(editingProgramId,formData);else await insertProgram(formData);await loadDataFromSupabase(true);await renderAdminPanel();hideAdminForm();showToast('Program berhasil disimpan!');}catch(err){showToast('Gagal: '+err.message);} 
+    }
+    
     async function editAdminProgram(id){const{data}=await supabaseClient.from('programs').select('*').eq('id',id).single();if(data){setAdminFormData(data);editingProgramId=id;document.getElementById('adminFormTitle').innerText='Edit Program';document.getElementById('adminFormContainer').style.display='block';}}
     async function deleteAdminProgram(id){if(confirm('Yakin hapus program ini?')){try{await deleteProgramById(id);await loadDataFromSupabase(true);await renderAdminPanel();showToast('Program dihapus');}catch(err){showToast('Gagal hapus: '+err.message);}}}
     async function clearAllAdminData(){if(confirm('⚠️ PERINGATAN: Hapus SEMUA program?')){try{const{data}=await supabaseClient.from('programs').select('id');for(const prog of data)await deleteProgramById(prog.id);await loadDataFromSupabase(true);await renderAdminPanel();showToast('Semua program dihapus');}catch(err){showToast('Gagal: '+err.message);}}}
     function previewAdminWA(){const data=getAdminFormData();const waText=data.teks_wa||generateAutoWAText(data);alert('📱 Preview Teks WA:\n\n'+waText);}
     function exportAdminData(){const dataStr=JSON.stringify(adminPrograms,null,2);const blob=new Blob([dataStr],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`amiru_programs_${new Date().toISOString().slice(0,19)}.json`;a.click();URL.revokeObjectURL(a.href);showToast('✅ Data diexport');}
-    function importAdminData(){const input=document.createElement('input');input.type='file';input.accept='.json';input.onchange=async(e)=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async(event)=>{try{const imported=JSON.parse(event.target.result);if(Array.isArray(imported)){for(const prog of imported)await insertProgram(prog);await loadDataFromSupabase(true);await renderAdminPanel();showToast('✅ Import berhasil');}else showToast('❌ Format tidak valid');}catch(err){showToast('❌ Gagal: '+err.message);}};reader.readAsText(file);};input.click();}
+    
+    function importAdminData(){
+        const input=document.createElement('input');
+        input.type='file';
+        input.accept='.json';
+        input.onchange=async(e)=>{
+            const file=e.target.files[0];
+            if(!file)return;
+            
+            // Batasi ukuran file
+            if(file.size>MAX_FILE_SIZE){
+                showToast('❌ File terlalu besar! Maksimal 5MB.');
+                return;
+            }
+            
+            const reader=new FileReader();
+            reader.onload=async(event)=>{
+                try{
+                    const imported=JSON.parse(event.target.result);
+                    if(Array.isArray(imported)){
+                        for(const prog of imported){
+                            // Validasi data sebelum insert
+                            if(prog.nama && isValidProgramName(prog.nama)){
+                                await insertProgram(prog);
+                            }
+                        }
+                        await loadDataFromSupabase(true);
+                        await renderAdminPanel();
+                        showToast('✅ Import berhasil');
+                    }else showToast('❌ Format tidak valid');
+                }catch(err){showToast('❌ Gagal: '+err.message);}
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    }
+    
     function sortAdminTable(column){adminSortAsc=adminSortColumn===column?!adminSortAsc:true;adminSortColumn=column;const programs=[...adminPrograms];programs.sort((a,b)=>{if(column==='tgl'){const dateA=parseDateFromString(a.tgl),dateB=parseDateFromString(b.tgl);return adminSortAsc?dateA-dateB:dateB-dateA;}const vA=String(a[column]||'').toLowerCase(),vB=String(b[column]||'').toLowerCase();return adminSortAsc?vA.localeCompare(vB):vB.localeCompare(vA);});adminPrograms=programs;renderAdminTable();}
-    function logoutAdmin(){adminLoggedIn=false;renderAdminPanel();}
-    function checkAdminLogin(){const pwd=document.getElementById('adminPasswordInput')?.value;if(pwd==='amiru2026'){adminLoggedIn=true;renderAdminPanel();}else{const err=document.getElementById('adminLoginError');err&&(err.innerText='❌ Password salah!');}}
+    
+    function logoutAdmin(){adminLoggedIn=false;sessionStorage.removeItem('admin_logged_in');sessionStorage.removeItem('admin_login_time');if(sessionTimeout)clearTimeout(sessionTimeout);renderAdminPanel();}
+    
+    function checkAdminLogin(){
+        const pwd=document.getElementById('adminPasswordInput')?.value;
+        const errorDiv=document.getElementById('adminLoginError');
+        
+        // Rate limiting
+        if(Date.now()<loginLockTime){
+            const waitSeconds=Math.ceil((loginLockTime-Date.now())/1000);
+            errorDiv.innerText=`⏳ Terlalu banyak percobaan. Coba lagi ${waitSeconds} detik.`;
+            return;
+        }
+        
+        if(pwd==='amiru2026'){
+            loginAttempts=0;
+            setAdminSession();
+            renderAdminPanel();
+        }else{
+            loginAttempts++;
+            if(loginAttempts>=5){
+                loginLockTime=Date.now()+60000; // Lock 1 menit
+                errorDiv.innerText='❌ Terlalu banyak percobaan. Coba lagi 1 menit.';
+            }else{
+                errorDiv.innerText=`❌ Password salah! Sisa percobaan: ${5-loginAttempts}`;
+            }
+        }
+    }
 
     window.openDrawer=()=>{const ov=document.getElementById('mobileOverlay');ov&&(ov.classList.add('open'),document.body.style.overflow='hidden');};
     window.closeDrawer=()=>{const ov=document.getElementById('mobileOverlay');ov&&(ov.classList.remove('open'),document.body.style.overflow='');};
     window.resetSearch=resetSearch;window.openAdminModal=openAdminModal;window.closeAdminModal=closeAdminModal;window.checkAdminLogin=checkAdminLogin;window.logoutAdmin=logoutAdmin;window.showAdminForm=showAdminForm;window.hideAdminForm=hideAdminForm;window.saveAdminProgram=saveAdminProgram;window.editAdminProgram=editAdminProgram;window.deleteAdminProgram=deleteAdminProgram;window.clearAllAdminData=clearAllAdminData;window.exportAdminData=exportAdminData;window.importAdminData=importAdminData;window.previewAdminWA=previewAdminWA;window.sortAdminTable=sortAdminTable;window.openDetailModal=openDetailModal;window.closeDetailModal=closeDetailModal;window.copyDetailWAText=copyDetailWAText;
 
+    checkSession();
     loadDataFromSupabase();
 </script>
 </body>
