@@ -334,15 +334,17 @@
     let currentData = [];
     let currentSort = { column: null, asc: true };
     let adminLoggedIn = false;
-    let adminPrograms = [];
     let editingProgramId = null;
     
+    // ========== FUNGSI PARSE TANGGAL ==========
     function parseDateFromString(dateStr) {
         if (!dateStr) return new Date();
+        
         const months = {
             'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5,
             'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
         };
+        
         for (const [month, idx] of Object.entries(months)) {
             if (dateStr.includes(month)) {
                 const parts = dateStr.split(' ');
@@ -355,6 +357,7 @@
         return new Date(dateStr);
     }
     
+    // ========== GENERATE TEKS WA OTOMATIS ==========
     function generateAutoWAText(data) {
         let teks = `🕋 *${data.nama || 'Program Umroh'}* 🕋\n\n`;
         if (data.tgl) teks += `📅 ${data.tgl}\n`;
@@ -367,8 +370,7 @@
         return teks;
     }
     
-    // ========== DATABASE OPERATIONS (TANPA DEFAULT DATA) ==========
-    
+    // ========== DATABASE OPERATIONS ==========
     async function loadDataFromSupabase() {
         const loadingEl = document.getElementById('loadingState');
         const tableEl = document.getElementById('packageTable');
@@ -384,18 +386,18 @@
             
             if (error) throw error;
             
-            // LANGSUNG PAKAI DATA DARI DATABASE, TIDAK MENAMBAHKAN DATA DEFAULT
             dataUmroh = data || [];
             
-            // Konversi tanggal
+            // Konversi tanggal ke Date object
             dataUmroh.forEach(p => {
                 if (p.tgl && !p.dateObj) {
                     p.dateObj = parseDateFromString(p.tgl);
                 }
+                // Hitung status tersedia
+                p.isAvailable = p.dateObj >= new Date();
             });
             
             currentData = [...dataUmroh];
-            adminPrograms = [...dataUmroh];
             renderTable(currentData);
             renderStats();
             initTicker();
@@ -435,24 +437,25 @@
         if (error) throw error;
     }
     
-    // ========== RENDER FUNCTIONS ==========
+    // ========== RENDER FUNGSI UTAMA ==========
     function renderTable(data) {
         const tbody = document.getElementById('tableBody');
         if (!tbody) return;
         const now = new Date();
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah program atau import JSON.</p></div></tr></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah program atau import JSON.</p></div></td></tr>`;
             return;
         }
         
         tbody.innerHTML = '';
-        data.forEach((item, idx) => {
+        data.forEach((item) => {
             const isAvailable = item.dateObj >= now;
             const statusLabel = isAvailable ? "Tersedia" : "Expired";
             const statusClass = isAvailable ? "status-available" : "status-expired";
             const diffMs = item.dateObj - now;
             let cdText = "", cdClass = "expired";
+            
             if (diffMs < 0) {
                 cdText = "Sudah berangkat";
                 cdClass = "expired";
@@ -553,24 +556,43 @@
         });
     }
     
-    // ========== SORTING & SEARCH ==========
+    // ========== SORTING (DIPERBAIKI) ==========
     function sortTable(column) {
         currentSort.asc = currentSort.column === column ? !currentSort.asc : true;
         currentSort.column = column;
         
         currentData.sort((a, b) => {
-            let vA = a[column], vB = b[column];
-            if (vA instanceof Date) return currentSort.asc ? vA - vB : vB - vA;
-            if (typeof vA === 'boolean') return currentSort.asc ? (vA === vB ? 0 : vA ? -1 : 1) : (vA === vB ? 0 : vA ? 1 : -1);
-            return currentSort.asc ? String(vA).localeCompare(String(vB)) : String(vB).localeCompare(String(vA));
+            let vA, vB;
+            
+            // SORTING TANGGAL - gunakan dateObj (bukan string tgl)
+            if (column === 'tgl') {
+                vA = a.dateObj ? a.dateObj.getTime() : 0;
+                vB = b.dateObj ? b.dateObj.getTime() : 0;
+                return currentSort.asc ? vA - vB : vB - vA;
+            }
+            
+            // SORTING STATUS (Tersedia/Expired)
+            if (column === 'isAvailable') {
+                vA = a.dateObj >= new Date() ? 1 : 0;
+                vB = b.dateObj >= new Date() ? 1 : 0;
+                return currentSort.asc ? vA - vB : vB - vA;
+            }
+            
+            // SORTING NAMA & MASKAPAI (string)
+            vA = String(a[column] || '').toLowerCase();
+            vB = String(b[column] || '').toLowerCase();
+            return currentSort.asc ? vA.localeCompare(vB) : vB.localeCompare(vA);
         });
         
+        // Update icon sort
         document.querySelectorAll('.sort-icon').forEach(el => el.textContent = "↕");
         const iconSpan = document.getElementById(`icon-${column}`);
         if (iconSpan) iconSpan.innerHTML = currentSort.asc ? "▲" : "▼";
+        
         renderTable(currentData);
     }
     
+    // ========== FILTER & SEARCH ==========
     function filterData(term) {
         const t = term.toLowerCase().trim();
         const now = new Date();
@@ -610,9 +632,13 @@
         document.getElementById('adminModal').classList.remove('show');
     }
     
-    function renderAdminPanel() {
+    async function renderAdminPanel() {
         const container = document.getElementById('adminModalBody');
         if (adminLoggedIn) {
+            // Refresh data
+            const { data } = await supabaseClient.from('programs').select('*').order('created_at');
+            const programs = data || [];
+            
             container.innerHTML = `
                 <div class="admin-toolbar">
                     <button class="admin-btn admin-btn-primary" onclick="showAdminForm()"><i class="fas fa-plus"></i> Program Baru</button>
@@ -652,7 +678,25 @@
                     </table>
                 </div>
             `;
-            renderAdminTable();
+            
+            const tbody = document.getElementById('adminTableBody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                programs.forEach((prog, idx) => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><strong>${escapeHtml(prog.nama || '-')}</strong></td>
+                            <td>${escapeHtml(prog.tgl || '-')}</td>
+                            <td>${escapeHtml(prog.harga_quint || '-')}</td>
+                            <td class="admin-action-btns">
+                                <button onclick="editAdminProgram('${prog.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button>
+                                <button onclick="deleteAdminProgram('${prog.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
         } else {
             container.innerHTML = `
                 <div class="admin-login-box">
@@ -664,30 +708,6 @@
                 </div>
             `;
         }
-    }
-    
-    function renderAdminTable() {
-        const tbody = document.getElementById('adminTableBody');
-        if (!tbody) return;
-        if (adminPrograms.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada program. Klik "Import JSON" untuk mengisi data.</td></tr>';
-            return;
-        }
-        tbody.innerHTML = '';
-        adminPrograms.forEach((prog, idx) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${idx + 1}</td>
-                <td><strong>${escapeHtml(prog.nama || '-')}</strong></td>
-                <td>${escapeHtml(prog.tgl || '-')}</td>
-                <td>${escapeHtml(prog.harga_quint || '-')}</td>
-                <td class="admin-action-btns">
-                    <button onclick="editAdminProgram('${prog.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button>
-                    <button onclick="deleteAdminProgram('${prog.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
     }
     
     function getAdminFormData() {
@@ -721,10 +741,10 @@
     }
     
     function showAdminForm() {
-        document.getElementById('adminFormContainer').style.display = 'block';
         editingProgramId = null;
         document.getElementById('adminFormTitle').innerText = 'Tambah Program Baru';
         setAdminFormData({});
+        document.getElementById('adminFormContainer').style.display = 'block';
     }
     
     function hideAdminForm() {
@@ -752,7 +772,7 @@
                 showAdminToast('Program berhasil ditambahkan!');
             }
             await loadDataFromSupabase();
-            renderAdminTable();
+            await renderAdminPanel();
             hideAdminForm();
         } catch (err) {
             showAdminToast('Gagal menyimpan: ' + err.message);
@@ -760,12 +780,13 @@
     }
     
     async function editAdminProgram(id) {
-        const prog = adminPrograms.find(p => p.id === id);
-        if (!prog) return;
-        setAdminFormData(prog);
-        editingProgramId = id;
-        document.getElementById('adminFormTitle').innerText = 'Edit Program';
-        document.getElementById('adminFormContainer').style.display = 'block';
+        const { data } = await supabaseClient.from('programs').select('*').eq('id', id).single();
+        if (data) {
+            setAdminFormData(data);
+            editingProgramId = id;
+            document.getElementById('adminFormTitle').innerText = 'Edit Program';
+            document.getElementById('adminFormContainer').style.display = 'block';
+        }
     }
     
     async function deleteAdminProgram(id) {
@@ -773,7 +794,7 @@
             try {
                 await deleteProgramById(id);
                 await loadDataFromSupabase();
-                renderAdminTable();
+                await renderAdminPanel();
                 showAdminToast('Program dihapus');
             } catch (err) {
                 showAdminToast('Gagal hapus: ' + err.message);
@@ -782,13 +803,14 @@
     }
     
     async function clearAllAdminData() {
-        if (confirm('Yakin hapus SEMUA program?')) {
+        if (confirm('Yakin hapus SEMUA program? Tindakan ini tidak bisa dibatalkan!')) {
             try {
-                for (const prog of adminPrograms) {
+                const { data } = await supabaseClient.from('programs').select('id');
+                for (const prog of data) {
                     await deleteProgramById(prog.id);
                 }
                 await loadDataFromSupabase();
-                renderAdminTable();
+                await renderAdminPanel();
                 showAdminToast('Semua program dihapus');
             } catch (err) {
                 showAdminToast('Gagal: ' + err.message);
@@ -803,7 +825,7 @@
     }
     
     function exportAdminData() {
-        const dataStr = JSON.stringify(adminPrograms, null, 2);
+        const dataStr = JSON.stringify(dataUmroh, null, 2);
         const blob = new Blob([dataStr], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -830,13 +852,13 @@
                             await insertProgram(prog);
                         }
                         await loadDataFromSupabase();
-                        renderAdminTable();
+                        await renderAdminPanel();
                         showAdminToast('Import berhasil!');
                     } else {
                         showAdminToast('Format file tidak valid');
                     }
                 } catch (err) {
-                    showAdminToast('Gagal membaca file');
+                    showAdminToast('Gagal membaca file: ' + err.message);
                 }
             };
             reader.readAsText(file);
@@ -867,7 +889,7 @@
         }
     }
     
-    // Event Listeners
+    // ========== EVENT LISTENERS ==========
     document.getElementById('searchInput')?.addEventListener('input', (e) => filterData(e.target.value));
     document.getElementById('searchInputMobile')?.addEventListener('input', (e) => {
         const searchInput = document.getElementById('searchInput');
@@ -910,7 +932,7 @@
     window.importAdminData = importAdminData;
     window.previewAdminWA = previewAdminWA;
     
-    // Start - Database akan kosong, siap diimport
+    // START
     loadDataFromSupabase();
 </script>
 </body>
