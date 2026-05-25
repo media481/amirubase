@@ -137,7 +137,21 @@
         tbody tr:hover { background: #f8fbff; }
         tbody td { padding: 14px 14px; vertical-align: middle; }
 
-        .package-name { font-weight: 700; color: var(--text-1); display: block; margin-bottom: 5px; font-size: 13.5px; }
+        /* Nama Program bisa diklik */
+        .package-name {
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .package-name:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+
         .countdown { font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; }
         .countdown.soon    { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
         .countdown.medium  { background: var(--blue-bg); color: var(--blue-text); border: 1px solid #bfdbfe; }
@@ -189,6 +203,168 @@
         .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ========== MODAL DETAIL PROGRAM ========== */
+        .detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 30000;
+            overflow-y: auto;
+            padding: 24px;
+            backdrop-filter: blur(4px);
+        }
+        .detail-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .detail-modal-content {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            animation: modalFadeIn 0.3s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .detail-modal-header {
+            background: linear-gradient(135deg, #1a6fa8 0%, #1559a0 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .detail-modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .detail-modal-header button {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            transition: all var(--transition);
+        }
+        .detail-modal-header button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .detail-modal-body {
+            padding: 24px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .detail-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .detail-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .detail-info-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-1);
+        }
+        .detail-wa-section {
+            background: #0f172a;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 16px;
+        }
+        .detail-wa-section .label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-wa-text {
+            background: #1e293b;
+            padding: 16px;
+            border-radius: var(--radius);
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        .detail-actions .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all var(--transition);
+        }
+        .btn-wa-copy {
+            background: #25D366;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-wa-copy:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+        }
+        .btn-link {
+            background: var(--surface2);
+            color: var(--text-2);
+            border: 1px solid var(--border);
+        }
+        .btn-link:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .btn-register {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-register:hover {
+            background: var(--primary-light);
+        }
+        
         /* ========== ADMIN MODAL ========== */
         .admin-modal { 
             display: none; 
@@ -249,7 +425,6 @@
             padding: 28px; 
         }
         
-        /* Admin Toolbar */
         .admin-toolbar { 
             display: flex; 
             gap: 12px; 
@@ -274,222 +449,48 @@
             align-items: center;
             gap: 8px;
         }
-        .admin-btn:hover { 
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
-        }
-        .admin-btn-primary { 
-            background: var(--primary); 
-            color: white; 
-            border-color: var(--primary); 
-        }
-        .admin-btn-primary:hover { 
-            background: var(--primary-light); 
-        }
-        .admin-btn-danger { 
-            background: #fee2e2; 
-            color: #dc2626; 
-            border-color: #fecaca; 
-        }
-        .admin-btn-danger:hover { 
-            background: #dc2626; 
-            color: white; 
-        }
-        .admin-btn-success { 
-            background: #16a34a; 
-            color: white; 
-            border-color: #16a34a; 
-        }
+        .admin-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+        .admin-btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+        .admin-btn-primary:hover { background: var(--primary-light); }
+        .admin-btn-danger { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+        .admin-btn-danger:hover { background: #dc2626; color: white; }
+        .admin-btn-success { background: #16a34a; color: white; border-color: #16a34a; }
         
-        /* Admin Form */
-        .admin-form { 
-            background: white; 
-            border-radius: var(--radius); 
-            border: 1px solid var(--border); 
-            margin-bottom: 24px; 
-            overflow: hidden; 
-        }
-        .admin-form-header { 
-            background: var(--surface2); 
-            padding: 14px 20px; 
-            border-bottom: 1px solid var(--border); 
-            font-weight: 700; 
-            display: flex; 
-            justify-content: space-between; 
-            font-size: 14px;
-        }
-        .admin-form-body { 
-            padding: 24px; 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
-            gap: 20px; 
-        }
-        .admin-form-group { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 6px; 
-        }
-        .admin-form-group label { 
-            font-size: 12px; 
-            font-weight: 700; 
-            color: var(--text-2); 
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .admin-form-group input, .admin-form-group select, .admin-form-group textarea { 
-            padding: 10px 14px; 
-            border: 1px solid var(--border); 
-            border-radius: 6px; 
-            font-size: 14px; 
-            font-family: inherit; 
-            transition: all var(--transition);
-            background: white;
-        }
-        .admin-form-group input:focus, .admin-form-group select:focus, .admin-form-group textarea:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 2px rgba(26,111,168,0.1);
-        }
-        .admin-form-group select {
-            cursor: pointer;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            appearance: none;
-        }
-        .admin-form-group textarea { 
-            resize: vertical; 
-            min-height: 80px; 
-        }
-        .admin-full-width { 
-            grid-column: 1 / -1; 
-        }
-        .form-actions {
-            padding: 0 24px 24px 24px;
-            display: flex;
-            gap: 12px;
-        }
+        .admin-form { background: white; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 24px; overflow: hidden; }
+        .admin-form-header { background: var(--surface2); padding: 14px 20px; border-bottom: 1px solid var(--border); font-weight: 700; display: flex; justify-content: space-between; font-size: 14px; }
+        .admin-form-body { padding: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .admin-form-group { display: flex; flex-direction: column; gap: 6px; }
+        .admin-form-group label { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; }
+        .admin-form-group input, .admin-form-group select, .admin-form-group textarea { padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; transition: all var(--transition); background: white; }
+        .admin-form-group input:focus, .admin-form-group select:focus, .admin-form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,111,168,0.1); }
+        .admin-form-group select { cursor: pointer; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'); background-repeat: no-repeat; background-position: right 12px center; appearance: none; }
+        .admin-form-group textarea { resize: vertical; min-height: 80px; }
+        .admin-full-width { grid-column: 1 / -1; }
+        .form-actions { padding: 0 24px 24px 24px; display: flex; gap: 12px; }
         
-        /* Admin Table */
-        .admin-table { 
-            background: white; 
-            border-radius: var(--radius); 
-            border: 1px solid var(--border); 
-            overflow-x: auto; 
-        }
-        .admin-table table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            min-width: 800px; 
-        }
-        .admin-table th, .admin-table td { 
-            padding: 14px 16px; 
-            text-align: left; 
-            border-bottom: 1px solid var(--border); 
-            font-size: 13px; 
-        }
-        .admin-table th { 
-            background: var(--surface2); 
-            font-weight: 700; 
-            color: var(--text-2);
-        }
-        .admin-table th.sortable-header {
-            cursor: pointer;
-            user-select: none;
-            transition: color var(--transition);
-        }
-        .admin-table th.sortable-header:hover {
-            color: var(--primary);
-        }
-        .admin-table th i {
-            margin-left: 6px;
-            opacity: 0.5;
-            font-size: 11px;
-        }
-        .admin-action-btns { 
-            display: flex; 
-            gap: 8px; 
-            flex-wrap: wrap; 
-        }
-        .admin-action-btns button { 
-            padding: 5px 12px; 
-            font-size: 11px; 
-            border-radius: 6px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: 600;
-            transition: all var(--transition);
-        }
-        .admin-action-btns button:hover {
-            transform: translateY(-1px);
-        }
+        .admin-table { background: white; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; }
+        .admin-table table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        .admin-table th, .admin-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .admin-table th { background: var(--surface2); font-weight: 700; color: var(--text-2); }
+        .admin-table th.sortable-header { cursor: pointer; user-select: none; transition: color var(--transition); }
+        .admin-table th.sortable-header:hover { color: var(--primary); }
+        .admin-table th i { margin-left: 6px; opacity: 0.5; font-size: 11px; }
+        .admin-action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .admin-action-btns button { padding: 5px 12px; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: all var(--transition); }
+        .admin-action-btns button:hover { transform: translateY(-1px); }
         
-        /* Login Box */
-        .admin-login-box { 
-            background: white; 
-            border-radius: var(--radius); 
-            padding: 40px; 
-            text-align: center; 
-            max-width: 400px; 
-            margin: 60px auto; 
-            box-shadow: var(--shadow);
-        }
-        .admin-login-box .icon { 
-            font-size: 48px; 
-            color: var(--primary); 
-            margin-bottom: 16px; 
-        }
-        .admin-login-box h3 { 
-            font-size: 20px; 
-            margin-bottom: 8px; 
-            color: var(--text-1);
-        }
-        .admin-login-box .text-muted { 
-            font-size: 12px; 
-            color: var(--text-3); 
-        }
-        .admin-login-box input { 
-            width: 100%; 
-            padding: 12px 16px; 
-            margin: 20px 0; 
-            border: 1px solid var(--border); 
-            border-radius: 6px; 
-            font-size: 14px;
-            transition: all var(--transition);
-        }
-        .admin-login-box input:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 2px rgba(26,111,168,0.1);
-        }
-        .admin-login-box button { 
-            width: 100%; 
-            padding: 12px; 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 14px; 
-            font-weight: 600;
-            transition: all var(--transition);
-        }
-        .admin-login-box button:hover { 
-            background: var(--primary-light); 
-        }
+        .admin-login-box { background: white; border-radius: var(--radius); padding: 40px; text-align: center; max-width: 400px; margin: 60px auto; box-shadow: var(--shadow); }
+        .admin-login-box .icon { font-size: 48px; color: var(--primary); margin-bottom: 16px; }
+        .admin-login-box h3 { font-size: 20px; margin-bottom: 8px; color: var(--text-1); }
+        .admin-login-box .text-muted { font-size: 12px; color: var(--text-3); }
+        .admin-login-box input { width: 100%; padding: 12px 16px; margin: 20px 0; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; transition: all var(--transition); }
+        .admin-login-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,111,168,0.1); }
+        .admin-login-box button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all var(--transition); }
+        .admin-login-box button:hover { background: var(--primary-light); }
         
-        /* Date Picker Styling */
-        input[type="date"] {
-            color-scheme: light;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            cursor: pointer;
-            opacity: 0.6;
-            transition: opacity 0.15s;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator:hover {
-            opacity: 1;
-        }
+        input[type="date"] { color-scheme: light; }
+        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: opacity 0.15s; }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
         
         @media (max-width: 1024px) { .nav-links, .search-wrapper { display: none; } .hamburger-btn { display: flex; align-items: center; } }
         @media (max-width: 768px) { 
@@ -505,6 +506,8 @@
             .admin-form-body { padding: 20px; gap: 16px; grid-template-columns: 1fr; }
             .admin-toolbar { padding: 12px 16px; }
             .admin-modal-content { max-width: 95%; }
+            .detail-info-grid { grid-template-columns: 1fr; }
+            .detail-modal-content { max-width: 95%; }
         }
         @media (max-width: 520px) { 
             .col-maskapai, .col-durasi { display: none; } 
@@ -603,6 +606,19 @@
     <p class="footer-text">&copy; 2026 <b>PT Amiru Haramain Indonesia</b>. Data tersimpan di Cloud Database</p>
 </footer>
 
+<!-- MODAL DETAIL PROGRAM -->
+<div id="detailModal" class="detail-modal">
+    <div class="detail-modal-content">
+        <div class="detail-modal-header">
+            <h3><i class="fas fa-info-circle"></i> Detail Program Umroh</h3>
+            <button onclick="closeDetailModal()">&times;</button>
+        </div>
+        <div class="detail-modal-body" id="detailModalBody">
+            <!-- Konten akan diisi via JS -->
+        </div>
+    </div>
+</div>
+
 <!-- ADMIN MODAL -->
 <div id="adminModal" class="admin-modal">
     <div class="admin-modal-content">
@@ -667,7 +683,6 @@
         return new Date(dateStr);
     }
     
-    // Konversi Date ke format "DD Bulan YYYY"
     function formatDateToIndonesian(date) {
         if (!date || isNaN(date.getTime())) return '';
         const months = [
@@ -677,7 +692,6 @@
         return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
     }
     
-    // ========== GENERATE TEKS WA OTOMATIS ==========
     function generateAutoWAText(data) {
         let teks = `🕋 *${data.nama || 'Program Umroh'}* 🕋\n\n`;
         if (data.tgl) teks += `📅 ${data.tgl}\n`;
@@ -755,19 +769,19 @@
         if (error) throw error;
     }
     
-    // ========== RENDER FUNGSI UTAMA ==========
+    // ========== RENDER TABEL UTAMA ==========
     function renderTable(data) {
         const tbody = document.getElementById('tableBody');
         if (!tbody) return;
         const now = new Date();
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah program atau import JSON.</p></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah program atau import JSON.</p></div></td></td>`;
             return;
         }
         
         tbody.innerHTML = '';
-        data.forEach((item) => {
+        data.forEach((item, idx) => {
             const isAvailable = item.dateObj >= now;
             const statusLabel = isAvailable ? "Tersedia" : "Expired";
             const statusClass = isAvailable ? "status-available" : "status-expired";
@@ -799,7 +813,7 @@
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>
-                    <span class="package-name">${escapeHtml(item.nama || '')}</span>
+                    <span class="package-name" onclick="openDetailModal('${item.id}')">${escapeHtml(item.nama || '')}</span>
                     <span class="countdown ${cdClass}">🕐 ${escapeHtml(cdText)}</span>
                 </td>
                 <td class="col-harga">${item.harga_quint ? `<span class="price-main">${escapeHtml(item.harga_quint)}</span><span class="price-sub">per orang (Quint)</span>` : '<span style="color:var(--text-3);">—</span>'}</td>
@@ -821,6 +835,88 @@
         });
     }
     
+    // ========== MODAL DETAIL ==========
+    function openDetailModal(programId) {
+        const program = dataUmroh.find(p => p.id === programId);
+        if (!program) return;
+        
+        const modal = document.getElementById('detailModal');
+        const body = document.getElementById('detailModalBody');
+        
+        const waText = program.teks_wa || generateAutoWAText(program);
+        
+        body.innerHTML = `
+            <div class="detail-info-grid">
+                <div class="detail-info-item">
+                    <span class="detail-info-label"><i class="fas fa-tag"></i> Nama Program</span>
+                    <span class="detail-info-value">${escapeHtml(program.nama || '-')}</span>
+                </div>
+                <div class="detail-info-item">
+                    <span class="detail-info-label"><i class="fas fa-calendar-alt"></i> Tanggal Keberangkatan</span>
+                    <span class="detail-info-value">${escapeHtml(program.tgl || '-')}</span>
+                </div>
+                <div class="detail-info-item">
+                    <span class="detail-info-label"><i class="fas fa-hourglass-half"></i> Durasi</span>
+                    <span class="detail-info-value">${escapeHtml(program.durasi || '-')}</span>
+                </div>
+                <div class="detail-info-item">
+                    <span class="detail-info-label"><i class="fas fa-plane"></i> Maskapai</span>
+                    <span class="detail-info-value">${escapeHtml(program.maskapai || '-')}</span>
+                </div>
+                <div class="detail-info-item">
+                    <span class="detail-info-label"><i class="fas fa-money-bill-wave"></i> Harga (Quad/Quint)</span>
+                    <span class="detail-info-value">${escapeHtml(program.harga_quint || '-')}</span>
+                </div>
+                <div class="detail-info-item">
+                    <span class="detail-info-label"><i class="fas fa-check-circle"></i> Status</span>
+                    <span class="detail-info-value" style="color: ${program.isAvailable ? '#16a34a' : '#dc2626'}">${program.isAvailable ? 'Tersedia' : 'Expired'}</span>
+                </div>
+            </div>
+            <div class="detail-wa-section">
+                <div class="label"><i class="fab fa-whatsapp"></i> Teks Marketing WhatsApp</div>
+                <div class="detail-wa-text" id="detailWAText">${escapeHtml(waText).replace(/\n/g, '<br>')}</div>
+                <button class="btn btn-wa-copy" onclick="copyDetailWAText()"><i class="fas fa-copy"></i> Salin Teks WhatsApp</button>
+            </div>
+            <div class="detail-actions">
+                ${program.link_form ? `<a href="${escapeHtml(program.link_form)}" target="_blank" class="btn btn-register"><i class="fas fa-edit"></i> Form Pendaftaran</a>` : ''}
+                ${program.link_itinerary ? `<a href="${escapeHtml(program.link_itinerary)}" target="_blank" class="btn btn-link"><i class="fas fa-map"></i> Itinerary</a>` : ''}
+                ${program.link_poster ? `<a href="${escapeHtml(program.link_poster)}" target="_blank" class="btn btn-link"><i class="fas fa-image"></i> Poster</a>` : ''}
+                ${program.link_metaads ? `<a href="${escapeHtml(program.link_metaads)}" target="_blank" class="btn btn-link"><i class="fas fa-chart-line"></i> Meta Ads</a>` : ''}
+                ${program.link_dokumentasi ? `<a href="${escapeHtml(program.link_dokumentasi)}" target="_blank" class="btn btn-link"><i class="fas fa-folder"></i> Dokumentasi</a>` : ''}
+            </div>
+        `;
+        
+        // Simpan teks WA untuk copy
+        window.currentDetailWAText = waText;
+        
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeDetailModal() {
+        const modal = document.getElementById('detailModal');
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    
+    function copyDetailWAText() {
+        const text = window.currentDetailWAText;
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Teks berhasil disalin!');
+        }).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;opacity:0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Teks berhasil disalin!');
+        });
+    }
+    
+    // ========== RENDER STATS & TICKER ==========
     function renderStats() {
         const now = new Date();
         const total = dataUmroh.length;
@@ -936,33 +1032,7 @@
         renderTable(currentData);
     }
     
-    // ========== ADMIN SORTING ==========
-    function sortAdminTable(column) {
-        adminSortAsc = adminSortColumn === column ? !adminSortAsc : true;
-        adminSortColumn = column;
-        
-        const programs = [...adminPrograms];
-        programs.sort((a, b) => {
-            let vA, vB;
-            
-            if (column === 'tgl') {
-                const dateA = parseDateFromString(a.tgl);
-                const dateB = parseDateFromString(b.tgl);
-                vA = dateA.getTime();
-                vB = dateB.getTime();
-                return adminSortAsc ? vA - vB : vB - vA;
-            }
-            
-            vA = String(a[column] || '').toLowerCase();
-            vB = String(b[column] || '').toLowerCase();
-            return adminSortAsc ? vA.localeCompare(vB) : vB.localeCompare(vA);
-        });
-        
-        adminPrograms = programs;
-        renderAdminTable();
-    }
-    
-    // ========== ADMIN MODAL ==========
+    // ========== ADMIN PANEL ==========
     function openAdminModal() {
         document.getElementById('adminModal').classList.add('show');
         renderAdminPanel();
@@ -972,7 +1042,6 @@
         document.getElementById('adminModal').classList.remove('show');
     }
     
-    // Generate dropdown option untuk maskapai
     function renderMaskapaiOptions(selectedValue = '') {
         let options = '<option value="">-- Pilih Maskapai --</option>';
         MASKAPAI_LIST.forEach(maskapai => {
@@ -1002,54 +1071,17 @@
                         <button class="admin-btn" style="background: none; border: none; font-size: 18px; cursor: pointer;" onclick="hideAdminForm()">&times;</button>
                     </div>
                     <div class="admin-form-body">
-                        <div class="admin-form-group admin-full-width">
-                            <label>Nama Program *</label>
-                            <input type="text" id="admin_nama" placeholder="Contoh: Umroh Akbar Bareng UAS">
-                        </div>
-                        <div class="admin-form-group">
-                            <label>Tanggal Berangkat</label>
-                            <input type="date" id="admin_tgl_date" placeholder="YYYY-MM-DD">
-                            <input type="hidden" id="admin_tgl">
-                            <small class="text-muted">Pilih tanggal dari kalender</small>
-                        </div>
-                        <div class="admin-form-group">
-                            <label>Durasi</label>
-                            <input type="text" id="admin_durasi" placeholder="9 Hari">
-                        </div>
-                        <div class="admin-form-group">
-                            <label>Maskapai</label>
-                            <select id="admin_maskapai">
-                                ${renderMaskapaiOptions()}
-                            </select>
-                        </div>
-                        <div class="admin-form-group">
-                            <label>Harga (Quad/Quint)</label>
-                            <input type="text" id="admin_harga_quint" placeholder="Rp 32.500.000">
-                        </div>
-                        <div class="admin-form-group">
-                            <label>Link Form</label>
-                            <input type="text" id="admin_link_form" placeholder="https://...">
-                        </div>
-                        <div class="admin-form-group">
-                            <label>Link Itinerary</label>
-                            <input type="text" id="admin_link_itinerary" placeholder="https://...">
-                        </div>
-                        <div class="admin-form-group">
-                            <label>Link Poster</label>
-                            <input type="text" id="admin_link_poster" placeholder="https://...">
-                        </div>
-                        <div class="admin-form-group">
-                            <label>Link Meta Ads</label>
-                            <input type="text" id="admin_link_metaads" placeholder="https://...">
-                        </div>
-                        <div class="admin-form-group">
-                            <label>Link Dokumentasi</label>
-                            <input type="text" id="admin_link_dokumentasi" placeholder="https://...">
-                        </div>
-                        <div class="admin-form-group admin-full-width">
-                            <label>Teks WA</label>
-                            <textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis"></textarea>
-                        </div>
+                        <div class="admin-form-group admin-full-width"><label>Nama Program *</label><input type="text" id="admin_nama" placeholder="Contoh: Umroh Akbar Bareng UAS"></div>
+                        <div class="admin-form-group"><label>Tanggal Berangkat</label><input type="date" id="admin_tgl_date"><input type="hidden" id="admin_tgl"><small class="text-muted">Pilih tanggal dari kalender</small></div>
+                        <div class="admin-form-group"><label>Durasi</label><input type="text" id="admin_durasi" placeholder="9 Hari"></div>
+                        <div class="admin-form-group"><label>Maskapai</label><select id="admin_maskapai">${renderMaskapaiOptions()}</select></div>
+                        <div class="admin-form-group"><label>Harga (Quad/Quint)</label><input type="text" id="admin_harga_quint" placeholder="Rp 32.500.000"></div>
+                        <div class="admin-form-group"><label>Link Form</label><input type="text" id="admin_link_form" placeholder="https://..."></div>
+                        <div class="admin-form-group"><label>Link Itinerary</label><input type="text" id="admin_link_itinerary" placeholder="https://..."></div>
+                        <div class="admin-form-group"><label>Link Poster</label><input type="text" id="admin_link_poster" placeholder="https://..."></div>
+                        <div class="admin-form-group"><label>Link Meta Ads</label><input type="text" id="admin_link_metaads" placeholder="https://..."></div>
+                        <div class="admin-form-group"><label>Link Dokumentasi</label><input type="text" id="admin_link_dokumentasi" placeholder="https://..."></div>
+                        <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis"></textarea></div>
                     </div>
                     <div class="form-actions">
                         <button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button>
@@ -1059,27 +1091,18 @@
                 </div>
                 <div class="admin-table">
                     <table>
-                        <thead>
-                            <tr>
-                                <th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th>
-                                <th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th>
-                                <th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal Berangkat <i class="fas fa-sort"></i></th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal Berangkat <i class="fas fa-sort"></i></th><th>Aksi</th></tr></thead>
                         <tbody id="adminTableBody"></tbody>
                     </table>
                 </div>
             `;
             
-            // Setup date picker listener
             const dateInput = document.getElementById('admin_tgl_date');
             if (dateInput) {
                 dateInput.addEventListener('change', function() {
                     if (this.value) {
                         const date = new Date(this.value);
-                        const formattedDate = formatDateToIndonesian(date);
-                        document.getElementById('admin_tgl').value = formattedDate;
+                        document.getElementById('admin_tgl').value = formatDateToIndonesian(date);
                     } else {
                         document.getElementById('admin_tgl').value = '';
                     }
@@ -1098,7 +1121,6 @@
                     <div id="adminLoginError" class="text-muted" style="color: red; margin-top: 16px;"></div>
                 </div>
             `;
-            
             setTimeout(() => {
                 const pwdInput = document.getElementById('adminPasswordInput');
                 if (pwdInput) pwdInput.focus();
@@ -1109,32 +1131,20 @@
     function renderAdminTable() {
         const tbody = document.getElementById('adminTableBody');
         if (!tbody) return;
-        
         if (adminPrograms.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">Belum ada program. Klik "Program Baru" untuk menambah.</td></tr>';
             return;
         }
-        
         tbody.innerHTML = '';
         adminPrograms.forEach((prog, idx) => {
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${escapeHtml(prog.nama || '-')}</strong></td>
-                    <td>${escapeHtml(prog.harga_quint || '-')}</td>
-                    <td>${escapeHtml(prog.tgl || '-')}</td>
-                    <td class="admin-action-btns">
-                        <button onclick="editAdminProgram('${prog.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button>
-                        <button onclick="deleteAdminProgram('${prog.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button>
-                    </td>
-                </tr>
-            `;
+            tbody.innerHTML += `<tr><td><strong>${escapeHtml(prog.nama || '-')}</strong></td><td>${escapeHtml(prog.harga_quint || '-')}</td><td>${escapeHtml(prog.tgl || '-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${prog.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${prog.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;
         });
     }
     
     function getAdminFormData() {
         return {
             nama: document.getElementById('admin_nama')?.value || '',
-            tgl: document.getElementById('admin_tgl')?.value || document.getElementById('admin_tgl_date')?.value ? formatDateToIndonesian(new Date(document.getElementById('admin_tgl_date').value)) : '',
+            tgl: document.getElementById('admin_tgl')?.value || (document.getElementById('admin_tgl_date')?.value ? formatDateToIndonesian(new Date(document.getElementById('admin_tgl_date').value)) : ''),
             durasi: document.getElementById('admin_durasi')?.value || '',
             maskapai: document.getElementById('admin_maskapai')?.value || '',
             link_form: document.getElementById('admin_link_form')?.value || '',
@@ -1151,26 +1161,18 @@
         if (document.getElementById('admin_nama')) document.getElementById('admin_nama').value = data.nama || '';
         if (document.getElementById('admin_tgl')) document.getElementById('admin_tgl').value = data.tgl || '';
         if (document.getElementById('admin_tgl_date')) {
-            // Parse date from Indonesian format to YYYY-MM-DD for date picker
             const date = parseDateFromString(data.tgl);
             if (date && !isNaN(date.getTime())) {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                document.getElementById('admin_tgl_date').value = `${year}-${month}-${day}`;
+                document.getElementById('admin_tgl_date').value = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
             } else {
                 document.getElementById('admin_tgl_date').value = '';
             }
         }
         if (document.getElementById('admin_durasi')) document.getElementById('admin_durasi').value = data.durasi || '';
         if (document.getElementById('admin_maskapai')) {
-            // Set selected value in dropdown
             const select = document.getElementById('admin_maskapai');
-            if (data.maskapai) {
-                select.value = data.maskapai;
-            } else {
-                select.selectedIndex = 0;
-            }
+            if (data.maskapai) select.value = data.maskapai;
+            else select.selectedIndex = 0;
         }
         if (document.getElementById('admin_link_form')) document.getElementById('admin_link_form').value = data.link_form || '';
         if (document.getElementById('admin_link_itinerary')) document.getElementById('admin_link_itinerary').value = data.link_itinerary || '';
@@ -1181,65 +1183,33 @@
         if (document.getElementById('admin_teks_wa')) document.getElementById('admin_teks_wa').value = data.teks_wa || '';
     }
     
-    function showAdminForm() {
-        editingProgramId = null;
-        document.getElementById('adminFormTitle').innerText = 'Tambah Program Baru';
-        setAdminFormData({});
-        document.getElementById('adminFormContainer').style.display = 'block';
-    }
-    
-    function hideAdminForm() {
-        document.getElementById('adminFormContainer').style.display = 'none';
-    }
+    function showAdminForm() { editingProgramId = null; document.getElementById('adminFormTitle').innerText = 'Tambah Program Baru'; setAdminFormData({}); document.getElementById('adminFormContainer').style.display = 'block'; }
+    function hideAdminForm() { document.getElementById('adminFormContainer').style.display = 'none'; }
     
     async function saveAdminProgram() {
         const nama = document.getElementById('admin_nama')?.value.trim();
-        if (!nama) {
-            alert('Nama program wajib diisi!');
-            return;
-        }
-        
+        if (!nama) { alert('Nama program wajib diisi!'); return; }
         const formData = getAdminFormData();
-        if (!formData.teks_wa) {
-            formData.teks_wa = generateAutoWAText(formData);
-        }
-        
+        if (!formData.teks_wa) formData.teks_wa = generateAutoWAText(formData);
         try {
-            if (editingProgramId) {
-                await updateProgramById(editingProgramId, formData);
-                showAdminToast('Program berhasil diupdate!');
-            } else {
-                await insertProgram(formData);
-                showAdminToast('Program berhasil ditambahkan!');
-            }
+            if (editingProgramId) await updateProgramById(editingProgramId, formData);
+            else await insertProgram(formData);
             await loadDataFromSupabase();
             await renderAdminPanel();
             hideAdminForm();
-        } catch (err) {
-            showAdminToast('Gagal menyimpan: ' + err.message);
-        }
+            showToast('Program berhasil disimpan!');
+        } catch (err) { showToast('Gagal menyimpan: ' + err.message); }
     }
     
     async function editAdminProgram(id) {
         const { data } = await supabaseClient.from('programs').select('*').eq('id', id).single();
-        if (data) {
-            setAdminFormData(data);
-            editingProgramId = id;
-            document.getElementById('adminFormTitle').innerText = 'Edit Program';
-            document.getElementById('adminFormContainer').style.display = 'block';
-        }
+        if (data) { setAdminFormData(data); editingProgramId = id; document.getElementById('adminFormTitle').innerText = 'Edit Program'; document.getElementById('adminFormContainer').style.display = 'block'; }
     }
     
     async function deleteAdminProgram(id) {
         if (confirm('Yakin hapus program ini?')) {
-            try {
-                await deleteProgramById(id);
-                await loadDataFromSupabase();
-                await renderAdminPanel();
-                showAdminToast('Program dihapus');
-            } catch (err) {
-                showAdminToast('Gagal hapus: ' + err.message);
-            }
+            try { await deleteProgramById(id); await loadDataFromSupabase(); await renderAdminPanel(); showToast('Program dihapus'); }
+            catch (err) { showToast('Gagal hapus: ' + err.message); }
         }
     }
     
@@ -1247,15 +1217,9 @@
         if (confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA program. Yakin melanjutkan?')) {
             try {
                 const { data } = await supabaseClient.from('programs').select('id');
-                for (const prog of data) {
-                    await deleteProgramById(prog.id);
-                }
-                await loadDataFromSupabase();
-                await renderAdminPanel();
-                showAdminToast('Semua program dihapus');
-            } catch (err) {
-                showAdminToast('Gagal: ' + err.message);
-            }
+                for (const prog of data) await deleteProgramById(prog.id);
+                await loadDataFromSupabase(); await renderAdminPanel(); showToast('Semua program dihapus');
+            } catch (err) { showToast('Gagal: ' + err.message); }
         }
     }
     
@@ -1268,13 +1232,12 @@
     function exportAdminData() {
         const dataStr = JSON.stringify(adminPrograms, null, 2);
         const blob = new Blob([dataStr], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
+        a.href = URL.createObjectURL(blob);
         a.download = `amiru_programs_${new Date().toISOString().slice(0,19)}.json`;
         a.click();
-        URL.revokeObjectURL(url);
-        showAdminToast('✅ Data berhasil diexport!');
+        URL.revokeObjectURL(a.href);
+        showToast('✅ Data diexport');
     }
     
     function importAdminData() {
@@ -1289,45 +1252,39 @@
                 try {
                     const imported = JSON.parse(event.target.result);
                     if (Array.isArray(imported)) {
-                        for (const prog of imported) {
-                            await insertProgram(prog);
-                        }
-                        await loadDataFromSupabase();
-                        await renderAdminPanel();
-                        showAdminToast('✅ Import berhasil!');
-                    } else {
-                        showAdminToast('❌ Format file tidak valid');
-                    }
-                } catch (err) {
-                    showAdminToast('❌ Gagal membaca file: ' + err.message);
-                }
+                        for (const prog of imported) await insertProgram(prog);
+                        await loadDataFromSupabase(); await renderAdminPanel(); showToast('✅ Import berhasil');
+                    } else showToast('❌ Format tidak valid');
+                } catch (err) { showToast('❌ Gagal: ' + err.message); }
             };
             reader.readAsText(file);
         };
         input.click();
     }
     
-    function showAdminToast(msg) {
-        const toast = document.getElementById('toast');
-        toast.innerHTML = `<i class="fas fa-check"></i> ${msg}`;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2500);
+    function sortAdminTable(column) {
+        adminSortAsc = adminSortColumn === column ? !adminSortAsc : true;
+        adminSortColumn = column;
+        const programs = [...adminPrograms];
+        programs.sort((a, b) => {
+            if (column === 'tgl') {
+                const dateA = parseDateFromString(a.tgl);
+                const dateB = parseDateFromString(b.tgl);
+                return adminSortAsc ? dateA - dateB : dateB - dateA;
+            }
+            const vA = String(a[column] || '').toLowerCase();
+            const vB = String(b[column] || '').toLowerCase();
+            return adminSortAsc ? vA.localeCompare(vB) : vB.localeCompare(vA);
+        });
+        adminPrograms = programs;
+        renderAdminTable();
     }
     
-    function logoutAdmin() {
-        adminLoggedIn = false;
-        renderAdminPanel();
-    }
-    
+    function logoutAdmin() { adminLoggedIn = false; renderAdminPanel(); }
     function checkAdminLogin() {
         const password = document.getElementById('adminPasswordInput')?.value;
-        if (password === 'amiru2026') {
-            adminLoggedIn = true;
-            renderAdminPanel();
-        } else {
-            const errorDiv = document.getElementById('adminLoginError');
-            if (errorDiv) errorDiv.innerText = '❌ Password salah! Silakan coba lagi.';
-        }
+        if (password === 'amiru2026') { adminLoggedIn = true; renderAdminPanel(); }
+        else { const errDiv = document.getElementById('adminLoginError'); if (errDiv) errDiv.innerText = '❌ Password salah!'; }
     }
     
     // ========== EVENT LISTENERS ==========
@@ -1345,17 +1302,11 @@
     
     window.openDrawer = () => {
         const overlay = document.getElementById('mobileOverlay');
-        if (overlay) {
-            overlay.classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
+        if (overlay) { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
     };
     window.closeDrawer = () => {
         const overlay = document.getElementById('mobileOverlay');
-        if (overlay) {
-            overlay.classList.remove('open');
-            document.body.style.overflow = '';
-        }
+        if (overlay) { overlay.classList.remove('open'); document.body.style.overflow = ''; }
     };
     
     window.resetSearch = resetSearch;
@@ -1373,6 +1324,9 @@
     window.importAdminData = importAdminData;
     window.previewAdminWA = previewAdminWA;
     window.sortAdminTable = sortAdminTable;
+    window.openDetailModal = openDetailModal;
+    window.closeDetailModal = closeDetailModal;
+    window.copyDetailWAText = copyDetailWAText;
     
     // START
     loadDataFromSupabase();
