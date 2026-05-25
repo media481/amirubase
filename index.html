@@ -33,6 +33,8 @@
             --red-border: #fecaca;
             --blue-bg: #eff6ff;
             --blue-text: #1d4ed8;
+            --whatsapp: #25D366;
+            --whatsapp-dark: #128C7E;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
             --shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
             --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.02);
@@ -137,7 +139,6 @@
         tbody tr:hover { background: #f8fbff; }
         tbody td { padding: 14px 14px; vertical-align: middle; }
 
-        /* Nama Program bisa diklik */
         .package-name {
             font-weight: 700;
             color: var(--primary);
@@ -176,9 +177,6 @@
         .btn-icon { text-decoration: none; width: 30px; height: 30px; border-radius: 7px; font-size: 14px; transition: all var(--transition); border: 1px solid var(--border); background: var(--surface2); display: inline-flex; align-items: center; justify-content: center; color: var(--text-2); position: relative; cursor: pointer; }
         .btn-icon:hover { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); }
         .btn-icon.disabled { opacity: 0.3; pointer-events: none; }
-        .btn-icon.btn-wa { border-color: var(--green-border); color: var(--green); background: var(--green-bg); }
-        .btn-icon.btn-wa:hover { background: var(--green); color: white; border-color: var(--green); }
-        .btn-icon.btn-wa.copied { background: var(--green); color: white; border-color: var(--green); }
 
         .btn-icon::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%); background: var(--text-1); color: white; font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity var(--transition); font-family: 'Plus Jakarta Sans', sans-serif; }
         .btn-icon::before { content: ''; position: absolute; bottom: calc(100% + 1px); left: 50%; transform: translateX(-50%); border: 4px solid transparent; border-top-color: var(--text-1); opacity: 0; pointer-events: none; transition: opacity var(--transition); }
@@ -202,6 +200,71 @@
         .loading-state { text-align: center; padding: 60px 20px; }
         .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ========== WHATSAPP FLOAT BUTTON ========== */
+        .wa-float {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9998;
+            animation: waPulse 1.5s infinite;
+        }
+        .wa-float a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: var(--whatsapp);
+            color: white;
+            border-radius: 50%;
+            font-size: 32px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            transition: all var(--transition);
+            text-decoration: none;
+        }
+        .wa-float a:hover {
+            background: var(--whatsapp-dark);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+        }
+        .wa-float .tooltip {
+            position: absolute;
+            right: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--text-1);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition);
+            pointer-events: none;
+        }
+        .wa-float a:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            right: 80px;
+        }
+        .wa-float .tooltip::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent transparent var(--text-1);
+        }
+        @keyframes waPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
 
         /* ========== MODAL DETAIL PROGRAM ========== */
         .detail-modal {
@@ -508,6 +571,8 @@
             .admin-modal-content { max-width: 95%; }
             .detail-info-grid { grid-template-columns: 1fr; }
             .detail-modal-content { max-width: 95%; }
+            .wa-float { bottom: 16px; right: 16px; }
+            .wa-float a { width: 50px; height: 50px; font-size: 26px; }
         }
         @media (max-width: 520px) { 
             .col-maskapai, .col-durasi { display: none; } 
@@ -605,6 +670,14 @@
 <footer class="portal-footer-simple">
     <p class="footer-text">&copy; 2026 <b>PT Amiru Haramain Indonesia</b>. Data tersimpan di Cloud Database</p>
 </footer>
+
+<!-- WHATSAPP FLOAT BUTTON -->
+<div class="wa-float">
+    <a href="https://wa.me/6282234650150?text=Assalamualaikum%20Admin%20Amiru%20Tour%2C%20saya%20mau%20bertanya%20tentang%20program%20umroh" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-whatsapp"></i>
+        <span class="tooltip">Hubungi Admin</span>
+    </a>
+</div>
 
 <!-- MODAL DETAIL PROGRAM -->
 <div id="detailModal" class="detail-modal">
@@ -769,19 +842,19 @@
         if (error) throw error;
     }
     
-    // ========== RENDER TABEL UTAMA ==========
+    // ========== RENDER TABEL UTAMA (TANPA TOMBOL WA) ==========
     function renderTable(data) {
         const tbody = document.getElementById('tableBody');
         if (!tbody) return;
         const now = new Date();
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah program atau import JSON.</p></div></td></td>`;
+            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah program atau import JSON.</p></div></td></tr>`;
             return;
         }
         
         tbody.innerHTML = '';
-        data.forEach((item, idx) => {
+        data.forEach((item) => {
             const isAvailable = item.dateObj >= now;
             const statusLabel = isAvailable ? "Tersedia" : "Expired";
             const statusClass = isAvailable ? "status-available" : "status-expired";
@@ -826,8 +899,6 @@
                     ${item.link_poster ? `<a href="${escapeHtml(item.link_poster)}" target="_blank" rel="noopener noreferrer" class="btn-icon" data-tip="Poster">🖼️</a>` : '<span class="btn-icon disabled" data-tip="Poster">🖼️</span>'}
                     ${item.link_metaads ? `<a href="${escapeHtml(item.link_metaads)}" target="_blank" rel="noopener noreferrer" class="btn-icon" data-tip="Meta Ads">🔗</a>` : '<span class="btn-icon disabled" data-tip="Meta Ads">🔗</span>'}
                     ${item.link_dokumentasi ? `<a href="${escapeHtml(item.link_dokumentasi)}" target="_blank" rel="noopener noreferrer" class="btn-icon" data-tip="Dokumentasi">📂</a>` : '<span class="btn-icon disabled" data-tip="Dokumentasi">📂</span>'}
-                    <span class="actions-divider"></span>
-                    ${item.teks_wa ? `<button class="btn-icon btn-wa" data-tip="Salin ke WA" onclick="copyToWA('${item.id}')">📲</button>` : '<span class="btn-icon btn-wa disabled" data-tip="Teks WA belum ada">📲</span>'}
                 </div></td>
                 <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
             `;
@@ -886,9 +957,7 @@
             </div>
         `;
         
-        // Simpan teks WA untuk copy
         window.currentDetailWAText = waText;
-        
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
@@ -936,22 +1005,6 @@
         const ticker = document.getElementById('navTicker');
         if (ticker) ticker.innerHTML = active || "PT Amiru Haramain Indonesia.";
     }
-    
-    window.copyToWA = async (id) => {
-        const item = dataUmroh.find(p => p.id === id);
-        if (!item?.teks_wa) return;
-        navigator.clipboard.writeText(item.teks_wa).then(() => showToast('Teks berhasil disalin!'))
-            .catch(() => {
-                const ta = document.createElement('textarea');
-                ta.value = item.teks_wa;
-                ta.style.cssText = 'position:fixed;opacity:0';
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                showToast('Teks berhasil disalin!');
-            });
-    };
     
     function showToast(msg) {
         const toast = document.getElementById('toast');
@@ -1090,7 +1143,7 @@
                     </div>
                 </div>
                 <div class="admin-table">
-                    <table>
+                    </table>
                         <thead><tr><th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal Berangkat <i class="fas fa-sort"></i></th><th>Aksi</th></tr></thead>
                         <tbody id="adminTableBody"></tbody>
                     </table>
@@ -1137,7 +1190,7 @@
         }
         tbody.innerHTML = '';
         adminPrograms.forEach((prog, idx) => {
-            tbody.innerHTML += `<tr><td><strong>${escapeHtml(prog.nama || '-')}</strong></td><td>${escapeHtml(prog.harga_quint || '-')}</td><td>${escapeHtml(prog.tgl || '-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${prog.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${prog.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;
+            tbody.innerHTML += `<tr><td><strong>${escapeHtml(prog.nama || '-')}</strong><td>${escapeHtml(prog.harga_quint || '-')}</td><td>${escapeHtml(prog.tgl || '-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${prog.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${prog.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;
         });
     }
     
