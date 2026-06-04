@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amiru Repo - PT Amiru Haramain Indonesia</title>
+    <title>Amiru Repository</title>
     <meta name="description" content="Repository Program Umroh PT Amiru Haramain Indonesia">
     <meta name="theme-color" content="#1a6fa8">
     
@@ -211,7 +211,32 @@
         @media (max-width:520px){.col-maskapai,.col-durasi{display:none;}.logo-area h3{font-size:13px;}}
         @media (min-width:1600px){.page-header,.main-content{padding-left:24px;padding-right:24px;}.portal-header{padding-left:24px;padding-right:24px;}}
         @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}.ticker-text{animation:none;padding-left:0;white-space:normal;}}
-    </style>
+    
+    /* --- Debugging & Optimization Fixes --- */
+    input[type="date"] {
+        color-scheme: light !important;
+        color: var(--text-1) !important;
+        background-color: #ffffff !important;
+    }
+    .ticker-label {
+        padding: 0 20px 0 16px !important;
+        white-space: nowrap !important;
+    }
+    @media (max-width: 768px) {
+        .actions-cell {
+            gap: 8px !important;
+        }
+        .btn-icon {
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 16px !important;
+        }
+        .package-name {
+            display: inline-block;
+            padding: 4px 0;
+        }
+    }
+</style>
 </head>
 <body>
 
