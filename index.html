@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amiru Repository</title>
+    <title>Amiru Repository - Sistem Manajemen Program Umroh</title>
     <meta name="description" content="Repository Program Umroh PT Amiru Haramain Indonesia">
     <meta name="theme-color" content="#1a6fa8">
     
@@ -23,7 +23,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* ========== CSS MINIFIED ========== */
-        :root{--primary:#1a6fa8;--primary-light:#2580be;--primary-subtle:#e8f4fd;--accent:#0ea5e9;--white:#fff;--bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text-1:#0f172a;--text-2:#475569;--text-3:#94a3b8;--green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;--red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;--blue-bg:#eff6ff;--blue-text:#1d4ed8;--whatsapp:#25D366;--whatsapp-dark:#128C7E;--shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);--shadow-lg:0 10px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.02);--radius:8px;--radius-lg:12px;--transition:0.15s ease;}
+        :root{--primary:#1a6fa8;--primary-light:#2580be;--primary-subtle:#e8f4fd;--accent:#0ea5e9;--white:#fff;--bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text-1:#0f172a;--text-2:#475569;--text-3:#94a3b8;--green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;--red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;--yellow:#eab308;--yellow-bg:#fefce8;--yellow-border:#fef08a;--blue-bg:#eff6ff;--blue-text:#1d4ed8;--whatsapp:#25D366;--whatsapp-dark:#128C7E;--shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);--shadow-lg:0 10px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.02);--radius:8px;--radius-lg:12px;--transition:0.15s ease;}
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-1);line-height:1.5;font-size:14px;}
         .portal-header{background:linear-gradient(135deg,#1a6fa8 0%,#1559a0 100%);padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:9999;box-shadow:0 2px 16px rgba(21,89,160,0.25);}
@@ -78,6 +78,7 @@
         .stat-chip.total{background:var(--blue-bg);color:var(--blue-text);border-color:#bfdbfe;}
         .stat-chip.active{background:var(--green-bg);color:var(--green);border-color:var(--green-border);}
         .stat-chip.inactive{background:var(--red-bg);color:var(--red);border-color:var(--red-border);}
+        .stat-chip.warning{background:var(--yellow-bg);color:#b45309;border-color:var(--yellow-border);}
         .main-content{padding:16px 16px 0;max-width:1600px;margin:0 auto;min-height:60vh;}
         .table-container{overflow-x:auto;border-radius:var(--radius-lg);background:var(--surface);box-shadow:var(--shadow-sm);border:1px solid var(--border);}
         table{width:100%;border-collapse:collapse;min-width:900px;}
@@ -100,6 +101,8 @@
         .countdown.medium{background:var(--blue-bg);color:var(--blue-text);border:1px solid #bfdbfe;}
         .countdown.far{background:var(--primary-subtle);color:var(--primary);border:1px solid #bae6fd;}
         .countdown.expired{background:var(--surface2);color:var(--text-3);border:1px solid var(--border);}
+        .countdown.warning{background:var(--yellow-bg);color:#b45309;border:1px solid var(--yellow-border);animation:pulseBg 2s infinite;}
+        @keyframes pulseBg{0%,100%{opacity:1;}50%{opacity:0.7;}}
         .price-main{font-weight:800;color:var(--text-1);font-size:13.5px;display:block;}
         .price-sub{font-size:10px;color:var(--text-3);font-weight:600;}
         .date-cell{font-size:13px;font-weight:600;color:var(--text-1);white-space:nowrap;}
@@ -118,6 +121,7 @@
         .status-pill{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;white-space:nowrap;letter-spacing:.4px;border:1px solid;}
         .status-available{background:var(--green-bg);color:var(--green);border-color:var(--green-border);}
         .status-expired{background:var(--red-bg);color:var(--red);border-color:var(--red-border);}
+        .status-warning{background:var(--yellow-bg);color:#b45309;border-color:var(--yellow-border);}
         .actions-cell{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
         .btn-icon{text-decoration:none;width:30px;height:30px;border-radius:7px;font-size:14px;transition:all var(--transition);border:1px solid var(--border);background:var(--surface2);display:inline-flex;align-items:center;justify-content:center;color:var(--text-2);position:relative;cursor:pointer;}
         .btn-icon:hover{background:var(--primary);color:#fff;border-color:var(--primary);transform:translateY(-1px);}
@@ -171,7 +175,7 @@
         .btn-register:hover{background:var(--primary-light);}
         .admin-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:20000;overflow-y:auto;padding:20px;}
         .admin-modal.show{display:flex;align-items:flex-start;justify-content:center;}
-        .admin-modal-content{max-width:1200px;width:100%;background:var(--surface);border-radius:var(--radius);margin:40px auto;box-shadow:var(--shadow-lg);}
+        .admin-modal-content{max-width:1400px;width:100%;background:var(--surface);border-radius:var(--radius);margin:40px auto;box-shadow:var(--shadow-lg);}
         .admin-modal-header{background:linear-gradient(135deg,#1a6fa8,#1559a0);color:#fff;padding:16px 24px;border-radius:var(--radius) var(--radius) 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;}
         .admin-modal-header h2{font-size:18px;display:flex;align-items:center;gap:10px;font-weight:700;margin:0;}
         .admin-modal-header button{background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:6px;transition:all var(--transition);}
@@ -184,6 +188,8 @@
         .admin-btn-primary:hover{background:var(--primary-light);}
         .admin-btn-danger{background:#fee2e2;color:#dc2626;border-color:#fecaca;}
         .admin-btn-danger:hover{background:#dc2626;color:#fff;}
+        .admin-btn-warning{background:var(--yellow-bg);color:#b45309;border-color:var(--yellow-border);}
+        .admin-btn-warning:hover{background:#b45309;color:#fff;}
         .admin-form{background:#fff;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:20px;overflow:hidden;}
         .admin-form-header{background:var(--surface2);padding:12px 20px;border-bottom:1px solid var(--border);font-weight:700;display:flex;justify-content:space-between;font-size:14px;}
         .admin-form-body{padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
@@ -195,7 +201,7 @@
         .admin-full-width{grid-column:1/-1;}
         .form-actions{padding:0 20px 20px;display:flex;gap:10px;}
         .admin-table{background:#fff;border-radius:var(--radius);border:1px solid var(--border);overflow-x:auto;}
-        .admin-table table{width:100%;border-collapse:collapse;min-width:600px;}
+        .admin-table table{width:100%;border-collapse:collapse;min-width:800px;}
         .admin-table th,.admin-table td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);font-size:13px;}
         .admin-table th{background:var(--surface2);font-weight:700;color:var(--text-2);}
         .admin-table th.sortable-header{cursor:pointer;transition:color var(--transition);}
@@ -211,38 +217,32 @@
         .admin-login-box input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(26,111,168,0.1);}
         .admin-login-box button{width:100%;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;}
         .admin-login-box button:hover{background:var(--primary-light);}
+        
+        /* TAB STYLES FOR HISTORY */
+        .admin-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;}
+        .admin-tab{padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;background:var(--surface2);border:1px solid var(--border);border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;margin-right:4px;transition:all var(--transition);}
+        .admin-tab.active{background:var(--surface);color:var(--primary);border-bottom:2px solid var(--primary);}
+        .admin-tab:hover:not(.active){background:var(--primary-subtle);}
+        .history-log{background:var(--surface2);border-radius:var(--radius);padding:12px;max-height:500px;overflow-y:auto;}
+        .history-item{padding:12px;border-bottom:1px solid var(--border);font-size:12px;display:flex;align-items:flex-start;gap:12px;}
+        .history-item:last-child{border-bottom:none;}
+        .history-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .history-icon.create{background:#dbeafe;color:#1d4ed8;}
+        .history-icon.update{background:#fef3c7;color:#b45309;}
+        .history-icon.delete{background:#fee2e2;color:#dc2626;}
+        .history-icon.duplicate{background:#dcfce7;color:#16a34a;}
+        .history-detail{flex:1;}
+        .history-title{font-weight:700;color:var(--text-1);margin-bottom:4px;}
+        .history-meta{font-size:10px;color:var(--text-3);display:flex;gap:12px;margin-top:4px;}
+        .history-old{color:var(--text-3);text-decoration:line-through;margin-right:8px;}
+
         input[type="date"]{color-scheme:light;}
         @media (max-width:1024px){.nav-links,.search-wrapper{display:none;}.hamburger-btn{display:flex;align-items:center;}}
         @media (max-width:768px){.page-header-inner{padding:14px 16px;}.page-title h2{font-size:15px;}tbody td{padding:12px 10px;}th{padding:10px;}.portal-header{padding:0 12px;}.page-header{padding:20px 12px 0;}.main-content{padding:12px 12px 0;}.portal-footer-simple{padding:16px 12px;}.admin-modal-body{padding:16px;}.admin-form-body{padding:16px;gap:12px;grid-template-columns:1fr;}.admin-toolbar{padding:10px 12px;}.admin-modal-content{margin:20px;}.detail-info-grid{grid-template-columns:1fr;}.detail-modal-content{max-width:95%;}.wa-float{bottom:16px;right:16px;}.wa-float a{width:50px;height:50px;font-size:26px;}}
         @media (max-width:520px){.col-maskapai,.col-durasi{display:none;}.logo-area h3{font-size:13px;}}
         @media (min-width:1600px){.page-header,.main-content{padding-left:24px;padding-right:24px;}.portal-header{padding-left:24px;padding-right:24px;}}
         @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}.ticker-text{animation:none;padding-left:0;white-space:normal;}}
-    
-    /* --- Debugging & Optimization Fixes --- */
-    input[type="date"] {
-        color-scheme: light !important;
-        color: var(--text-1) !important;
-        background-color: #ffffff !important;
-    }
-    .ticker-label {
-        padding: 0 20px 0 16px !important;
-        white-space: nowrap !important;
-    }
-    @media (max-width: 768px) {
-        .actions-cell {
-            gap: 8px !important;
-        }
-        .btn-icon {
-            width: 36px !important;
-            height: 36px !important;
-            font-size: 16px !important;
-        }
-        .package-name {
-            display: inline-block;
-            padding: 4px 0;
-        }
-    }
-</style>
+    </style>
 </head>
 <body>
 
@@ -272,7 +272,7 @@
         <div class="drawer-search"><i class="fa-solid fa-magnifying-glass search-icon"></i><input type="text" id="searchInputMobile" placeholder="Cari paket..."></div>
         <nav class="drawer-nav">
             <a href="https://drive.google.com/open?id=1YLrU5P7YqxpPKCGlua51pOlEAJeYEhvz&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-pen"></i>Form Pendaftaran</a>
-            <a href="https://drive.google.com/open?id=1Kq_iZa6sPBHIG1YAxXhPMNglOkXSDU93&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-layer-group"></i>Semua Paket</a>
+            <a href="https://drive.google.com/open?id=1Kq_iZa6sPBHIG1YAXxXhPMNglOkXSDU93&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-layer-group"></i>Semua Paket</a>
             <a href="https://drive.google.com/open?id=1mhoSezYlh3S1xXILHAGc06UzNxeqYnfh&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-print"></i>Media Cetak</a>
             <a href="https://drive.google.com/open?id=1EUChpUcjVUJszl_X6MZIEFW0my09T1e5&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-chart-pie"></i>Infografis</a>
             <a href="https://drive.google.com/open?id=1WwfC3kP5v7cStq75A6N7gUnIonKBIoOQ&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-building"></i>Company Profile</a>
@@ -329,22 +329,76 @@
     const CACHE_KEY = 'amiru_cached_data';
     const CACHE_TIME_KEY = 'amiru_cache_time';
     const CACHE_DURATION = 300000;
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB max file import
-    const SESSION_DURATION = 30 * 60 * 1000; // 30 menit
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    const SESSION_DURATION = 30 * 60 * 1000;
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     let dataUmroh = [], currentData = [], currentSort = { column: null, asc: true };
     let adminLoggedIn = false, editingProgramId = null, adminSortColumn = null, adminSortAsc = true, adminPrograms = [];
     let debounceTimer = null, sessionTimeout = null;
+    let loginAttempts = 0, loginLockTime = 0;
+    let currentTab = 'programs'; // 'programs' or 'history'
+    let activityHistory = []; // Store activity logs
     
-    // Security: Rate limiting untuk login
-    let loginAttempts = 0;
-    let loginLockTime = 0;
+    // ========== LOAD HISTORY FROM LOCALSTORAGE ==========
+    function loadHistory() {
+        try {
+            const saved = localStorage.getItem('amiru_activity_history');
+            if (saved) {
+                activityHistory = JSON.parse(saved);
+                // Only keep last 200 entries
+                if (activityHistory.length > 200) activityHistory = activityHistory.slice(0, 200);
+            }
+        } catch(e) { console.log('Load history error:', e); }
+    }
     
-    // ========== SECURITY: VALIDASI URL ==========
+    function saveHistory() {
+        try {
+            localStorage.setItem('amiru_activity_history', JSON.stringify(activityHistory));
+        } catch(e) { console.log('Save history error:', e); }
+    }
+    
+    function addHistoryLog(action, programName, details = null, oldData = null) {
+        const log = {
+            id: Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            timestamp: new Date().toISOString(),
+            dateDisplay: new Date().toLocaleString('id-ID'),
+            action: action, // 'create', 'update', 'delete', 'duplicate'
+            programName: programName,
+            details: details,
+            oldData: oldData ? JSON.stringify(oldData) : null,
+            admin: sessionStorage.getItem('admin_logged_in') === 'true' ? 'Admin' : 'Unknown'
+        };
+        activityHistory.unshift(log); // Add to beginning
+        if (activityHistory.length > 200) activityHistory = activityHistory.slice(0, 200);
+        saveHistory();
+        
+        // If history tab is open, refresh it
+        if (currentTab === 'history' && adminLoggedIn) {
+            renderHistoryTab();
+        }
+    }
+    
+    // ========== H-30 NOTIFICATION CHECK ==========
+    function getH30NotificationStatus(tglString) {
+        if (!tglString) return null;
+        const dateObj = parseDateFromString(tglString);
+        const now = new Date();
+        const diffDays = Math.ceil((dateObj - now) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays <= 30 && diffDays >= 0) {
+            return { days: diffDays, isWarning: true, message: `⏰ H-${diffDays} menuju keberangkatan!` };
+        } else if (diffDays > 30) {
+            return { days: diffDays, isWarning: false, message: null };
+        } else {
+            return null;
+        }
+    }
+    
+    // ========== SECURITY FUNCTIONS ==========
     function isValidUrl(string) {
-        if (!string) return true; // kosong dianggap valid
+        if (!string) return true;
         try {
             const url = new URL(string);
             return url.protocol === 'http:' || url.protocol === 'https:';
@@ -353,7 +407,6 @@
         }
     }
     
-    // ========== SECURITY: SANITASI INPUT (Double Escape) ==========
     function sanitizeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, (m) => {
@@ -364,11 +417,8 @@
         }).replace(/javascript:/gi, 'blocked:');
     }
     
-    // ========== SECURITY: VALIDASI NAMA PROGRAM ==========
     function isValidProgramName(name) {
         if (!name) return false;
-        // Hanya huruf, angka, spasi, dan karakter umum yang aman
-        // Izinkan huruf Latin, Arab, angka, dan karakter umum nama program
         const validPattern = /^[\p{L}\p{N}\s\-.,()+&:!?\/]+$/u;
         return validPattern.test(name);
     }
@@ -399,7 +449,7 @@
         const loginTime = sessionStorage.getItem('admin_login_time');
         if (loggedIn === 'true' && loginTime && (Date.now() - parseInt(loginTime) < SESSION_DURATION)) {
             adminLoggedIn = true;
-            setAdminSession(); // refresh session
+            setAdminSession();
         } else {
             sessionStorage.removeItem('admin_logged_in');
             sessionStorage.removeItem('admin_login_time');
@@ -450,7 +500,11 @@
             const cached = sessionStorage.getItem(CACHE_KEY), cacheTime = sessionStorage.getItem(CACHE_TIME_KEY);
             if (cached && cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_DURATION)) {
                 dataUmroh = JSON.parse(cached);
-                dataUmroh.forEach(p => { if (p.tgl && !p.dateObj) p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
+                dataUmroh.forEach(p => { 
+                    if (p.tgl && !p.dateObj) p.dateObj = parseDateFromString(p.tgl); 
+                    p.isAvailable = p.dateObj >= new Date();
+                    p.h30Warning = getH30NotificationStatus(p.tgl);
+                });
                 currentData = [...dataUmroh];
                 renderTable(currentData); renderStats(); initTicker();
                 loadingEl.style.display = 'none'; tableEl.style.display = 'table';
@@ -461,7 +515,6 @@
         try {
             const { data, error } = await supabaseClient.from('programs').select('*').order('created_at', { ascending: true });
             if (error) throw error;
-            // Simpan hanya field plain (tanpa dateObj/isAvailable) ke cache agar JSON.stringify aman
             const plainData = (data || []).map(p => ({
                 id: p.id, nama: p.nama, tgl: p.tgl, durasi: p.durasi, maskapai: p.maskapai,
                 harga_quint: p.harga_quint, teks_wa: p.teks_wa,
@@ -472,16 +525,82 @@
             sessionStorage.setItem(CACHE_KEY, JSON.stringify(plainData));
             sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
             dataUmroh = plainData;
-            dataUmroh.forEach(p => { p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
+            dataUmroh.forEach(p => { 
+                p.dateObj = parseDateFromString(p.tgl); 
+                p.isAvailable = p.dateObj >= new Date();
+                p.h30Warning = getH30NotificationStatus(p.tgl);
+            });
             currentData = [...dataUmroh];
             renderTable(currentData); renderStats(); initTicker();
             loadingEl.style.display = 'none'; tableEl.style.display = 'table';
         } catch (err) { loadingEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Gagal memuat data: ${sanitizeHtml(err.message)}</p><button class="btn-reset" onclick="location.reload()">Coba Lagi</button></div>`; }
     }
 
-    async function insertProgram(programData) { const { data, error } = await supabaseClient.from('programs').insert([programData]).select(); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); return data[0]; }
-    async function updateProgramById(id, programData) { const { data, error } = await supabaseClient.from('programs').update(programData).eq('id', id).select(); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); return data[0]; }
-    async function deleteProgramById(id) { const { error } = await supabaseClient.from('programs').delete().eq('id', id); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); }
+    async function insertProgram(programData) { 
+        const { data, error } = await supabaseClient.from('programs').insert([programData]).select(); 
+        if (error) throw error; 
+        sessionStorage.removeItem(CACHE_KEY);
+        // Log activity
+        addHistoryLog('create', programData.nama, `Menambahkan program baru: ${programData.nama}`);
+        return data[0]; 
+    }
+    
+    async function updateProgramById(id, programData) { 
+        // Get old data for history
+        const { data: oldData } = await supabaseClient.from('programs').select('*').eq('id', id).single();
+        const { data, error } = await supabaseClient.from('programs').update(programData).eq('id', id).select(); 
+        if (error) throw error; 
+        sessionStorage.removeItem(CACHE_KEY);
+        // Log activity with changes
+        if (oldData) {
+            const changes = [];
+            if (oldData.nama !== programData.nama) changes.push(`nama: "${oldData.nama}" → "${programData.nama}"`);
+            if (oldData.tgl !== programData.tgl) changes.push(`tanggal: "${oldData.tgl}" → "${programData.tgl}"`);
+            if (oldData.harga_quint !== programData.harga_quint) changes.push(`harga: "${oldData.harga_quint}" → "${programData.harga_quint}"`);
+            addHistoryLog('update', programData.nama || oldData.nama, `Mengupdate program: ${changes.join(', ') || 'perubahan data'}`, oldData);
+        } else {
+            addHistoryLog('update', programData.nama, `Mengupdate program`);
+        }
+        return data[0]; 
+    }
+    
+    async function deleteProgramById(id) { 
+        // Get program name for history before delete
+        const { data: program } = await supabaseClient.from('programs').select('nama').eq('id', id).single();
+        const { error } = await supabaseClient.from('programs').delete().eq('id', id); 
+        if (error) throw error; 
+        sessionStorage.removeItem(CACHE_KEY);
+        if (program) {
+            addHistoryLog('delete', program.nama, `Menghapus program: ${program.nama}`);
+        }
+    }
+    
+    async function duplicateProgramById(id) {
+        // Get original program data
+        const { data: original, error: fetchError } = await supabaseClient.from('programs').select('*').eq('id', id).single();
+        if (fetchError) throw fetchError;
+        
+        // Create duplicate with modified name
+        const duplicateData = {
+            nama: `${original.nama} (Duplicate)`,
+            tgl: original.tgl,
+            durasi: original.durasi,
+            maskapai: original.maskapai,
+            harga_quint: original.harga_quint,
+            link_form: original.link_form,
+            link_itinerary: original.link_itinerary,
+            link_poster: original.link_poster,
+            link_metaads: original.link_metaads,
+            link_dokumentasi: original.link_dokumentasi,
+            teks_wa: original.teks_wa
+        };
+        
+        const { data, error } = await supabaseClient.from('programs').insert([duplicateData]).select();
+        if (error) throw error;
+        sessionStorage.removeItem(CACHE_KEY);
+        addHistoryLog('duplicate', duplicateData.nama, `Menduplikasi program dari: ${original.nama}`, original);
+        return data[0];
+    }
 
     // Render Functions
     function renderTable(data) {
@@ -490,15 +609,26 @@
         if (!data || !data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah.</p></div></td></tr>`; return; }
         tbody.innerHTML = '';
         data.forEach(item => {
-            const isAvailable = item.dateObj >= now, statusClass = isAvailable ? "status-available" : "status-expired";
+            const isAvailable = item.dateObj >= now;
+            const statusClass = isAvailable ? "status-available" : "status-expired";
             const diffMs = item.dateObj - now;
             let cdText = "Sudah berangkat", cdClass = "expired";
+            
+            // Check H-30 notification
+            const h30 = getH30NotificationStatus(item.tgl);
+            let warningBadge = '';
+            if (h30 && h30.isWarning && isAvailable) {
+                warningBadge = `<span class="countdown warning" style="margin-left:8px;">⚠️ ${h30.message}</span>`;
+                statusClass = "status-warning";
+            }
+            
             if (diffMs >= 0) {
                 const diffDays = Math.floor(diffMs / (1000*60*60*24));
                 const years = Math.floor(diffDays/365), months = Math.floor((diffDays%365)/30), days = diffDays%30;
                 const parts = []; if (years) parts.push(`${years}th`); if (months) parts.push(`${months}bl`); if (days) parts.push(`${days}hr`);
                 if (!parts.length) parts.push("Hari ini!");
-                cdText = parts.join(" ") + (diffDays>0?" lagi":""); cdClass = diffDays<=30?"soon":diffDays<=90?"medium":"far";
+                cdText = parts.join(" ") + (diffDays>0?" lagi":"");
+                cdClass = diffDays<=30 ? (diffDays<=0 ? "expired" : "warning") : (diffDays<=90?"medium":"far");
             }
             const maskapaiLower = (item.maskapai||'').toLowerCase();
             let maskapaiDot = 'oman';
@@ -511,19 +641,42 @@
             else if (maskapaiLower.includes('malindo')) maskapaiDot='malindo';
             else if (maskapaiLower.includes('air asia') || maskapaiLower.includes('airasia')) maskapaiDot='airasia';
             const row = document.createElement('tr');
-            row.innerHTML = `<td><span class="package-name" onclick="openDetailModal('${item.id}')">${escapeHtml(item.nama||'')}</span><span class="countdown ${cdClass}">🕐 ${escapeHtml(cdText)}</span></td>
+            row.innerHTML = `<tr><span class="package-name" onclick="openDetailModal('${item.id}')">${escapeHtml(item.nama||'')}</span><span class="countdown ${cdClass}">🕐 ${escapeHtml(cdText)}</span>${warningBadge}</td>
                 <td class="col-harga">${item.harga_quint?`<span class="price-main">${escapeHtml(item.harga_quint)}</span><span class="price-sub">per orang (Quint)</span>`:'<span style="color:var(--text-3);">—</span>'}</td>
                 <td class="date-cell">📅 ${escapeHtml(item.tgl||'')}</td>
                 <td class="col-durasi"><span class="badge">⏱ ${escapeHtml(item.durasi||'')}</span></td>
                 <td class="col-maskapai"><div class="maskapai-cell"><span class="maskapai-dot ${maskapaiDot}"></span>${escapeHtml(item.maskapai||'')}</div></td>
                 <td><div class="actions-cell">${item.link_form?`<a href="${escapeHtml(item.link_form)}" target="_blank" class="btn-icon" data-tip="Form Daftar">📋</a>`:'<span class="btn-icon disabled">📋</span>'}${item.link_itinerary?`<a href="${escapeHtml(item.link_itinerary)}" target="_blank" class="btn-icon" data-tip="Itinerary">📄</a>`:'<span class="btn-icon disabled">📄</span>'}${item.link_poster?`<a href="${escapeHtml(item.link_poster)}" target="_blank" class="btn-icon" data-tip="Poster">🖼️</a>`:'<span class="btn-icon disabled">🖼️</span>'}${item.link_metaads?`<a href="${escapeHtml(item.link_metaads)}" target="_blank" class="btn-icon" data-tip="Meta Ads">🔗</a>`:'<span class="btn-icon disabled">🔗</span>'}${item.link_dokumentasi?`<a href="${escapeHtml(item.link_dokumentasi)}" target="_blank" class="btn-icon" data-tip="Dokumentasi">📂</a>`:'<span class="btn-icon disabled">📂</span>'}</div></td>
-                <td><span class="status-pill ${statusClass}">${isAvailable?"Tersedia":"Expired"}</span></td>`;
+                <td><span class="status-pill ${statusClass}">${isAvailable ? (h30 && h30.isWarning ? "H-30!" : "Tersedia") : "Expired"}</span></td>`;
             tbody.appendChild(row);
         });
     }
 
-    function renderStats() { const now = new Date(); const total = dataUmroh.length, active = dataUmroh.filter(i=>i.dateObj>=now).length, past = total-active; document.getElementById('statsRow') && (document.getElementById('statsRow').innerHTML = `<span class="stat-chip total"><i class="fa-solid fa-layer-group"></i> ${total} Paket</span><span class="stat-chip active"><i class="fa-solid fa-circle-check"></i> ${active} Tersedia</span><span class="stat-chip inactive"><i class="fa-solid fa-clock-rotate-left"></i> ${past} Expired</span>`); }
-    function initTicker() { const now = new Date(); const active = dataUmroh.filter(i=>i.dateObj>=now).map(i=>`✨ ${escapeHtml(i.nama)} — ${escapeHtml(i.tgl)} (${escapeHtml(i.maskapai)})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); const ticker = document.getElementById('navTicker'); ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); }
+    function renderStats() { 
+        const now = new Date(); 
+        const total = dataUmroh.length; 
+        const active = dataUmroh.filter(i=>i.dateObj>=now).length; 
+        const past = total-active;
+        const h30Count = dataUmroh.filter(i => {
+            const h30 = getH30NotificationStatus(i.tgl);
+            return h30 && h30.isWarning && i.dateObj >= now;
+        }).length;
+        
+        let statsHtml = `<span class="stat-chip total"><i class="fa-solid fa-layer-group"></i> ${total} Paket</span>
+                         <span class="stat-chip active"><i class="fa-solid fa-circle-check"></i> ${active} Tersedia</span>
+                         <span class="stat-chip inactive"><i class="fa-solid fa-clock-rotate-left"></i> ${past} Expired</span>`;
+        if (h30Count > 0) {
+            statsHtml += `<span class="stat-chip warning"><i class="fa-solid fa-bell"></i> ${h30Count} H-30!</span>`;
+        }
+        document.getElementById('statsRow') && (document.getElementById('statsRow').innerHTML = statsHtml); 
+    }
+    
+    function initTicker() { 
+        const now = new Date(); 
+        const active = dataUmroh.filter(i=>i.dateObj>=now).map(i=>`✨ ${escapeHtml(i.nama)} — ${escapeHtml(i.tgl)} (${escapeHtml(i.maskapai)})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); 
+        const ticker = document.getElementById('navTicker'); 
+        ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); 
+    }
 
     // Sorting with debounce
     function sortTable(column) {
@@ -540,7 +693,7 @@
         renderTable(currentData);
     }
 
-    // Search with DEBOUNCE (300ms)
+    // Search with DEBOUNCE
     function filterData(term) {
         const t = term.toLowerCase().trim(), now = new Date();
         if (!t) currentData = [...dataUmroh];
@@ -551,7 +704,6 @@
 
     function resetSearch() { document.getElementById('searchInput').value = ''; document.getElementById('searchInputMobile').value = ''; currentData = [...dataUmroh]; renderTable(currentData); }
 
-    // Debounce untuk search
     function handleSearchInput(e) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => filterData(e.target.value), 300); }
     document.getElementById('searchInput')?.addEventListener('input', handleSearchInput);
     document.getElementById('searchInputMobile')?.addEventListener('input', (e) => { document.getElementById('searchInput').value = e.target.value; clearTimeout(debounceTimer); debounceTimer = setTimeout(() => filterData(e.target.value), 300); });
@@ -573,36 +725,189 @@
     function closeDetailModal() { document.getElementById('detailModal').classList.remove('show'); document.body.style.overflow = ''; }
     function copyDetailWAText() { const text = window.currentDetailWAText; if (!text) return; navigator.clipboard.writeText(text).then(()=>showToast('Teks berhasil disalin!')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('Teks berhasil disalin!');}); }
 
-    // Admin Panel (dengan cache refresh)
-    function openAdminModal() { 
-        checkSession();
-        document.getElementById('adminModal').classList.add('show'); 
-        renderAdminPanel(); 
+    // ========== HISTORY TAB RENDER ==========
+    function renderHistoryTab() {
+        const container = document.getElementById('adminModalBody');
+        if (!container) return;
+        
+        const historyHtml = activityHistory.map(log => {
+            let iconClass = '', iconHtml = '';
+            switch(log.action) {
+                case 'create': iconClass = 'create'; iconHtml = '<i class="fas fa-plus"></i>'; break;
+                case 'update': iconClass = 'update'; iconHtml = '<i class="fas fa-edit"></i>'; break;
+                case 'delete': iconClass = 'delete'; iconHtml = '<i class="fas fa-trash"></i>'; break;
+                case 'duplicate': iconClass = 'duplicate'; iconHtml = '<i class="fas fa-copy"></i>'; break;
+                default: iconClass = 'update'; iconHtml = '<i class="fas fa-info"></i>';
+            }
+            
+            let detailText = log.details || '';
+            if (log.action === 'create') detailText = `➕ Membuat program baru: ${escapeHtml(log.programName)}`;
+            else if (log.action === 'delete') detailText = `🗑️ Menghapus program: ${escapeHtml(log.programName)}`;
+            else if (log.action === 'duplicate') detailText = `📋 Menduplikasi program: ${escapeHtml(log.programName)}`;
+            else if (log.action === 'update') detailText = `✏️ ${escapeHtml(log.details || `Mengupdate program: ${escapeHtml(log.programName)}`)}`;
+            
+            return `<div class="history-item">
+                <div class="history-icon ${iconClass}">${iconHtml}</div>
+                <div class="history-detail">
+                    <div class="history-title">${detailText}</div>
+                    <div class="history-meta">
+                        <span><i class="far fa-clock"></i> ${escapeHtml(log.dateDisplay)}</span>
+                        <span><i class="fas fa-user-shield"></i> ${escapeHtml(log.admin)}</span>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+        
+        const emptyHistory = activityHistory.length === 0 ? '<div class="empty-state"><div class="empty-icon">📜</div><p>Belum ada riwayat perubahan</p></div>' : '';
+        
+        // Combine with programs tab content
+        const programsHtml = await renderProgramsTabContent();
+        
+        container.innerHTML = `
+            <div class="admin-toolbar">
+                <button class="admin-btn admin-btn-primary" onclick="switchAdminTab('programs')"><i class="fas fa-list"></i> Daftar Program</button>
+                <button class="admin-btn ${currentTab === 'history' ? 'admin-btn-primary' : ''}" onclick="switchAdminTab('history')"><i class="fas fa-history"></i> Riwayat Perubahan</button>
+                <button class="admin-btn" onclick="exportAdminData()"><i class="fas fa-download"></i> Export JSON</button>
+                <button class="admin-btn" onclick="importAdminData()"><i class="fas fa-upload"></i> Import JSON</button>
+                <button class="admin-btn admin-btn-danger" onclick="clearAllAdminData()"><i class="fas fa-trash"></i> Hapus Semua</button>
+                <button class="admin-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            <div id="adminTabContent">
+                ${currentTab === 'history' ? 
+                    `<div class="history-log">${historyHtml || emptyHistory}</div>` : 
+                    programsHtml
+                }
+            </div>
+        `;
     }
-    function closeAdminModal() { document.getElementById('adminModal').classList.remove('show'); }
-    function renderMaskapaiOptions(selected='') { let opts='<option value="">-- Pilih Maskapai --</option>'; MASKAPAI_LIST.forEach(m=>opts+=`<option value="${escapeHtml(m)}" ${selected===m?'selected':''}>${escapeHtml(m)}</option>`); return opts; }
+    
+    async function renderProgramsTabContent() {
+        const { data } = await supabaseClient.from('programs').select('*').order('created_at');
+        adminPrograms = data || [];
+        
+        return `<div class="admin-form" id="adminFormContainer" style="display:none;">
+                    <div class="admin-form-header"><span><i class="fas fa-edit"></i> <span id="adminFormTitle">Tambah Program Baru</span></span><button class="admin-btn" onclick="hideAdminForm()">&times;</button></div>
+                    <div class="admin-form-body"><div class="admin-form-group admin-full-width"><label>Nama Program *</label><input type="text" id="admin_nama" placeholder="Contoh: Umroh Akbar Bareng UAS" maxlength="200"></div>
+                    <div class="admin-form-group"><label>Tanggal</label><input type="date" id="admin_tgl_date"><input type="hidden" id="admin_tgl"><small style="color:#64748b">Pilih tanggal dari kalender</small></div>
+                    <div class="admin-form-group"><label>Durasi</label><input type="text" id="admin_durasi" placeholder="9 Hari" maxlength="50"></div>
+                    <div class="admin-form-group"><label>Maskapai</label><select id="admin_maskapai">${renderMaskapaiOptions()}</select></div>
+                    <div class="admin-form-group"><label>Harga</label><input type="text" id="admin_harga_quint" placeholder="Rp 32.500.000" maxlength="50"></div>
+                    <div class="admin-form-group"><label>Link Form</label><input type="url" id="admin_link_form" placeholder="https://..."></div>
+                    <div class="admin-form-group"><label>Link Itinerary</label><input type="url" id="admin_link_itinerary" placeholder="https://..."></div>
+                    <div class="admin-form-group"><label>Link Poster</label><input type="url" id="admin_link_poster" placeholder="https://..."></div>
+                    <div class="admin-form-group"><label>Link Meta Ads</label><input type="url" id="admin_link_metaads" placeholder="https://..."></div>
+                    <div class="admin-form-group"><label>Link Dokumentasi</label><input type="url" id="admin_link_dokumentasi" placeholder="https://..."></div>
+                    <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis" maxlength="5000"></textarea></div></div>
+                    <div class="form-actions"><button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button><button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button><button class="admin-btn" onclick="hideAdminForm()">Batal</button></div>
+                </div>
+                <div class="admin-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th>
+                                <th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th>
+                                <th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal <i class="fas fa-sort"></i></th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>`;
+    }
+    
+    function switchAdminTab(tab) {
+        currentTab = tab;
+        renderAdminPanel();
+    }
+    
+    function renderMaskapaiOptions(selected='') { 
+        let opts='<option value="">-- Pilih Maskapai --</option>'; 
+        MASKAPAI_LIST.forEach(m=>opts+=`<option value="${escapeHtml(m)}" ${selected===m?'selected':''}>${escapeHtml(m)}</option>`); 
+        return opts; 
+    }
     
     async function renderAdminPanel() {
         const container = document.getElementById('adminModalBody');
         if (adminLoggedIn) {
             const { data } = await supabaseClient.from('programs').select('*').order('created_at');
             adminPrograms = data || [];
-            container.innerHTML = `<div class="admin-toolbar"><button class="admin-btn admin-btn-primary" onclick="showAdminForm()"><i class="fas fa-plus"></i> Program Baru</button><button class="admin-btn" onclick="exportAdminData()"><i class="fas fa-download"></i> Export JSON</button><button class="admin-btn" onclick="importAdminData()"><i class="fas fa-upload"></i> Import JSON</button><button class="admin-btn admin-btn-danger" onclick="clearAllAdminData()"><i class="fas fa-trash"></i> Hapus Semua</button><button class="admin-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
-                <div id="adminFormContainer" style="display:none;" class="admin-form"><div class="admin-form-header"><span><i class="fas fa-edit"></i> <span id="adminFormTitle">Tambah Program Baru</span></span><button class="admin-btn" onclick="hideAdminForm()">&times;</button></div>
-                <div class="admin-form-body"><div class="admin-form-group admin-full-width"><label>Nama Program *</label><input type="text" id="admin_nama" placeholder="Contoh: Umroh Akbar Bareng UAS" maxlength="200"></div>
-                <div class="admin-form-group"><label>Tanggal</label><input type="date" id="admin_tgl_date"><input type="hidden" id="admin_tgl"><small style="color:#64748b">Pilih tanggal dari kalender</small></div>
-                <div class="admin-form-group"><label>Durasi</label><input type="text" id="admin_durasi" placeholder="9 Hari" maxlength="50"></div>
-                <div class="admin-form-group"><label>Maskapai</label><select id="admin_maskapai">${renderMaskapaiOptions()}</select></div>
-                <div class="admin-form-group"><label>Harga</label><input type="text" id="admin_harga_quint" placeholder="Rp 32.500.000" maxlength="50"></div>
-                <div class="admin-form-group"><label>Link Form</label><input type="url" id="admin_link_form" placeholder="https://..."></div>
-                <div class="admin-form-group"><label>Link Itinerary</label><input type="url" id="admin_link_itinerary" placeholder="https://..."></div>
-                <div class="admin-form-group"><label>Link Poster</label><input type="url" id="admin_link_poster" placeholder="https://..."></div>
-                <div class="admin-form-group"><label>Link Meta Ads</label><input type="url" id="admin_link_metaads" placeholder="https://..."></div>
-                <div class="admin-form-group"><label>Link Dokumentasi</label><input type="url" id="admin_link_dokumentasi" placeholder="https://..."></div>
-                <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis" maxlength="5000"></textarea></div></div>
-                <div class="form-actions"><button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button><button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button><button class="admin-btn" onclick="hideAdminForm()">Batal</button></div></div>
-                <div class="admin-table"><table><thead><tr><th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal <i class="fas fa-sort"></i></th><th>Aksi</th></tr></thead><tbody id="adminTableBody"></tbody></table></div>`;
-            const dateInput = document.getElementById('admin_tgl_date'); if(dateInput) dateInput.addEventListener('change',function(){if(this.value)document.getElementById('admin_tgl').value=formatDateToIndonesian(new Date(this.value));else document.getElementById('admin_tgl').value='';});
+            
+            // Generate history HTML
+            const historyHtml = activityHistory.map(log => {
+                let iconClass = '', iconHtml = '';
+                switch(log.action) {
+                    case 'create': iconClass = 'create'; iconHtml = '<i class="fas fa-plus"></i>'; break;
+                    case 'update': iconClass = 'update'; iconHtml = '<i class="fas fa-edit"></i>'; break;
+                    case 'delete': iconClass = 'delete'; iconHtml = '<i class="fas fa-trash"></i>'; break;
+                    case 'duplicate': iconClass = 'duplicate'; iconHtml = '<i class="fas fa-copy"></i>'; break;
+                    default: iconClass = 'update'; iconHtml = '<i class="fas fa-info"></i>';
+                }
+                
+                let detailText = log.details || '';
+                if (log.action === 'create') detailText = `➕ Membuat program baru: ${escapeHtml(log.programName)}`;
+                else if (log.action === 'delete') detailText = `🗑️ Menghapus program: ${escapeHtml(log.programName)}`;
+                else if (log.action === 'duplicate') detailText = `📋 Menduplikasi program: ${escapeHtml(log.programName)}`;
+                else if (log.action === 'update') detailText = `✏️ ${escapeHtml(log.details || `Mengupdate program: ${escapeHtml(log.programName)}`)}`;
+                
+                return `<div class="history-item">
+                    <div class="history-icon ${iconClass}">${iconHtml}</div>
+                    <div class="history-detail">
+                        <div class="history-title">${detailText}</div>
+                        <div class="history-meta">
+                            <span><i class="far fa-clock"></i> ${escapeHtml(log.dateDisplay)}</span>
+                            <span><i class="fas fa-user-shield"></i> ${escapeHtml(log.admin)}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            const emptyHistory = activityHistory.length === 0 ? '<div class="empty-state"><div class="empty-icon">📜</div><p>Belum ada riwayat perubahan</p></div>' : '';
+            
+            container.innerHTML = `<div class="admin-toolbar">
+                <button class="admin-btn admin-btn-primary" onclick="showAdminForm()"><i class="fas fa-plus"></i> Program Baru</button>
+                <button class="admin-btn" onclick="switchAdminTab('programs')"><i class="fas fa-list"></i> Daftar Program</button>
+                <button class="admin-btn ${currentTab === 'history' ? 'admin-btn-primary' : ''}" onclick="switchAdminTab('history')"><i class="fas fa-history"></i> Riwayat Perubahan</button>
+                <button class="admin-btn" onclick="exportAdminData()"><i class="fas fa-download"></i> Export JSON</button>
+                <button class="admin-btn" onclick="importAdminData()"><i class="fas fa-upload"></i> Import JSON</button>
+                <button class="admin-btn admin-btn-danger" onclick="clearAllAdminData()"><i class="fas fa-trash"></i> Hapus Semua</button>
+                <button class="admin-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            <div id="adminTabContent">
+                ${currentTab === 'history' ? 
+                    `<div class="history-log">${historyHtml || emptyHistory}</div>` : 
+                    `<div class="admin-form" id="adminFormContainer" style="display:none;">
+                        <div class="admin-form-header"><span><i class="fas fa-edit"></i> <span id="adminFormTitle">Tambah Program Baru</span></span><button class="admin-btn" onclick="hideAdminForm()">&times;</button></div>
+                        <div class="admin-form-body"><div class="admin-form-group admin-full-width"><label>Nama Program *</label><input type="text" id="admin_nama" placeholder="Contoh: Umroh Akbar Bareng UAS" maxlength="200"></div>
+                        <div class="admin-form-group"><label>Tanggal</label><input type="date" id="admin_tgl_date"><input type="hidden" id="admin_tgl"><small style="color:#64748b">Pilih tanggal dari kalender</small></div>
+                        <div class="admin-form-group"><label>Durasi</label><input type="text" id="admin_durasi" placeholder="9 Hari" maxlength="50"></div>
+                        <div class="admin-form-group"><label>Maskapai</label><select id="admin_maskapai">${renderMaskapaiOptions()}</select></div>
+                        <div class="admin-form-group"><label>Harga</label><input type="text" id="admin_harga_quint" placeholder="Rp 32.500.000" maxlength="50"></div>
+                        <div class="admin-form-group"><label>Link Form</label><input type="url" id="admin_link_form" placeholder="https://..."></div>
+                        <div class="admin-form-group"><label>Link Itinerary</label><input type="url" id="admin_link_itinerary" placeholder="https://..."></div>
+                        <div class="admin-form-group"><label>Link Poster</label><input type="url" id="admin_link_poster" placeholder="https://..."></div>
+                        <div class="admin-form-group"><label>Link Meta Ads</label><input type="url" id="admin_link_metaads" placeholder="https://..."></div>
+                        <div class="admin-form-group"><label>Link Dokumentasi</label><input type="url" id="admin_link_dokumentasi" placeholder="https://..."></div>
+                        <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis" maxlength="5000"></textarea></div></div>
+                        <div class="form-actions"><button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button><button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button><button class="admin-btn" onclick="hideAdminForm()">Batal</button></div>
+                    </div>
+                    <div class="admin-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th>
+                                    <th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th>
+                                    <th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal <i class="fas fa-sort"></i></th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody"></tbody>
+                        </table>
+                    </div>`
+                }
+            </div>`;
+            
+            const dateInput = document.getElementById('admin_tgl_date'); 
+            if(dateInput) dateInput.addEventListener('change',function(){if(this.value)document.getElementById('admin_tgl').value=formatDateToIndonesian(new Date(this.value));else document.getElementById('admin_tgl').value='';});
             renderAdminTable();
         } else {
             container.innerHTML = `<div class="admin-login-box"><div class="icon"><i class="fas fa-shield-alt"></i></div><h3>Admin Panel</h3><p class="text-muted">Masukkan password untuk mengelola program umroh</p><input type="password" id="adminPasswordInput" placeholder="Password" autofocus><button onclick="checkAdminLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button><div id="adminLoginError" style="color:red;font-size:12px;margin-top:16px;"></div></div>`;
@@ -610,7 +915,39 @@
         }
     }
     
-    function renderAdminTable() { const tbody=document.getElementById('adminTableBody'); if(!tbody) return; if(!adminPrograms.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:40px;">Belum ada program.</td></tr>';return;} tbody.innerHTML=''; adminPrograms.forEach(p=>{tbody.innerHTML+=`<tr><td><strong>${escapeHtml(p.nama||'-')}</strong></td><td>${escapeHtml(p.harga_quint||'-')}</td><td>${escapeHtml(p.tgl||'-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${p.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${p.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;}); }
+    function renderAdminTable() { 
+        const tbody=document.getElementById('adminTableBody'); 
+        if(!tbody) return; 
+        if(!adminPrograms.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:40px;">Belum ada program. Klik "Program Baru" untuk menambah.</td></tr>';return;} 
+        tbody.innerHTML=''; 
+        adminPrograms.forEach(p=>{
+            const h30Warning = getH30NotificationStatus(p.tgl);
+            const warningIcon = (h30 && h30.isWarning) ? ' <span style="color:#b45309;font-size:11px;">⚠️ H-30</span>' : '';
+            tbody.innerHTML+=`<tr>
+                <td><strong>${escapeHtml(p.nama||'-')}</strong>${warningIcon}</td>
+                <td>${escapeHtml(p.harga_quint||'-')}</td>
+                <td>${escapeHtml(p.tgl||'-')}</td>
+                <td class="admin-action-btns">
+                    <button onclick="editAdminProgram('${p.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button>
+                    <button onclick="duplicateAdminProgram('${p.id}')" style="background:#dcfce7;color:#16a34a;"><i class="fas fa-copy"></i> Duplikat</button>
+                    <button onclick="deleteAdminProgram('${p.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button>
+                </td>
+            </tr>`;
+        }); 
+    }
+    
+    // ========== DUPLICATE FUNCTION ==========
+    async function duplicateAdminProgram(id) {
+        if (!confirm('Duplikat program ini? Data akan disalin dengan akhiran "(Duplicate)"')) return;
+        try {
+            await duplicateProgramById(id);
+            await loadDataFromSupabase(true);
+            await renderAdminPanel();
+            showToast('✅ Program berhasil diduplikasi!');
+        } catch(err) {
+            showToast('❌ Gagal duplikasi: ' + err.message);
+        }
+    }
     
     function getAdminFormData() { 
         return { 
@@ -643,14 +980,20 @@
         document.getElementById('admin_teks_wa')&&(document.getElementById('admin_teks_wa').value=data.teks_wa||''); 
     }
     
-    function showAdminForm() { editingProgramId=null; document.getElementById('adminFormTitle').innerText='Tambah Program Baru'; setAdminFormData({}); document.getElementById('adminFormContainer').style.display='block'; }
-    function hideAdminForm() { document.getElementById('adminFormContainer').style.display='none'; }
+    function showAdminForm() { 
+        editingProgramId=null; 
+        document.getElementById('adminFormTitle').innerText='Tambah Program Baru'; 
+        setAdminFormData({}); 
+        document.getElementById('adminFormContainer').style.display='block'; 
+    }
+    function hideAdminForm() { 
+        document.getElementById('adminFormContainer').style.display='none'; 
+    }
     
     async function saveAdminProgram() { 
         const nama=document.getElementById('admin_nama')?.value.trim(); 
         if(!nama){alert('Nama program wajib diisi!');return;} 
         
-        // Validasi keamanan nama program
         if (!isValidProgramName(nama)) {
             alert('Nama program mengandung karakter tidak valid!');
             return;
@@ -658,7 +1001,6 @@
         
         const formData=getAdminFormData(); 
         
-        // Validasi keamanan URL
         const urlFields = ['link_form', 'link_itinerary', 'link_poster', 'link_metaads', 'link_dokumentasi'];
         for (const field of urlFields) {
             if (formData[field] && !isValidUrl(formData[field])) {
@@ -668,14 +1010,64 @@
         }
         
         if(!formData.teks_wa)formData.teks_wa=generateAutoWAText(formData); 
-        try{if(editingProgramId)await updateProgramById(editingProgramId,formData);else await insertProgram(formData);await loadDataFromSupabase(true);await renderAdminPanel();hideAdminForm();showToast('Program berhasil disimpan!');}catch(err){showToast('Gagal: '+err.message);} 
+        try{
+            if(editingProgramId)await updateProgramById(editingProgramId,formData);
+            else await insertProgram(formData);
+            await loadDataFromSupabase(true);
+            await renderAdminPanel();
+            hideAdminForm();
+            showToast('Program berhasil disimpan!');
+        }catch(err){showToast('Gagal: '+err.message);} 
     }
     
-    async function editAdminProgram(id){const{data}=await supabaseClient.from('programs').select('*').eq('id',id).single();if(data){setAdminFormData(data);editingProgramId=id;document.getElementById('adminFormTitle').innerText='Edit Program';document.getElementById('adminFormContainer').style.display='block';}}
-    async function deleteAdminProgram(id){if(confirm('Yakin hapus program ini?')){try{await deleteProgramById(id);await loadDataFromSupabase(true);await renderAdminPanel();showToast('Program dihapus');}catch(err){showToast('Gagal hapus: '+err.message);}}}
-    async function clearAllAdminData(){if(confirm('⚠️ PERINGATAN: Hapus SEMUA program?')){try{const{data}=await supabaseClient.from('programs').select('id');for(const prog of data)await deleteProgramById(prog.id);await loadDataFromSupabase(true);await renderAdminPanel();showToast('Semua program dihapus');}catch(err){showToast('Gagal: '+err.message);}}}
+    async function editAdminProgram(id){
+        const{data}=await supabaseClient.from('programs').select('*').eq('id',id).single();
+        if(data){
+            setAdminFormData(data);
+            editingProgramId=id;
+            document.getElementById('adminFormTitle').innerText='Edit Program';
+            document.getElementById('adminFormContainer').style.display='block';
+        }
+    }
+    
+    async function deleteAdminProgram(id){
+        if(confirm('Yakin hapus program ini?')){
+            try{
+                await deleteProgramById(id);
+                await loadDataFromSupabase(true);
+                await renderAdminPanel();
+                showToast('Program dihapus');
+            }catch(err){showToast('Gagal hapus: '+err.message);}
+        }
+    }
+    
+    async function clearAllAdminData(){
+        if(confirm('⚠️ PERINGATAN: Hapus SEMUA program?')){
+            try{
+                const{data}=await supabaseClient.from('programs').select('id');
+                for(const prog of data) {
+                    addHistoryLog('delete', prog.id, `Menghapus semua program (bulk delete)`);
+                    await deleteProgramById(prog.id);
+                }
+                await loadDataFromSupabase(true);
+                await renderAdminPanel();
+                showToast('Semua program dihapus');
+            }catch(err){showToast('Gagal: '+err.message);}
+        }
+    }
+    
     function previewAdminWA(){const data=getAdminFormData();const waText=data.teks_wa||generateAutoWAText(data);alert('📱 Preview Teks WA:\n\n'+waText);}
-    function exportAdminData(){const dataStr=JSON.stringify(adminPrograms,null,2);const blob=new Blob([dataStr],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`amiru_programs_${new Date().toISOString().slice(0,19)}.json`;a.click();URL.revokeObjectURL(a.href);showToast('✅ Data diexport');}
+    
+    function exportAdminData(){
+        const dataStr=JSON.stringify(adminPrograms,null,2);
+        const blob=new Blob([dataStr],{type:'application/json'});
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);
+        a.download=`amiru_programs_${new Date().toISOString().slice(0,19)}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast('✅ Data diexport');
+    }
     
     function importAdminData(){
         const input=document.createElement('input');
@@ -684,20 +1076,16 @@
         input.onchange=async(e)=>{
             const file=e.target.files[0];
             if(!file)return;
-            
-            // Batasi ukuran file
             if(file.size>MAX_FILE_SIZE){
                 showToast('❌ File terlalu besar! Maksimal 5MB.');
                 return;
             }
-            
             const reader=new FileReader();
             reader.onload=async(event)=>{
                 try{
                     const imported=JSON.parse(event.target.result);
                     if(Array.isArray(imported)){
                         for(const prog of imported){
-                            // Validasi data sebelum insert
                             if(prog.nama && isValidProgramName(prog.nama)){
                                 await insertProgram(prog);
                             }
@@ -713,15 +1101,35 @@
         input.click();
     }
     
-    function sortAdminTable(column){adminSortAsc=adminSortColumn===column?!adminSortAsc:true;adminSortColumn=column;const programs=[...adminPrograms];programs.sort((a,b)=>{if(column==='tgl'){const dateA=parseDateFromString(a.tgl),dateB=parseDateFromString(b.tgl);return adminSortAsc?dateA-dateB:dateB-dateA;}const vA=String(a[column]||'').toLowerCase(),vB=String(b[column]||'').toLowerCase();return adminSortAsc?vA.localeCompare(vB):vB.localeCompare(vA);});adminPrograms=programs;renderAdminTable();}
+    function sortAdminTable(column){
+        adminSortAsc=adminSortColumn===column?!adminSortAsc:true;
+        adminSortColumn=column;
+        const programs=[...adminPrograms];
+        programs.sort((a,b)=>{
+            if(column==='tgl'){
+                const dateA=parseDateFromString(a.tgl),dateB=parseDateFromString(b.tgl);
+                return adminSortAsc?dateA-dateB:dateB-dateA;
+            }
+            const vA=String(a[column]||'').toLowerCase(),vB=String(b[column]||'').toLowerCase();
+            return adminSortAsc?vA.localeCompare(vB):vB.localeCompare(vA);
+        });
+        adminPrograms=programs;
+        renderAdminTable();
+    }
     
-    function logoutAdmin(){adminLoggedIn=false;sessionStorage.removeItem('admin_logged_in');sessionStorage.removeItem('admin_login_time');if(sessionTimeout)clearTimeout(sessionTimeout);renderAdminPanel();}
+    function logoutAdmin(){
+        adminLoggedIn=false;
+        sessionStorage.removeItem('admin_logged_in');
+        sessionStorage.removeItem('admin_login_time');
+        if(sessionTimeout)clearTimeout(sessionTimeout);
+        currentTab = 'programs';
+        renderAdminPanel();
+    }
     
     function checkAdminLogin(){
         const pwd=document.getElementById('adminPasswordInput')?.value;
         const errorDiv=document.getElementById('adminLoginError');
         
-        // Rate limiting
         if(Date.now()<loginLockTime){
             const waitSeconds=Math.ceil((loginLockTime-Date.now())/1000);
             errorDiv.innerText=`⏳ Terlalu banyak percobaan. Coba lagi ${waitSeconds} detik.`;
@@ -735,7 +1143,7 @@
         }else{
             loginAttempts++;
             if(loginAttempts>=5){
-                loginLockTime=Date.now()+60000; // Lock 1 menit
+                loginLockTime=Date.now()+60000;
                 errorDiv.innerText='❌ Terlalu banyak percobaan. Coba lagi 1 menit.';
             }else{
                 errorDiv.innerText=`❌ Password salah! Sisa percobaan: ${5-loginAttempts}`;
@@ -743,10 +1151,32 @@
         }
     }
 
+    // Global functions
     window.openDrawer=()=>{const ov=document.getElementById('mobileOverlay');ov&&(ov.classList.add('open'),document.body.style.overflow='hidden');};
     window.closeDrawer=()=>{const ov=document.getElementById('mobileOverlay');ov&&(ov.classList.remove('open'),document.body.style.overflow='');};
-    window.resetSearch=resetSearch;window.openAdminModal=openAdminModal;window.closeAdminModal=closeAdminModal;window.checkAdminLogin=checkAdminLogin;window.logoutAdmin=logoutAdmin;window.showAdminForm=showAdminForm;window.hideAdminForm=hideAdminForm;window.saveAdminProgram=saveAdminProgram;window.editAdminProgram=editAdminProgram;window.deleteAdminProgram=deleteAdminProgram;window.clearAllAdminData=clearAllAdminData;window.exportAdminData=exportAdminData;window.importAdminData=importAdminData;window.previewAdminWA=previewAdminWA;window.sortAdminTable=sortAdminTable;window.openDetailModal=openDetailModal;window.closeDetailModal=closeDetailModal;window.copyDetailWAText=copyDetailWAText;
+    window.resetSearch=resetSearch;
+    window.openAdminModal=openAdminModal;
+    window.closeAdminModal=closeAdminModal;
+    window.checkAdminLogin=checkAdminLogin;
+    window.logoutAdmin=logoutAdmin;
+    window.showAdminForm=showAdminForm;
+    window.hideAdminForm=hideAdminForm;
+    window.saveAdminProgram=saveAdminProgram;
+    window.editAdminProgram=editAdminProgram;
+    window.deleteAdminProgram=deleteAdminProgram;
+    window.duplicateAdminProgram=duplicateAdminProgram;
+    window.clearAllAdminData=clearAllAdminData;
+    window.exportAdminData=exportAdminData;
+    window.importAdminData=importAdminData;
+    window.previewAdminWA=previewAdminWA;
+    window.sortAdminTable=sortAdminTable;
+    window.openDetailModal=openDetailModal;
+    window.closeDetailModal=closeDetailModal;
+    window.copyDetailWAText=copyDetailWAText;
+    window.switchAdminTab=switchAdminTab;
 
+    // Initial load
+    loadHistory();
     checkSession();
     loadDataFromSupabase();
 </script>
