@@ -109,6 +109,12 @@
         .maskapai-dot.oman{background:#e11d48;}
         .maskapai-dot.saudia{background:#16a34a;}
         .maskapai-dot.lion{background:#f97316;}
+        .maskapai-dot.garuda{background:#0053a0;}
+        .maskapai-dot.emirates{background:#d71920;}
+        .maskapai-dot.qatar{background:#5c0632;}
+        .maskapai-dot.etihad{background:#bd8b13;}
+        .maskapai-dot.malindo{background:#e60012;}
+        .maskapai-dot.airasia{background:#ff0000;}
         .status-pill{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;white-space:nowrap;letter-spacing:.4px;border:1px solid;}
         .status-available{background:var(--green-bg);color:var(--green);border-color:var(--green-border);}
         .status-expired{background:var(--red-bg);color:var(--red);border-color:var(--red-border);}
@@ -355,10 +361,6 @@
             if (m === '<') return '&lt;';
             if (m === '>') return '&gt;';
             return m;
-        }).replace(/[()]/g, (m) => {
-            if (m === '(') return '&#40;';
-            if (m === ')') return '&#41;';
-            return m;
         }).replace(/javascript:/gi, 'blocked:');
     }
     
@@ -366,7 +368,8 @@
     function isValidProgramName(name) {
         if (!name) return false;
         // Hanya huruf, angka, spasi, dan karakter umum yang aman
-        const validPattern = /^[a-zA-Z0-9\s\-\.\,\(\)\&\:\!\?]+$/;
+        // Izinkan huruf Latin, Arab, angka, dan karakter umum nama program
+        const validPattern = /^[\p{L}\p{N}\s\-.,()+&:!?\/]+$/u;
         return validPattern.test(name);
     }
     
@@ -458,9 +461,18 @@
         try {
             const { data, error } = await supabaseClient.from('programs').select('*').order('created_at', { ascending: true });
             if (error) throw error;
-            dataUmroh = data || [];
-            dataUmroh.forEach(p => { if (p.tgl && !p.dateObj) p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify(dataUmroh)); sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+            // Simpan hanya field plain (tanpa dateObj/isAvailable) ke cache agar JSON.stringify aman
+            const plainData = (data || []).map(p => ({
+                id: p.id, nama: p.nama, tgl: p.tgl, durasi: p.durasi, maskapai: p.maskapai,
+                harga_quint: p.harga_quint, teks_wa: p.teks_wa,
+                link_form: p.link_form, link_itinerary: p.link_itinerary,
+                link_poster: p.link_poster, link_metaads: p.link_metaads,
+                link_dokumentasi: p.link_dokumentasi, created_at: p.created_at
+            }));
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(plainData));
+            sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+            dataUmroh = plainData;
+            dataUmroh.forEach(p => { p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
             currentData = [...dataUmroh];
             renderTable(currentData); renderStats(); initTicker();
             loadingEl.style.display = 'none'; tableEl.style.display = 'table';
@@ -489,7 +501,15 @@
                 cdText = parts.join(" ") + (diffDays>0?" lagi":""); cdClass = diffDays<=30?"soon":diffDays<=90?"medium":"far";
             }
             const maskapaiLower = (item.maskapai||'').toLowerCase();
-            let maskapaiDot = 'oman'; if (maskapaiLower.includes('saudia')) maskapaiDot='saudia'; else if (maskapaiLower.includes('lion')) maskapaiDot='lion';
+            let maskapaiDot = 'oman';
+            if (maskapaiLower.includes('saudia')) maskapaiDot='saudia';
+            else if (maskapaiLower.includes('lion')) maskapaiDot='lion';
+            else if (maskapaiLower.includes('garuda')) maskapaiDot='garuda';
+            else if (maskapaiLower.includes('emirates')) maskapaiDot='emirates';
+            else if (maskapaiLower.includes('qatar')) maskapaiDot='qatar';
+            else if (maskapaiLower.includes('etihad')) maskapaiDot='etihad';
+            else if (maskapaiLower.includes('malindo')) maskapaiDot='malindo';
+            else if (maskapaiLower.includes('air asia') || maskapaiLower.includes('airasia')) maskapaiDot='airasia';
             const row = document.createElement('tr');
             row.innerHTML = `<td><span class="package-name" onclick="openDetailModal('${item.id}')">${escapeHtml(item.nama||'')}</span><span class="countdown ${cdClass}">🕐 ${escapeHtml(cdText)}</span></td>
                 <td class="col-harga">${item.harga_quint?`<span class="price-main">${escapeHtml(item.harga_quint)}</span><span class="price-sub">per orang (Quint)</span>`:'<span style="color:var(--text-3);">—</span>'}</td>
@@ -590,7 +610,7 @@
         }
     }
     
-    function renderAdminTable() { const tbody=document.getElementById('adminTableBody'); if(!tbody) return; if(!adminPrograms.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:40px;">Belum ada program.点</td></tr>';return;} tbody.innerHTML=''; adminPrograms.forEach(p=>{tbody.innerHTML+=`<tr><td><strong>${escapeHtml(p.nama||'-')}</strong></td><td>${escapeHtml(p.harga_quint||'-')}</td><td>${escapeHtml(p.tgl||'-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${p.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${p.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;}); }
+    function renderAdminTable() { const tbody=document.getElementById('adminTableBody'); if(!tbody) return; if(!adminPrograms.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:40px;">Belum ada program.</td></tr>';return;} tbody.innerHTML=''; adminPrograms.forEach(p=>{tbody.innerHTML+=`<tr><td><strong>${escapeHtml(p.nama||'-')}</strong></td><td>${escapeHtml(p.harga_quint||'-')}</td><td>${escapeHtml(p.tgl||'-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${p.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button onclick="deleteAdminProgram('${p.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;}); }
     
     function getAdminFormData() { 
         return { 
