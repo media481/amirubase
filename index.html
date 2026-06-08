@@ -1844,13 +1844,12 @@
 
         let tableRows = '';
         if (jamaah.length === 0) {
-            tableRows = `<tr><td colspan="7"><div class="kb-empty"><i class="fa-solid fa-users"></i><p>Belum ada data jamaah untuk program ini.</p></div></td></tr>`;
+            tableRows = `<tr><td colspan="6"><div class="kb-empty"><i class="fa-solid fa-users"></i><p>Belum ada data jamaah untuk program ini.</p></div></td></tr>`;
         } else {
             const sorted = [...jamaah].sort((a,b) => (a.nama||'').localeCompare(b.nama||''));
             tableRows = sorted.map((j,i) => {
                 const statusClass = j.status === 'lunas' ? 'kb-status-lunas' : j.status === 'dp' ? 'kb-status-dp' : 'kb-status-pending';
                 const statusLabel = j.status === 'lunas' ? 'Lunas' : j.status === 'dp' ? 'DP / Cicil' : 'Pending';
-                const aksi = j.wa ? `<a href="https://wa.me/${j.wa.replace(/\D/g,'')}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;text-decoration:none;"><i class="fab fa-whatsapp"></i></a>` : '-';
                 return `<tr>
                     <td style="color:var(--text-3);font-size:12px;">${i+1}</td>
                     <td><span class="kb-jamaah-name">${escapeHtml(j.nama||'-')}</span>${j.nik?`<span class="kb-jamaah-nik">NIK: ${escapeHtml(j.nik)}</span>`:''}</td>
@@ -1858,7 +1857,6 @@
                     <td style="font-size:12.5px;">${escapeHtml(j.asal||'-')}</td>
                     <td style="font-size:12.5px;">${j.wa ? escapeHtml(j.wa) : '-'}</td>
                     <td><span class="kb-status-pill ${statusClass}">${statusLabel}</span></td>
-                    <td>${aksi}</td>
                 </tr>`;
             }).join('');
         }
@@ -1887,7 +1885,6 @@
                     <th>Asal Daerah</th>
                     <th>WhatsApp</th>
                     <th>Status Bayar</th>
-                    <th>Aksi</th>
                 </tr></thead>
                 <tbody>${tableRows}</tbody>
             </table>
