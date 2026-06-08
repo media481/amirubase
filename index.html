@@ -569,9 +569,6 @@
         <div class="pub-tab-panel" id="pub-tab-keberangkatan">
             <div class="pub-sub-header" style="margin-bottom:14px;">
                 <div class="pub-sub-label" style="color:#0369a1;"><i class="fa-solid fa-plane-departure" style="color:#0369a1;"></i> Detail Keberangkatan Jamaah</div>
-                <div id="kbAdminActions" style="display:none;">
-                    <button class="kb-add-btn" onclick="openKbModal()"><i class="fa-solid fa-user-plus"></i> Tambah Jamaah</button>
-                </div>
             </div>
             <!-- Filter program -->
             <div class="kb-program-selector" id="kbProgramSelector">
@@ -1192,7 +1189,6 @@
             const count = kbJamaahList.filter(j => String(j.program_id) === String(p.id)).length;
             const isActive = String(resolvedId) === String(p.id);
             return `<button class="kb-program-pill${isActive?' active':''}" onclick="selectKbAdminProgram('${escapeHtml(String(p.id))}')">
-                <i class="fa-solid fa-plane-departure" style="font-size:11px;"></i>
                 ${escapeHtml(p.nama||'Program')}
                 <span class="pill-count">${count}</span>
             </button>`;
@@ -1772,8 +1768,6 @@
         // render keberangkatan if switching to keberangkatan tab
         if (name === 'keberangkatan') {
             renderKbProgramSelector();
-            const adminBtn = document.getElementById('kbAdminActions');
-            if (adminBtn) adminBtn.style.display = adminLoggedIn ? 'block' : 'none';
         }
     }
     window.switchPubTab = switchPubTab;
@@ -1820,7 +1814,6 @@
             const count = kbJamaahList.filter(j => String(j.program_id) === String(p.id)).length;
             const isActive = String(kbSelectedProgram) === String(p.id);
             return `<button class="kb-program-pill${isActive?' active':''}" onclick="selectKbProgram('${escapeHtml(String(p.id))}')">
-                <i class="fa-solid fa-plane-departure" style="font-size:11px;"></i>
                 ${escapeHtml(p.nama||'Program')}
                 <span class="pill-count">${count}</span>
             </button>`;
@@ -1851,17 +1844,13 @@
 
         let tableRows = '';
         if (jamaah.length === 0) {
-            tableRows = `<tr><td colspan="7"><div class="kb-empty"><i class="fa-solid fa-users"></i><p>Belum ada data jamaah untuk program ini${adminLoggedIn?' — klik tombol Tambah Jamaah di atas':''}.</p></div></td></tr>`;
+            tableRows = `<tr><td colspan="7"><div class="kb-empty"><i class="fa-solid fa-users"></i><p>Belum ada data jamaah untuk program ini.</p></div></td></tr>`;
         } else {
             const sorted = [...jamaah].sort((a,b) => (a.nama||'').localeCompare(b.nama||''));
             tableRows = sorted.map((j,i) => {
                 const statusClass = j.status === 'lunas' ? 'kb-status-lunas' : j.status === 'dp' ? 'kb-status-dp' : 'kb-status-pending';
                 const statusLabel = j.status === 'lunas' ? 'Lunas' : j.status === 'dp' ? 'DP / Cicil' : 'Pending';
-                const adminBtns = adminLoggedIn ? `<div class="admin-action-btns">
-                    <button onclick="openKbModal('${j.id}')" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-edit"></i> Edit</button>
-                    ${j.wa ? `<button onclick="kbHubungi('${escapeHtml(j.wa)}','${escapeHtml(j.nama||'')}')" style="background:#dcfce7;color:#16a34a;"><i class="fab fa-whatsapp"></i></button>` : ''}
-                    <button onclick="deleteKbJamaah('${j.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i></button>
-                </div>` : (j.wa ? `<a href="https://wa.me/${j.wa.replace(/\D/g,'')}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;text-decoration:none;"><i class="fab fa-whatsapp"></i></a>` : '-');
+                const aksi = j.wa ? `<a href="https://wa.me/${j.wa.replace(/\D/g,'')}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;text-decoration:none;"><i class="fab fa-whatsapp"></i></a>` : '-';
                 return `<tr>
                     <td style="color:var(--text-3);font-size:12px;">${i+1}</td>
                     <td><span class="kb-jamaah-name">${escapeHtml(j.nama||'-')}</span>${j.nik?`<span class="kb-jamaah-nik">NIK: ${escapeHtml(j.nik)}</span>`:''}</td>
@@ -1869,7 +1858,7 @@
                     <td style="font-size:12.5px;">${escapeHtml(j.asal||'-')}</td>
                     <td style="font-size:12.5px;">${j.wa ? escapeHtml(j.wa) : '-'}</td>
                     <td><span class="kb-status-pill ${statusClass}">${statusLabel}</span></td>
-                    <td>${adminBtns}</td>
+                    <td>${aksi}</td>
                 </tr>`;
             }).join('');
         }
@@ -1878,16 +1867,15 @@
         content.innerHTML = `
         <div class="kb-section-header">
             <div class="kb-section-title">
-                <i class="fa-solid fa-plane-departure"></i>
                 <div>
                     <div class="kb-prog-name">${escapeHtml(prog.nama||'Program')}</div>
-                    <div class="kb-prog-date"><i class="fa-solid fa-calendar" style="margin-right:4px;"></i>${tglDisplay} &nbsp;·&nbsp; <i class="fa-solid fa-plane" style="margin-right:4px;"></i>${escapeHtml(prog.maskapai||'-')} &nbsp;·&nbsp; <i class="fa-solid fa-clock" style="margin-right:4px;"></i>${escapeHtml(prog.durasi||'-')}</div>
+                    <div class="kb-prog-date">${tglDisplay} &nbsp;·&nbsp; ${escapeHtml(prog.maskapai||'-')} &nbsp;·&nbsp; ${escapeHtml(prog.durasi||'-')}</div>
                 </div>
             </div>
             <div class="kb-section-meta">
-                <span class="kb-chip total"><i class="fa-solid fa-users" style="margin-right:4px;"></i>${jamaah.length} Jamaah</span>
-                <span class="kb-chip lunas"><i class="fa-solid fa-check" style="margin-right:4px;"></i>${totalLunas} Lunas</span>
-                ${totalDp>0?`<span class="kb-chip dp"><i class="fa-solid fa-clock" style="margin-right:4px;"></i>${totalDp} DP</span>`:''}
+                <span class="kb-chip total">${jamaah.length} Jamaah</span>
+                <span class="kb-chip lunas">${totalLunas} Lunas</span>
+                ${totalDp>0?`<span class="kb-chip dp">${totalDp} DP</span>`:''}
             </div>
         </div>
         <div class="kb-jamaah-table-wrap">
