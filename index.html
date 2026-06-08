@@ -535,7 +535,7 @@
 
 <div id="detailModal" class="detail-modal"><div class="detail-modal-content"><div class="detail-modal-header"><h3><i class="fas fa-info-circle"></i> Detail Program Umroh</h3><button onclick="closeDetailModal()">&times;</button></div><div class="detail-modal-body" id="detailModalBody"></div></div></div>
 
-<div id="adminModal" class="admin-modal"><div class="admin-modal-content"><div class="admin-modal-header"><h2><i class="fas fa-database"></i> Admin Panel - Kelola Program Umroh</h2><button onclick="closeAdminModal()">&times;</button></div><div class="admin-modal-body" id="adminModalBody"></div></div></div>
+<div id="adminModal" class="admin-modal"><div class="admin-modal-content"><div class="admin-modal-header"><h2><i class="fas fa-database"></i> Admin Panel - Kelola Program Umroh <span id="adminRoleBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.2);margin-left:8px;display:none;"></span></h2><button onclick="closeAdminModal()">&times;</button></div><div class="admin-modal-body" id="adminModalBody"></div></div></div>
 
 <script>
     // ========== SUPABASE CONFIG ==========
@@ -549,11 +549,18 @@
     const SESSION_DURATION = 30 * 60 * 1000; // 30 menit
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
+
+    // ========== USER ROLES ==========
+    // role: 'administrator' = akses penuh | 'cs' = hanya jadwal tamu
+    const USER_ROLES = {
+        'amiru2026':   { role: 'administrator', label: 'Administrator' },
+        'amirucs2026': { role: 'cs',             label: 'CS / Customer Service' }
+    };
+
     let dataUmroh = [], currentData = [], currentSort = { column: null, asc: true };
-    let adminLoggedIn = false, editingProgramId = null, adminSortColumn = null, adminSortAsc = true, adminPrograms = [];
+    let adminLoggedIn = false, currentRole = null, editingProgramId = null, adminSortColumn = null, adminSortAsc = true, adminPrograms = [];
     let debounceTimer = null, sessionTimeout = null;
-    
+
     // Security: Rate limiting untuk login
     let loginAttempts = 0;
     let loginLockTime = 0;
@@ -590,16 +597,20 @@
     }
     
     // ========== SESSION MANAGEMENT ==========
-    function setAdminSession() {
+    function setAdminSession(role) {
         adminLoggedIn = true;
+        currentRole = role;
         sessionStorage.setItem('admin_logged_in', 'true');
+        sessionStorage.setItem('admin_role', role);
         sessionStorage.setItem('admin_login_time', Date.now().toString());
         
         if (sessionTimeout) clearTimeout(sessionTimeout);
         sessionTimeout = setTimeout(() => {
             if (adminLoggedIn) {
                 adminLoggedIn = false;
+                currentRole = null;
                 sessionStorage.removeItem('admin_logged_in');
+                sessionStorage.removeItem('admin_role');
                 sessionStorage.removeItem('admin_login_time');
                 const modal = document.getElementById('adminModal');
                 if (modal.classList.contains('show')) {
@@ -613,13 +624,17 @@
     function checkSession() {
         const loggedIn = sessionStorage.getItem('admin_logged_in');
         const loginTime = sessionStorage.getItem('admin_login_time');
+        const savedRole = sessionStorage.getItem('admin_role');
         if (loggedIn === 'true' && loginTime && (Date.now() - parseInt(loginTime) < SESSION_DURATION)) {
             adminLoggedIn = true;
-            setAdminSession(); // refresh session
+            currentRole = savedRole || 'administrator';
+            setAdminSession(currentRole); // refresh session
         } else {
             sessionStorage.removeItem('admin_logged_in');
+            sessionStorage.removeItem('admin_role');
             sessionStorage.removeItem('admin_login_time');
             adminLoggedIn = false;
+            currentRole = null;
         }
     }
     
@@ -802,6 +817,15 @@
     async function renderAdminPanel() {
         const container = document.getElementById('adminModalBody');
         if (adminLoggedIn) {
+            const isAdmin = currentRole === 'administrator';
+
+            // Tampilkan role badge di header modal
+            const roleBadge = document.getElementById('adminRoleBadge');
+            if (roleBadge) {
+                roleBadge.style.display = 'inline';
+                roleBadge.textContent = isAdmin ? '\u{1F451} Administrator' : '\u{1F3A7} CS';
+            }
+
             const { data } = await supabaseClient.from('programs').select('*').order('created_at');
             adminPrograms = data || [];
             loadJadwal();
@@ -809,17 +833,25 @@
             const jadwalCount = jadwalList.length;
             const programCount = adminPrograms.length;
 
+            const lockIcon = `<i class="fas fa-lock" style="font-size:10px;opacity:.55;margin-left:2px;" title="Hanya Administrator"></i>`;
+
             container.innerHTML = `
             <!-- TOOLBAR -->
+            ${isAdmin ? `
             <div class="admin-toolbar">
                 <button class="admin-btn admin-btn-primary" onclick="showAdminForm()"><i class="fas fa-plus"></i> Program Baru</button>
                 <button class="admin-btn" onclick="exportAdminData()"><i class="fas fa-download"></i> Export</button>
                 <button class="admin-btn" onclick="importAdminData()"><i class="fas fa-upload"></i> Import</button>
                 <button class="admin-btn admin-btn-danger" onclick="clearAllAdminData()"><i class="fas fa-trash"></i> Hapus Semua</button>
                 <button class="admin-btn" onclick="logoutAdmin()" style="margin-left:auto;"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
+            </div>` : `
+            <div class="admin-toolbar" style="background:#faf5ff;border-color:#c4b5fd;align-items:center;">
+                <span style="font-size:13px;font-weight:600;color:#5b21b6;"><i class="fas fa-headset"></i> Login sebagai CS &mdash; hanya dapat mengelola Jadwal Tamu</span>
+                <button class="admin-btn" onclick="logoutAdmin()" style="margin-left:auto;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>`}
 
-            <!-- FORM TAMBAH/EDIT -->
+            <!-- FORM TAMBAH/EDIT (hanya administrator) -->
+            ${isAdmin ? `
             <div id="adminFormContainer" style="display:none;" class="admin-form">
                 <div class="admin-form-header">
                     <span><i class="fas fa-edit"></i> <span id="adminFormTitle">Tambah Program Baru</span></span>
@@ -843,26 +875,27 @@
                     <button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button>
                     <button class="admin-btn" onclick="hideAdminForm()">Batal</button>
                 </div>
-            </div>
+            </div>` : ''}
 
             <!-- TABS -->
             <div class="admin-tabs-bar">
-                <button class="admin-tab-btn active" onclick="switchAdminTab('umroh',this)">
-                    <i class="fas fa-kaaba"></i> Program Umroh
+                <button class="admin-tab-btn ${isAdmin ? 'active' : ''}" style="${!isAdmin ? 'opacity:.5;cursor:not-allowed;' : ''}" onclick="${isAdmin ? "switchAdminTab('umroh',this)" : 'showCsLockWarning()'}">
+                    <i class="fas fa-kaaba"></i> Program Umroh ${!isAdmin ? lockIcon : ''}
                     <span class="tab-count" id="tabCountUmroh">${programCount}</span>
                 </button>
-                <button class="admin-tab-btn tab-star" onclick="switchAdminTab('unggulan',this)">
-                    <i class="fas fa-star"></i> Program Unggulan
+                <button class="admin-tab-btn tab-star" style="${!isAdmin ? 'opacity:.5;cursor:not-allowed;' : ''}" onclick="${isAdmin ? "switchAdminTab('unggulan',this)" : 'showCsLockWarning()'}">
+                    <i class="fas fa-star"></i> Program Unggulan ${!isAdmin ? lockIcon : ''}
                     <span class="tab-count" id="tabCountUnggulan">${featuredCount}/3</span>
                 </button>
-                <button class="admin-tab-btn tab-jadwal" onclick="switchAdminTab('jadwal',this)">
+                <button class="admin-tab-btn tab-jadwal ${isAdmin ? '' : 'active'}" onclick="switchAdminTab('jadwal',this)">
                     <i class="fas fa-calendar-check"></i> Jadwal Tamu
                     <span class="tab-count" id="tabCountJadwal">${jadwalCount}</span>
                 </button>
             </div>
 
             <!-- TAB: PROGRAM UMROH -->
-            <div class="admin-tab-panel active" id="tab-umroh">
+            <div class="admin-tab-panel ${isAdmin ? 'active' : ''}" id="tab-umroh">
+                ${!isAdmin ? `<div style="text-align:center;padding:40px 20px;"><i class="fas fa-lock" style="font-size:36px;color:#c4b5fd;display:block;margin-bottom:12px;"></i><p style="font-weight:700;color:#5b21b6;font-size:14px;">Akses Terbatas</p><p style="color:#94a3b8;font-size:13px;">Hanya <strong>Administrator</strong> yang dapat mengelola Program Umroh.</p></div>` : `
                 <div class="admin-panel-section-header umroh">
                     <i class="fas fa-mosque" style="color:var(--primary);"></i>
                     <div><div class="sec-title" style="color:var(--primary);">Daftar Program Umroh</div><div class="sec-sub">Kelola semua paket umroh yang tersedia</div></div>
@@ -882,11 +915,12 @@
                         </tr></thead>
                         <tbody id="adminTableBody"></tbody>
                     </table>
-                </div>
+                </div>`}
             </div>
 
             <!-- TAB: PROGRAM UNGGULAN -->
             <div class="admin-tab-panel" id="tab-unggulan">
+                ${!isAdmin ? `<div style="text-align:center;padding:40px 20px;"><i class="fas fa-lock" style="font-size:36px;color:#c4b5fd;display:block;margin-bottom:12px;"></i><p style="font-weight:700;color:#5b21b6;font-size:14px;">Akses Terbatas</p><p style="color:#94a3b8;font-size:13px;">Hanya <strong>Administrator</strong> yang dapat mengelola Program Unggulan.</p></div>` : `
                 <div class="admin-panel-section-header unggulan">
                     <i class="fas fa-star" style="color:#d97706;"></i>
                     <div><div class="sec-title" style="color:#92400e;">Program Unggulan</div><div class="sec-sub">Tampil di beranda antara running text dan tabel program</div></div>
@@ -897,11 +931,11 @@
                         <thead><tr><th>Nama Program</th><th>Tanggal</th><th>Status Unggulan</th></tr></thead>
                         <tbody id="featuredAdminTableBody"></tbody>
                     </table>
-                </div>
+                </div>`}
             </div>
 
             <!-- TAB: JADWAL TAMU -->
-            <div class="admin-tab-panel" id="tab-jadwal">
+            <div class="admin-tab-panel ${isAdmin ? '' : 'active'}" id="tab-jadwal">
                 <div class="admin-panel-section-header jadwal">
                     <i class="fas fa-calendar-check" style="color:#7c3aed;"></i>
                     <div><div class="sec-title" style="color:#5b21b6;">Jadwal Berkunjung Tamu</div><div class="sec-sub">Rekap tamu yang akan mengunjungi kantor</div></div>
@@ -926,15 +960,25 @@
                 </div>
             </div>`;
 
-            const dateInput = document.getElementById('admin_tgl_date');
-            if(dateInput) dateInput.addEventListener('change',function(){
-                if(this.value) document.getElementById('admin_tgl').value=formatDateToIndonesian(new Date(this.value));
-                else document.getElementById('admin_tgl').value='';
-            });
-            renderAdminTable();
+            if (isAdmin) {
+                const dateInput = document.getElementById('admin_tgl_date');
+                if(dateInput) dateInput.addEventListener('change',function(){
+                    if(this.value) document.getElementById('admin_tgl').value=formatDateToIndonesian(new Date(this.value));
+                    else document.getElementById('admin_tgl').value='';
+                });
+                renderAdminTable();
+            }
             renderJadwalAdminTable();
         } else {
-            container.innerHTML = `<div class="admin-login-box"><div class="icon"><i class="fas fa-shield-alt"></i></div><h3>Admin Panel</h3><p class="text-muted">Masukkan password untuk mengelola program umroh</p><input type="password" id="adminPasswordInput" placeholder="Password" autofocus><button onclick="checkAdminLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button><div id="adminLoginError" style="color:red;font-size:12px;margin-top:16px;"></div></div>`;
+            container.innerHTML = `<div class="admin-login-box">
+                <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Admin Panel</h3>
+                <p style="color:#64748b;font-size:13px;margin-bottom:2px;">Masukkan password untuk masuk</p>
+                <p style="color:#94a3b8;font-size:11.5px;">Administrator: akses penuh &nbsp;|&nbsp; CS: kelola jadwal tamu</p>
+                <input type="password" id="adminPasswordInput" placeholder="Password" autofocus onkeydown="if(event.key==='Enter')checkAdminLogin()">
+                <button onclick="checkAdminLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+                <div id="adminLoginError" style="color:red;font-size:12px;margin-top:16px;"></div>
+            </div>`;
             setTimeout(()=>{const pwd=document.getElementById('adminPasswordInput');pwd&&pwd.focus();},100);
         }
     }
@@ -1087,7 +1131,7 @@
     
     function sortAdminTable(column){adminSortAsc=adminSortColumn===column?!adminSortAsc:true;adminSortColumn=column;const programs=[...adminPrograms];programs.sort((a,b)=>{if(column==='tgl'){const dateA=parseDateFromString(a.tgl),dateB=parseDateFromString(b.tgl);return adminSortAsc?dateA-dateB:dateB-dateA;}const vA=String(a[column]||'').toLowerCase(),vB=String(b[column]||'').toLowerCase();return adminSortAsc?vA.localeCompare(vB):vB.localeCompare(vA);});adminPrograms=programs;renderAdminTable();}
     
-    function logoutAdmin(){adminLoggedIn=false;sessionStorage.removeItem('admin_logged_in');sessionStorage.removeItem('admin_login_time');if(sessionTimeout)clearTimeout(sessionTimeout);renderAdminPanel();}
+    function logoutAdmin(){adminLoggedIn=false;currentRole=null;sessionStorage.removeItem('admin_logged_in');sessionStorage.removeItem('admin_role');sessionStorage.removeItem('admin_login_time');if(sessionTimeout)clearTimeout(sessionTimeout);const roleBadge=document.getElementById('adminRoleBadge');if(roleBadge)roleBadge.style.display='none';renderAdminPanel();}
     
     function checkAdminLogin(){
         const pwd=document.getElementById('adminPasswordInput')?.value;
@@ -1100,14 +1144,15 @@
             return;
         }
         
-        if(pwd==='amiru2026'){
+        const matchedUser = USER_ROLES[pwd];
+        if(matchedUser){
             loginAttempts=0;
-            setAdminSession();
+            setAdminSession(matchedUser.role);
             renderAdminPanel();
         }else{
             loginAttempts++;
             if(loginAttempts>=5){
-                loginLockTime=Date.now()+60000; // Lock 1 menit
+                loginLockTime=Date.now()+60000;
                 errorDiv.innerText='❌ Terlalu banyak percobaan. Coba lagi 1 menit.';
             }else{
                 errorDiv.innerText=`❌ Password salah! Sisa percobaan: ${5-loginAttempts}`;
@@ -1118,6 +1163,9 @@
     window.openDrawer=()=>{const ov=document.getElementById('mobileOverlay');ov&&(ov.classList.add('open'),document.body.style.overflow='hidden');};
     window.closeDrawer=()=>{const ov=document.getElementById('mobileOverlay');ov&&(ov.classList.remove('open'),document.body.style.overflow='');};
     window.resetSearch=resetSearch;window.openAdminModal=openAdminModal;window.closeAdminModal=closeAdminModal;window.checkAdminLogin=checkAdminLogin;window.logoutAdmin=logoutAdmin;window.showAdminForm=showAdminForm;window.hideAdminForm=hideAdminForm;window.saveAdminProgram=saveAdminProgram;window.editAdminProgram=editAdminProgram;window.duplicateAdminProgram=duplicateAdminProgram;window.deleteAdminProgram=deleteAdminProgram;window.clearAllAdminData=clearAllAdminData;window.exportAdminData=exportAdminData;window.importAdminData=importAdminData;window.previewAdminWA=previewAdminWA;window.sortAdminTable=sortAdminTable;window.openDetailModal=openDetailModal;window.closeDetailModal=closeDetailModal;window.copyDetailWAText=copyDetailWAText;
+
+    function showCsLockWarning() { showToast('🔒 Fitur ini hanya untuk Administrator'); }
+    window.showCsLockWarning = showCsLockWarning;
 
 
     // ========== PROGRAM UNGGULAN ==========
