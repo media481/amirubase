@@ -288,6 +288,59 @@
     @media(max-width:768px){.featured-grid{grid-template-columns:1fr;}}@media(max-width:1024px) and (min-width:769px){.featured-grid{grid-template-columns:repeat(3,1fr);}}
     @media(min-width:1600px){.featured-section{padding-left:24px;padding-right:24px;}}
 
+    /* ===== JADWAL BERKUNJUNG TAMU ===== */
+    .jadwal-section{padding:16px 16px 0;max-width:1600px;margin:0 auto;}
+    .jadwal-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
+    .jadwal-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#7c3aed;}
+    .jadwal-label i{font-size:14px;color:#7c3aed;}
+    .jadwal-today-badge{background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;}
+    .jadwal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+    .jadwal-card{background:#fff;border-radius:var(--radius-lg);border:1.5px solid #ede9fe;box-shadow:0 2px 8px rgba(124,58,237,.08);padding:14px;position:relative;transition:transform var(--transition),box-shadow var(--transition);}
+    .jadwal-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(124,58,237,.15);}
+    .jadwal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+    .jadwal-card.today-card{border-color:#7c3aed;background:linear-gradient(135deg,#faf5ff,#fff);}
+    .jadwal-card.past-card{border-color:#e2e8f0;opacity:.75;}
+    .jadwal-card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+    .jadwal-card-name{font-size:13.5px;font-weight:700;color:#5b21b6;line-height:1.3;padding-right:8px;}
+    .jadwal-status-pill{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;}
+    .jadwal-status-pill.today{background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;}
+    .jadwal-status-pill.upcoming{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
+    .jadwal-status-pill.past{background:var(--surface2);color:var(--text-3);border:1px solid var(--border);}
+    .jadwal-meta{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .jadwal-meta-row{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);}
+    .jadwal-meta-row i{width:14px;color:#a78bfa;font-size:11px;text-align:center;}
+    .jadwal-card-footer{display:flex;gap:6px;}
+    .jadwal-btn{flex:1;padding:6px 8px;border-radius:6px;font-size:11px;font-weight:700;border:none;cursor:pointer;transition:all var(--transition);display:flex;align-items:center;justify-content:center;gap:4px;}
+    .jadwal-btn-wa{background:#dcfce7;color:#16a34a;}
+    .jadwal-btn-wa:hover{background:#16a34a;color:#fff;}
+    .jadwal-btn-detail{background:#ede9fe;color:#7c3aed;}
+    .jadwal-btn-detail:hover{background:#7c3aed;color:#fff;}
+    .jadwal-empty{text-align:center;padding:28px;color:var(--text-3);font-size:13px;background:#fff;border-radius:var(--radius-lg);border:2px dashed #ede9fe;}
+    .jadwal-empty i{font-size:28px;display:block;margin-bottom:8px;color:#c4b5fd;}
+    /* Admin jadwal form */
+    .jadwal-admin-btn{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#7c3aed;color:#fff;transition:all var(--transition);display:inline-flex;align-items:center;gap:6px;}
+    .jadwal-admin-btn:hover{background:#6d28d9;}
+    .jadwal-admin-btn.secondary{background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;}
+    .jadwal-admin-btn.secondary:hover{background:#7c3aed;color:#fff;}
+    .jadwal-admin-btn.danger{background:#fee2e2;color:#dc2626;}
+    .jadwal-admin-btn.danger:hover{background:#dc2626;color:#fff;}
+    /* Jadwal modal */
+    .jadwal-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:31000;overflow-y:auto;padding:24px;backdrop-filter:blur(4px);}
+    .jadwal-modal.show{display:flex;align-items:center;justify-content:center;}
+    .jadwal-modal-content{max-width:520px;width:100%;background:#fff;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);animation:modalFadeIn .25s ease;}
+    .jadwal-modal-header{background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;}
+    .jadwal-modal-header h3{font-size:16px;font-weight:700;margin:0;}
+    .jadwal-modal-header button{background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:6px;transition:all var(--transition);}
+    .jadwal-modal-header button:hover{background:rgba(255,255,255,0.3);}
+    .jadwal-modal-body{padding:20px;}
+    .jadwal-form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+    .jadwal-form-group label{font-size:11.5px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px;}
+    .jadwal-form-group input,.jadwal-form-group select,.jadwal-form-group textarea{padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;background:#fff;color:var(--text-1);}
+    .jadwal-form-group input:focus,.jadwal-form-group select:focus,.jadwal-form-group textarea:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,0.12);}
+    .jadwal-form-actions{display:flex;gap:8px;padding-top:6px;}
+    @media(max-width:768px){.jadwal-grid{grid-template-columns:1fr;}.jadwal-section{padding:12px 12px 0;}}
+    @media(min-width:1600px){.jadwal-section{padding-left:24px;padding-right:24px;}}
+
 </style>
 </head>
 <body>
@@ -342,6 +395,17 @@
     </div>
 </div>
 
+<!-- JADWAL BERKUNJUNG TAMU -->
+<section class="jadwal-section" id="jadwalSection">
+    <div class="jadwal-section-header">
+        <div class="jadwal-label"><i class="fa-solid fa-calendar-check"></i> Jadwal Berkunjung Tamu</div>
+        <div class="jadwal-today-badge" id="jadwalTodayCount" style="display:none;"><i class="fa-solid fa-bell"></i> <span id="jadwalTodayNum">0</span> tamu hari ini</div>
+    </div>
+    <div class="jadwal-grid" id="jadwalGrid">
+        <div class="jadwal-empty"><i class="fa-solid fa-calendar-xmark"></i>Belum ada jadwal tamu yang tercatat.</div>
+    </div>
+</section>
+
 <div class="page-header">
     <div class="page-header-inner">
         <div class="page-title-row">
@@ -371,6 +435,30 @@
         <i class="fab fa-whatsapp"></i>
         <span class="tooltip">Hubungi Admin</span>
     </a>
+</div>
+
+<!-- JADWAL TAMU MODAL FORM (Admin) -->
+<div id="jadwalModal" class="jadwal-modal">
+    <div class="jadwal-modal-content">
+        <div class="jadwal-modal-header">
+            <h3><i class="fas fa-calendar-plus"></i> <span id="jadwalModalTitle">Tambah Jadwal Tamu</span></h3>
+            <button onclick="closeJadwalModal()">&times;</button>
+        </div>
+        <div class="jadwal-modal-body">
+            <div class="jadwal-form-group"><label>Nama Tamu / Rombongan *</label><input type="text" id="jf_nama" placeholder="Contoh: Keluarga Bapak Ahmad" maxlength="150"></div>
+            <div class="jadwal-form-group"><label>Asal Daerah</label><input type="text" id="jf_asal" placeholder="Contoh: Ponorogo, Jawa Timur" maxlength="100"></div>
+            <div class="jadwal-form-group"><label>Tanggal Kunjungan *</label><input type="date" id="jf_tgl" color-scheme="light"></div>
+            <div class="jadwal-form-group"><label>Jam Kunjungan</label><input type="time" id="jf_jam" placeholder="09:00"></div>
+            <div class="jadwal-form-group"><label>Jumlah Tamu</label><input type="number" id="jf_jumlah" placeholder="2" min="1" max="999"></div>
+            <div class="jadwal-form-group"><label>Keperluan</label><select id="jf_keperluan"><option value="">-- Pilih Keperluan --</option><option>Konsultasi Umroh</option><option>Pendaftaran Umroh</option><option>Pelunasan</option><option>Pengambilan Dokumen</option><option>Silaturahmi</option><option>Lain-lain</option></select></div>
+            <div class="jadwal-form-group"><label>No. WhatsApp Tamu</label><input type="tel" id="jf_wa" placeholder="628xxxxxxxxxx" maxlength="20"></div>
+            <div class="jadwal-form-group"><label>Catatan</label><textarea id="jf_catatan" rows="3" placeholder="Catatan tambahan..." maxlength="500"></textarea></div>
+            <div class="jadwal-form-actions">
+                <button class="jadwal-admin-btn" onclick="saveJadwalTamu()"><i class="fas fa-save"></i> Simpan</button>
+                <button class="jadwal-admin-btn secondary" onclick="closeJadwalModal()">Batal</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="detailModal" class="detail-modal"><div class="detail-modal-content"><div class="detail-modal-header"><h3><i class="fas fa-info-circle"></i> Detail Program Umroh</h3><button onclick="closeDetailModal()">&times;</button></div><div class="detail-modal-body" id="detailModalBody"></div></div></div>
@@ -660,9 +748,12 @@
                 <div class="form-actions"><button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button><button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button><button class="admin-btn" onclick="hideAdminForm()">Batal</button></div></div>
                 <div class="featured-section-header"><i class="fas fa-star"></i><span>Program Unggulan</span><small>Tampil di antara running text dan tabel program</small><span id="featuredCounter" style="margin-left:auto;background:#f59e0b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;">0/3</span></div>
                 <div class="admin-table" style="margin-bottom:20px;"><table><thead><tr><th>Nama Program</th><th>Tanggal</th><th>Status Unggulan</th></tr></thead><tbody id="featuredAdminTableBody"></tbody></table></div>
-                <div class="admin-table"><table><thead><tr><th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal <i class="fas fa-sort"></i></th><th>Aksi</th></tr></thead><tbody id="adminTableBody"></tbody></table></div>`;
+                <div class="admin-table"><table><thead><tr><th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal <i class="fas fa-sort"></i></th><th>Aksi</th></tr></thead><tbody id="adminTableBody"></tbody></table></div>
+                <div style="background:linear-gradient(135deg,#faf5ff,#ede9fe);border:1px solid #c4b5fd;border-radius:var(--radius);padding:10px 16px;margin:20px 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><i class="fas fa-calendar-check" style="color:#7c3aed;font-size:16px;"></i><span style="font-size:13px;font-weight:700;color:#5b21b6;">Jadwal Berkunjung Tamu</span><button class="jadwal-admin-btn" style="margin-left:auto;padding:6px 14px;font-size:12px;" onclick="openJadwalModal()"><i class="fas fa-plus"></i> Tambah Jadwal</button></div>
+                <div class="admin-table"><table><thead><tr><th>Nama Tamu</th><th>Tanggal Kunjungan</th><th>Jumlah</th><th>Keperluan</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="jadwalAdminTableBody"></tbody></table></div>`;
             const dateInput = document.getElementById('admin_tgl_date'); if(dateInput) dateInput.addEventListener('change',function(){if(this.value)document.getElementById('admin_tgl').value=formatDateToIndonesian(new Date(this.value));else document.getElementById('admin_tgl').value='';});
             renderAdminTable();
+            renderJadwalAdminTable();
         } else {
             container.innerHTML = `<div class="admin-login-box"><div class="icon"><i class="fas fa-shield-alt"></i></div><h3>Admin Panel</h3><p class="text-muted">Masukkan password untuk mengelola program umroh</p><input type="password" id="adminPasswordInput" placeholder="Password" autofocus><button onclick="checkAdminLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button><div id="adminLoginError" style="color:red;font-size:12px;margin-top:16px;"></div></div>`;
             setTimeout(()=>{const pwd=document.getElementById('adminPasswordInput');pwd&&pwd.focus();},100);
@@ -921,10 +1012,214 @@
         }).join('');
     }
 
+    // ========== JADWAL BERKUNJUNG TAMU ==========
+    const JADWAL_KEY = 'amiru_jadwal_tamu';
+    let jadwalList = [];
+    let editingJadwalId = null;
+
+    function loadJadwal() {
+        try { jadwalList = JSON.parse(localStorage.getItem(JADWAL_KEY) || '[]'); } catch { jadwalList = []; }
+    }
+    function saveJadwal() {
+        localStorage.setItem(JADWAL_KEY, JSON.stringify(jadwalList));
+    }
+    function getJadwalById(id) { return jadwalList.find(j => j.id === id); }
+
+    function renderJadwalSection() {
+        loadJadwal();
+        const grid = document.getElementById('jadwalGrid');
+        const todayBadge = document.getElementById('jadwalTodayCount');
+        const todayNum = document.getElementById('jadwalTodayNum');
+        if (!grid) return;
+
+        const today = new Date(); today.setHours(0,0,0,0);
+        const todayStr = formatJadwalDate(today);
+
+        // Sort: hari ini dan mendatang dulu, lalu lampau
+        const upcoming = jadwalList.filter(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            return d >= today;
+        }).sort((a,b) => new Date(a.tgl) - new Date(b.tgl));
+        const past = jadwalList.filter(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            return d < today;
+        }).sort((a,b) => new Date(b.tgl) - new Date(a.tgl));
+        const sorted = [...upcoming, ...past];
+
+        const todayCount = jadwalList.filter(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            return d.getTime() === today.getTime();
+        }).length;
+
+        if (todayCount > 0) {
+            todayBadge.style.display = 'flex';
+            todayNum.textContent = todayCount;
+        } else {
+            todayBadge.style.display = 'none';
+        }
+
+        if (!sorted.length) {
+            grid.innerHTML = '<div class="jadwal-empty"><i class="fa-solid fa-calendar-xmark"></i>Belum ada jadwal tamu yang tercatat.</div>';
+            return;
+        }
+
+        grid.innerHTML = sorted.map(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            const isToday = d.getTime() === today.getTime();
+            const isPast = d < today;
+            let statusClass = isToday ? 'today' : (isPast ? 'past' : 'upcoming');
+            let statusLabel = isToday ? '🟣 Hari Ini' : (isPast ? 'Selesai' : 'Mendatang');
+            const cardClass = isToday ? 'today-card' : (isPast ? 'past-card' : '');
+            const tglFormatted = formatJadwalDateDisplay(j.tgl);
+            return `<div class="jadwal-card ${cardClass}">
+                <div class="jadwal-card-head">
+                    <span class="jadwal-card-name">${escapeHtml(j.nama||'')}</span>
+                    <span class="jadwal-status-pill ${statusClass}">${statusLabel}</span>
+                </div>
+                <div class="jadwal-meta">
+                    <div class="jadwal-meta-row"><i class="fas fa-calendar"></i>${escapeHtml(tglFormatted)}${j.jam ? ' · ' + escapeHtml(j.jam) : ''}</div>
+                    ${j.asal ? `<div class="jadwal-meta-row"><i class="fas fa-map-marker-alt"></i>${escapeHtml(j.asal)}</div>` : ''}
+                    ${j.jumlah ? `<div class="jadwal-meta-row"><i class="fas fa-users"></i>${escapeHtml(String(j.jumlah))} orang</div>` : ''}
+                    ${j.keperluan ? `<div class="jadwal-meta-row"><i class="fas fa-briefcase"></i>${escapeHtml(j.keperluan)}</div>` : ''}
+                    ${j.catatan ? `<div class="jadwal-meta-row"><i class="fas fa-sticky-note"></i>${escapeHtml(j.catatan)}</div>` : ''}
+                </div>
+                <div class="jadwal-card-footer">
+                    ${j.wa ? `<button class="jadwal-btn jadwal-btn-wa" onclick="hubungiTamu('${escapeHtml(j.wa)}','${escapeHtml(j.nama||'')}')"><i class="fab fa-whatsapp"></i> WA</button>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function formatJadwalDate(d) {
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function formatJadwalDateDisplay(isoStr) {
+        if (!isoStr) return '-';
+        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+        const d = new Date(isoStr);
+        if (isNaN(d.getTime())) return isoStr;
+        const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+        return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function openJadwalModal(id = null) {
+        editingJadwalId = id;
+        const title = document.getElementById('jadwalModalTitle');
+        if (id) {
+            const j = getJadwalById(id);
+            if (!j) return;
+            title.textContent = 'Edit Jadwal Tamu';
+            document.getElementById('jf_nama').value = j.nama || '';
+            document.getElementById('jf_asal').value = j.asal || '';
+            document.getElementById('jf_tgl').value = j.tgl || '';
+            document.getElementById('jf_jam').value = j.jam || '';
+            document.getElementById('jf_jumlah').value = j.jumlah || '';
+            document.getElementById('jf_keperluan').value = j.keperluan || '';
+            document.getElementById('jf_wa').value = j.wa || '';
+            document.getElementById('jf_catatan').value = j.catatan || '';
+        } else {
+            title.textContent = 'Tambah Jadwal Tamu';
+            ['jf_nama','jf_asal','jf_tgl','jf_jam','jf_jumlah','jf_wa','jf_catatan'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('jf_keperluan').value = '';
+        }
+        document.getElementById('jadwalModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeJadwalModal() {
+        document.getElementById('jadwalModal').classList.remove('show');
+        document.body.style.overflow = '';
+        editingJadwalId = null;
+    }
+
+    function saveJadwalTamu() {
+        const nama = document.getElementById('jf_nama').value.trim();
+        const tgl = document.getElementById('jf_tgl').value;
+        if (!nama) { alert('Nama tamu wajib diisi!'); return; }
+        if (!tgl) { alert('Tanggal kunjungan wajib diisi!'); return; }
+        const entry = {
+            id: editingJadwalId || ('j' + Date.now()),
+            nama,
+            asal: document.getElementById('jf_asal').value.trim(),
+            tgl,
+            jam: document.getElementById('jf_jam').value,
+            jumlah: document.getElementById('jf_jumlah').value,
+            keperluan: document.getElementById('jf_keperluan').value,
+            wa: document.getElementById('jf_wa').value.trim(),
+            catatan: document.getElementById('jf_catatan').value.trim(),
+            created_at: editingJadwalId ? (getJadwalById(editingJadwalId)?.created_at || Date.now()) : Date.now()
+        };
+        if (editingJadwalId) {
+            const idx = jadwalList.findIndex(j => j.id === editingJadwalId);
+            if (idx >= 0) jadwalList[idx] = entry;
+        } else {
+            jadwalList.push(entry);
+        }
+        saveJadwal();
+        closeJadwalModal();
+        renderJadwalSection();
+        renderJadwalAdminTable();
+        showToast('📅 Jadwal tamu berhasil disimpan!');
+    }
+
+    function deleteJadwalTamu(id) {
+        if (!confirm('Hapus jadwal tamu ini?')) return;
+        jadwalList = jadwalList.filter(j => j.id !== id);
+        saveJadwal();
+        renderJadwalSection();
+        renderJadwalAdminTable();
+        showToast('🗑️ Jadwal tamu dihapus');
+    }
+
+    function hubungiTamu(wa, nama) {
+        const no = wa.replace(/\D/g,'');
+        const pesan = encodeURIComponent(`Assalamualaikum ${nama}, kami dari PT Amiru Haramain Indonesia mengingatkan jadwal kunjungan Anda. Terima kasih 🕋`);
+        window.open(`https://wa.me/${no}?text=${pesan}`, '_blank');
+    }
+
+    function renderJadwalAdminTable() {
+        const tbody = document.getElementById('jadwalAdminTableBody');
+        if (!tbody) return;
+        loadJadwal();
+        const today = new Date(); today.setHours(0,0,0,0);
+        if (!jadwalList.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-3)">Belum ada jadwal tamu.</td></tr>';
+            return;
+        }
+        const sorted = [...jadwalList].sort((a,b) => new Date(a.tgl) - new Date(b.tgl));
+        tbody.innerHTML = sorted.map(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            const isToday = d.getTime() === today.getTime();
+            const isPast = d < today;
+            const statusLabel = isToday ? '🟣 Hari Ini' : (isPast ? 'Selesai' : '🔵 Mendatang');
+            return `<tr ${isToday ? 'style="background:#faf5ff;"' : ''}>
+                <td><strong>${escapeHtml(j.nama||'-')}</strong>${j.asal ? `<br><small style="color:var(--text-3)">${escapeHtml(j.asal)}</small>` : ''}</td>
+                <td style="white-space:nowrap">${escapeHtml(formatJadwalDateDisplay(j.tgl))}${j.jam ? '<br><small>'+escapeHtml(j.jam)+'</small>' : ''}</td>
+                <td>${j.jumlah ? escapeHtml(String(j.jumlah)) + ' orang' : '-'}</td>
+                <td>${escapeHtml(j.keperluan||'-')}</td>
+                <td>${statusLabel}</td>
+                <td><div class="admin-action-btns">
+                    <button onclick="openJadwalModal('${j.id}')" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-edit"></i> Edit</button>
+                    ${j.wa ? `<button onclick="hubungiTamu('${escapeHtml(j.wa)}','${escapeHtml(j.nama||'')}')" style="background:#dcfce7;color:#16a34a;"><i class="fab fa-whatsapp"></i> WA</button>` : ''}
+                    <button onclick="deleteJadwalTamu('${j.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i></button>
+                </div></td>
+            </tr>`;
+        }).join('');
+    }
+
+    window.openJadwalModal = openJadwalModal;
+    window.closeJadwalModal = closeJadwalModal;
+    window.saveJadwalTamu = saveJadwalTamu;
+    window.deleteJadwalTamu = deleteJadwalTamu;
+    window.hubungiTamu = hubungiTamu;
+    window.renderJadwalAdminTable = renderJadwalAdminTable;
+
     window.toggleFeatured = toggleFeatured;
     window.renderFeaturedAdminTable = renderFeaturedAdminTable;
 
     checkSession();
+    loadJadwal();
+    renderJadwalSection();
     loadDataFromSupabase();
 </script>
 </body>
