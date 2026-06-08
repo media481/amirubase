@@ -363,6 +363,34 @@
     @media(max-width:768px){.jadwal-grid{grid-template-columns:1fr;}.jadwal-section{padding:12px 12px 0;}}
     @media(min-width:1600px){.jadwal-section{padding-left:24px;padding-right:24px;}}
 
+    /* ===== PUBLIC TABS ===== */
+    .pub-tabs-wrapper{max-width:1600px;margin:0 auto;padding:16px 16px 0;}
+    .pub-tabs-bar{display:flex;gap:0;background:#fff;border-radius:var(--radius-lg) var(--radius-lg) 0 0;border:1px solid var(--border);border-bottom:none;overflow:hidden;}
+    .pub-tab-btn{flex:1;padding:13px 20px;font-size:13px;font-weight:700;color:var(--text-3);background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;transition:color var(--transition),background var(--transition),border-color var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;}
+    .pub-tab-btn:hover{color:var(--text-1);background:var(--surface2);}
+    .pub-tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);background:#fff;}
+    .pub-tab-btn.active.tab-info{color:#7c3aed;border-bottom-color:#7c3aed;}
+    .pub-tab-btn .pub-tab-icon{font-size:15px;}
+    .pub-tab-body{background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:20px;}
+    .pub-tab-panel{display:none;}
+    .pub-tab-panel.active{display:block;}
+    /* sub-section divider dalam tab info */
+    .pub-sub-section{margin-bottom:24px;}
+    .pub-sub-section:last-child{margin-bottom:0;}
+    .pub-sub-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+    .pub-sub-label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;}
+    .pub-sub-label.unggulan{color:#d97706;}
+    .pub-sub-label.jadwal{color:#7c3aed;}
+    .pub-sub-label i{font-size:14px;}
+    /* override padding untuk grid di dalam tab */
+    .pub-tab-panel .featured-grid{margin:0;}
+    .pub-tab-panel .jadwal-grid{margin:0;}
+    /* tabel umroh di dalam tab */
+    .pub-tab-panel .table-container{border-radius:var(--radius);border:1px solid var(--border);}
+    .pub-tab-panel .page-header-inner{border-radius:var(--radius);margin-bottom:14px;}
+    @media(max-width:768px){.pub-tabs-bar{flex-direction:row;}.pub-tab-btn{font-size:12px;padding:11px 12px;gap:5px;}.pub-tab-body{padding:14px;}}
+    @media(min-width:1600px){.pub-tabs-wrapper{padding-left:24px;padding-right:24px;}}
+
 </style>
 </head>
 <body>
@@ -408,45 +436,64 @@
 </div>
 
 
-<div class="featured-section" id="featuredSection">
-    <div class="featured-header">
-        <div class="featured-label"><i class="fa-solid fa-star"></i> Program Unggulan</div>
+<!-- PUBLIC TABS -->
+<div class="pub-tabs-wrapper">
+    <div class="pub-tabs-bar">
+        <button class="pub-tab-btn active tab-info" id="pubTabBtnInfo" onclick="switchPubTab('info', this)">
+            <span class="pub-tab-icon">⭐</span> Unggulan &amp; Jadwal Tamu
+        </button>
+        <button class="pub-tab-btn" id="pubTabBtnUmroh" onclick="switchPubTab('umroh', this)">
+            <span class="pub-tab-icon">🕌</span> Program Umroh
+        </button>
     </div>
-    <div class="featured-grid" id="featuredGrid">
-        <div class="featured-empty"><i class="fa-solid fa-star"></i>Belum ada program unggulan yang dipilih.</div>
-    </div>
-</div>
+    <div class="pub-tab-body">
 
-<!-- JADWAL BERKUNJUNG TAMU -->
-<section class="jadwal-section" id="jadwalSection">
-    <div class="jadwal-section-header">
-        <div class="jadwal-label"><i class="fa-solid fa-calendar-check"></i> Jadwal Berkunjung Tamu</div>
-        <div class="jadwal-today-badge" id="jadwalTodayCount" style="display:none;"><i class="fa-solid fa-bell"></i> <span id="jadwalTodayNum">0</span> tamu hari ini</div>
-    </div>
-    <div class="jadwal-grid" id="jadwalGrid">
-        <div class="jadwal-empty"><i class="fa-solid fa-calendar-xmark"></i>Belum ada jadwal tamu yang tercatat.</div>
-    </div>
-</section>
+        <!-- TAB: UNGGULAN & JADWAL -->
+        <div class="pub-tab-panel active" id="pub-tab-info">
 
-<div class="page-header">
-    <div class="page-header-inner">
-        <div class="page-title-row">
-            <div class="page-title-icon">🗹</div>
-            <div class="page-title"><h2>Program Umroh Amiru Tour</h2><p>PT Amiru Haramain Indonesia</p></div>
+            <!-- Sub: Program Unggulan -->
+            <div class="pub-sub-section" id="featuredSection">
+                <div class="pub-sub-header">
+                    <div class="pub-sub-label unggulan"><i class="fa-solid fa-star"></i> Program Unggulan</div>
+                </div>
+                <div class="featured-grid" id="featuredGrid">
+                    <div class="featured-empty"><i class="fa-solid fa-star"></i>Belum ada program unggulan yang dipilih.</div>
+                </div>
+            </div>
+
+            <!-- Sub: Jadwal Tamu -->
+            <div class="pub-sub-section" id="jadwalSection">
+                <div class="pub-sub-header">
+                    <div class="pub-sub-label jadwal"><i class="fa-solid fa-calendar-check"></i> Jadwal Berkunjung Tamu</div>
+                    <div class="jadwal-today-badge" id="jadwalTodayCount" style="display:none;"><i class="fa-solid fa-bell"></i> <span id="jadwalTodayNum">0</span> tamu hari ini</div>
+                </div>
+                <div class="jadwal-grid" id="jadwalGrid">
+                    <div class="jadwal-empty"><i class="fa-solid fa-calendar-xmark"></i>Belum ada jadwal tamu yang tercatat.</div>
+                </div>
+            </div>
+
         </div>
-        <div class="stats-row" id="statsRow"></div>
+
+        <!-- TAB: PROGRAM UMROH -->
+        <div class="pub-tab-panel" id="pub-tab-umroh">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:14px 18px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;background:var(--surface2);box-shadow:var(--shadow-sm);">
+                <div class="page-title-row">
+                    <div class="page-title-icon">🗹</div>
+                    <div class="page-title"><h2>Program Umroh Amiru Tour</h2><p>PT Amiru Haramain Indonesia</p></div>
+                </div>
+                <div class="stats-row" id="statsRow"></div>
+            </div>
+            <div class="table-container">
+                <div id="loadingState" class="loading-state"><div class="loading-spinner"></div><p>Memuat data dari database...</p></div>
+                <table id="packageTable" style="display:none;">
+                    <thead><tr><th class="sortable col-nama" data-sort="nama">Nama Program <span id="icon-nama" class="sort-icon">&#x21D5;</span></th><th class="col-harga">Biaya Program</th><th class="sortable" data-sort="tgl">Berangkat <span id="icon-tgl" class="sort-icon">&#x21D5;</span></th><th class="col-durasi">Durasi</th><th class="sortable col-maskapai" data-sort="maskapai">Maskapai <span id="icon-maskapai" class="sort-icon">&#x21D5;</span></th><th>Aset &amp; Aksi</th><th class="sortable" data-sort="isAvailable">Status <span id="icon-isAvailable" class="sort-icon">&#x21D5;</span></th></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 </div>
-
-<main class="main-content">
-    <div class="table-container">
-        <div id="loadingState" class="loading-state"><div class="loading-spinner"></div><p>Memuat data dari database...</p></div>
-        <table id="packageTable" style="display:none;">
-            <thead><tr><th class="sortable col-nama" data-sort="nama">Nama Program <span id="icon-nama" class="sort-icon">↕</span></th><th class="col-harga">Biaya Program</th><th class="sortable" data-sort="tgl">Berangkat <span id="icon-tgl" class="sort-icon">↕</span></th><th class="col-durasi">Durasi</th><th class="sortable col-maskapai" data-sort="maskapai">Maskapai <span id="icon-maskapai" class="sort-icon">↕</span></th><th>Aset & Aksi</th><th class="sortable" data-sort="isAvailable">Status <span id="icon-isAvailable" class="sort-icon">↕</span></th></tr></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-</main>
 
 <div class="toast" id="toast"><i class="fa-solid fa-check"></i> Teks berhasil disalin!</div>
 
@@ -1104,17 +1151,15 @@
 
     function renderFeaturedSection() {
         const ids = getFeaturedIds();
-        const section = document.getElementById('featuredSection');
         const grid = document.getElementById('featuredGrid');
         if (!grid) return;
 
         const featuredPrograms = dataUmroh.filter(p => ids.includes(String(p.id)));
 
         if (!featuredPrograms.length) {
-            section.classList.add('hidden');
+            grid.innerHTML = '<div class="featured-empty"><i class="fa-solid fa-star"></i>Belum ada program unggulan yang dipilih.</div>';
             return;
         }
-        section.classList.remove('hidden');
 
         grid.innerHTML = featuredPrograms.map(p => {
             const isAvailable = p.isAvailable;
@@ -1365,6 +1410,22 @@
             </tr>`;
         }).join('');
     }
+
+    function switchPubTab(name, btn) {
+        document.querySelectorAll('.pub-tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.pub-tab-btn').forEach(b => b.classList.remove('active'));
+        const panel = document.getElementById('pub-tab-' + name);
+        if (panel) panel.classList.add('active');
+        if (btn) btn.classList.add('active');
+        // reinit sort listeners if switching to umroh tab
+        if (name === 'umroh') {
+            document.querySelectorAll('th.sortable').forEach(th => {
+                const key = th.getAttribute('data-sort');
+                if (key) th.onclick = () => sortTable(key);
+            });
+        }
+    }
+    window.switchPubTab = switchPubTab;
 
     window.openJadwalModal = openJadwalModal;
     window.closeJadwalModal = closeJadwalModal;
