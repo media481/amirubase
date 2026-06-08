@@ -370,6 +370,7 @@
     .pub-tab-btn:hover{color:var(--text-1);background:var(--surface2);}
     .pub-tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);background:#fff;}
     .pub-tab-btn.active.tab-info{color:#7c3aed;border-bottom-color:#7c3aed;}
+    .pub-tab-btn.active.tab-unggulan{color:#d97706;border-bottom-color:#d97706;}
     .pub-tab-btn .pub-tab-icon{font-size:15px;}
     .pub-tab-body{background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:20px;}
     .pub-tab-panel{display:none;}
@@ -440,7 +441,10 @@
 <div class="pub-tabs-wrapper">
     <div class="pub-tabs-bar">
         <button class="pub-tab-btn active tab-info" id="pubTabBtnInfo" onclick="switchPubTab('info', this)">
-            <span class="pub-tab-icon">⭐</span> Unggulan &amp; Jadwal Tamu
+            <span class="pub-tab-icon">📅</span> Jadwal Tamu
+        </button>
+        <button class="pub-tab-btn tab-unggulan" id="pubTabBtnUnggulan" onclick="switchPubTab('unggulan', this)">
+            <span class="pub-tab-icon">⭐</span> Program Unggulan
         </button>
         <button class="pub-tab-btn" id="pubTabBtnUmroh" onclick="switchPubTab('umroh', this)">
             <span class="pub-tab-icon">🕌</span> Program Umroh
@@ -448,20 +452,8 @@
     </div>
     <div class="pub-tab-body">
 
-        <!-- TAB: UNGGULAN & JADWAL -->
+        <!-- TAB: JADWAL TAMU -->
         <div class="pub-tab-panel active" id="pub-tab-info">
-
-            <!-- Sub: Program Unggulan -->
-            <div class="pub-sub-section" id="featuredSection">
-                <div class="pub-sub-header">
-                    <div class="pub-sub-label unggulan"><i class="fa-solid fa-star"></i> Program Unggulan</div>
-                </div>
-                <div class="featured-grid" id="featuredGrid">
-                    <div class="featured-empty"><i class="fa-solid fa-star"></i>Belum ada program unggulan yang dipilih.</div>
-                </div>
-            </div>
-
-            <!-- Sub: Jadwal Tamu -->
             <div class="pub-sub-section" id="jadwalSection">
                 <div class="pub-sub-header">
                     <div class="pub-sub-label jadwal"><i class="fa-solid fa-calendar-check"></i> Jadwal Berkunjung Tamu</div>
@@ -471,7 +463,18 @@
                     <div class="jadwal-empty"><i class="fa-solid fa-calendar-xmark"></i>Belum ada jadwal tamu yang tercatat.</div>
                 </div>
             </div>
+        </div>
 
+        <!-- TAB: PROGRAM UNGGULAN -->
+        <div class="pub-tab-panel" id="pub-tab-unggulan">
+            <div class="pub-sub-section" id="featuredSection">
+                <div class="pub-sub-header">
+                    <div class="pub-sub-label unggulan"><i class="fa-solid fa-star"></i> Program Unggulan</div>
+                </div>
+                <div class="featured-grid" id="featuredGrid">
+                    <div class="featured-empty"><i class="fa-solid fa-star"></i>Belum ada program unggulan yang dipilih.</div>
+                </div>
+            </div>
         </div>
 
         <!-- TAB: PROGRAM UMROH -->
@@ -1423,6 +1426,10 @@
                 const key = th.getAttribute('data-sort');
                 if (key) th.onclick = () => sortTable(key);
             });
+        }
+        // re-render featured if switching to unggulan tab
+        if (name === 'unggulan') {
+            renderFeaturedSection();
         }
     }
     window.switchPubTab = switchPubTab;
