@@ -1374,7 +1374,47 @@
         document.getElementById('adminFormContainer').scrollIntoView({behavior:'smooth',block:'start'});
         showToast('📋 Program diduplikat — ubah tanggal lalu simpan!');
     }
-    async function deleteAdminProgram(id){if(confirm('Yakin hapus program ini?')){try{await deleteProgramById(id);await loadDataFromSupabase(true);await renderAdminPanel();showToast('Program dihapus');}catch(err){showToast('Gagal hapus: '+err.message);}}}
+    let pendingDeleteId = null;
+    function deleteAdminProgram(id) {
+        const prog = adminPrograms.find(p => String(p.id) === String(id));
+        if (!prog) return;
+        pendingDeleteId = id;
+        document.getElementById('deleteConfirmProgName').textContent = prog.nama || 'Program ini';
+        document.getElementById('deleteConfirmInput').value = '';
+        document.getElementById('deleteConfirmBtn').disabled = true;
+        document.getElementById('deleteConfirmModal').classList.add('show');
+        setTimeout(() => document.getElementById('deleteConfirmInput').focus(), 100);
+    }
+    function closeDeleteConfirmModal() {
+        document.getElementById('deleteConfirmModal').classList.remove('show');
+        pendingDeleteId = null;
+    }
+    function onDeleteConfirmInput() {
+        const prog = adminPrograms.find(p => String(p.id) === String(pendingDeleteId));
+        const val = document.getElementById('deleteConfirmInput').value;
+        document.getElementById('deleteConfirmBtn').disabled = !prog || val !== prog.nama;
+    }
+    async function confirmDeleteProgram() {
+        if (!pendingDeleteId) return;
+        const btn = document.getElementById('deleteConfirmBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghapus...';
+        try {
+            await deleteProgramById(pendingDeleteId);
+            await loadDataFromSupabase(true);
+            await renderAdminPanel();
+            closeDeleteConfirmModal();
+            showToast('🗑️ Program berhasil dihapus');
+        } catch(err) {
+            showToast('Gagal hapus: ' + err.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-trash"></i> Hapus Permanen';
+        }
+    }
+    window.deleteAdminProgram = deleteAdminProgram;
+    window.closeDeleteConfirmModal = closeDeleteConfirmModal;
+    window.onDeleteConfirmInput = onDeleteConfirmInput;
+    window.confirmDeleteProgram = confirmDeleteProgram;
     async function clearAllAdminData(){if(confirm('⚠️ PERINGATAN: Hapus SEMUA program?')){try{const{data}=await supabaseClient.from('programs').select('id');for(const prog of data)await deleteProgramById(prog.id);await loadDataFromSupabase(true);await renderAdminPanel();showToast('Semua program dihapus');}catch(err){showToast('Gagal: '+err.message);}}}
     function previewAdminWA(){const data=getAdminFormData();const waText=data.teks_wa||generateAutoWAText(data);alert('📱 Preview Teks WA:\n\n'+waText);}
     function exportAdminData(){const dataStr=JSON.stringify(adminPrograms,null,2);const blob=new Blob([dataStr],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`amiru_programs_${new Date().toISOString().slice(0,19)}.json`;a.click();URL.revokeObjectURL(a.href);showToast('✅ Data diexport');}
@@ -2000,5 +2040,52 @@
     loadKbJamaah();
     loadDataFromSupabase();
 </script>
+<!-- DELETE CONFIRM MODAL -->
+<style>
+.delete-confirm-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:40000;overflow-y:auto;padding:24px;backdrop-filter:blur(4px);}
+.delete-confirm-modal.show{display:flex;align-items:center;justify-content:center;}
+.delete-confirm-box{max-width:440px;width:100%;background:#fff;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);animation:modalFadeIn .25s ease;}
+.delete-confirm-header{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;padding:18px 22px;display:flex;align-items:center;gap:12px;}
+.delete-confirm-header i{font-size:20px;}
+.delete-confirm-header h3{font-size:16px;font-weight:700;margin:0;}
+.delete-confirm-body{padding:22px;}
+.delete-confirm-warning{background:#fef2f2;border:1px solid #fecaca;border-radius:var(--radius);padding:14px 16px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start;}
+.delete-confirm-warning i{color:#dc2626;font-size:16px;margin-top:1px;flex-shrink:0;}
+.delete-confirm-warning p{font-size:13px;color:#7f1d1d;line-height:1.5;margin:0;}
+.delete-confirm-warning strong{display:block;margin-bottom:4px;font-size:13.5px;}
+.delete-confirm-prog-name{background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:13.5px;font-weight:700;color:var(--text-1);margin-bottom:16px;word-break:break-word;}
+.delete-confirm-label{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.delete-confirm-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;color:var(--text-1);transition:border-color var(--transition);}
+.delete-confirm-input:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,0.1);}
+.delete-confirm-actions{display:flex;gap:8px;margin-top:18px;}
+.delete-confirm-btn-cancel{flex:1;padding:10px;border-radius:6px;font-size:13px;font-weight:700;border:1px solid var(--border);background:#fff;color:var(--text-2);cursor:pointer;transition:all var(--transition);}
+.delete-confirm-btn-cancel:hover{background:var(--surface2);}
+.delete-confirm-btn-hapus{flex:1;padding:10px;border-radius:6px;font-size:13px;font-weight:700;border:none;background:#dc2626;color:#fff;cursor:pointer;transition:all var(--transition);display:flex;align-items:center;justify-content:center;gap:6px;}
+.delete-confirm-btn-hapus:hover:not(:disabled){background:#b91c1c;}
+.delete-confirm-btn-hapus:disabled{opacity:.4;cursor:not-allowed;}
+</style>
+<div id="deleteConfirmModal" class="delete-confirm-modal">
+    <div class="delete-confirm-box">
+        <div class="delete-confirm-header">
+            <i class="fas fa-triangle-exclamation"></i>
+            <h3>Hapus Program Umroh</h3>
+        </div>
+        <div class="delete-confirm-body">
+            <div class="delete-confirm-warning">
+                <i class="fas fa-circle-exclamation"></i>
+                <p><strong>Tindakan ini tidak dapat dibatalkan!</strong>Program akan dihapus permanen dari database dan tidak bisa dipulihkan.</p>
+            </div>
+            <div class="delete-confirm-label">Program yang akan dihapus</div>
+            <div class="delete-confirm-prog-name" id="deleteConfirmProgName"></div>
+            <div class="delete-confirm-label">Ketik nama program untuk konfirmasi</div>
+            <input type="text" class="delete-confirm-input" id="deleteConfirmInput" placeholder="Ketik nama program di sini..." oninput="onDeleteConfirmInput()">
+            <div class="delete-confirm-actions">
+                <button class="delete-confirm-btn-cancel" onclick="closeDeleteConfirmModal()"><i class="fas fa-xmark"></i> Batal</button>
+                <button class="delete-confirm-btn-hapus" id="deleteConfirmBtn" onclick="confirmDeleteProgram()" disabled><i class="fas fa-trash"></i> Hapus Permanen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
