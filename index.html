@@ -391,33 +391,6 @@
     .pub-tab-panel .page-header-inner{border-radius:var(--radius);margin-bottom:14px;}
     @media(max-width:768px){.pub-tabs-bar{flex-direction:row;}.pub-tab-btn{font-size:12px;padding:11px 12px;gap:5px;}.pub-tab-body{padding:14px;}}
     @media(min-width:1600px){.pub-tabs-wrapper{padding-left:24px;padding-right:24px;}}
-    /* ===== GEMINI AI FEATURES ===== */
-    .ai-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all var(--transition);}
-    .ai-btn-generate{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;}
-    .ai-btn-generate:hover{background:linear-gradient(135deg,#4338ca,#6d28d9);transform:translateY(-1px);box-shadow:0 4px 12px rgba(124,58,237,.3);}
-    .ai-btn-analyze{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;}
-    .ai-btn-analyze:hover{background:linear-gradient(135deg,#0284c7,#4f46e5);transform:translateY(-1px);box-shadow:0 4px 12px rgba(99,102,241,.3);}
-    .ai-btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important;}
-    .ai-btn i.fa-spinner{animation:spin .8s linear infinite;}
-    /* Parse form from text */
-    .ai-parse-box{background:linear-gradient(135deg,#faf5ff,#eff6ff);border:1.5px dashed #a78bfa;border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;}
-    .ai-parse-box label{font-size:11.5px;font-weight:700;color:#5b21b6;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;margin-bottom:8px;}
-    .ai-parse-row{display:flex;gap:8px;}
-    .ai-parse-row input{flex:1;padding:9px 12px;border:1px solid #c4b5fd;border-radius:6px;font-size:13px;font-family:inherit;background:#fff;color:var(--text-1);}
-    .ai-parse-row input:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,.12);}
-    /* AI result box */
-    .ai-result-box{background:#0f172a;border-radius:var(--radius);padding:16px;margin-top:14px;display:none;}
-    .ai-result-box.show{display:block;}
-    .ai-result-label{font-size:11px;font-weight:700;color:#94a3b8;display:flex;align-items:center;gap:6px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
-    .ai-result-text{font-size:13px;line-height:1.7;color:#e2e8f0;white-space:pre-wrap;}
-    .ai-result-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
-    /* AI analysis panel */
-    .ai-analysis-bar{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:1px solid #bae6fd;border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-    .ai-analysis-bar span{font-size:13px;font-weight:600;color:#1d4ed8;display:flex;align-items:center;gap:7px;}
-    .ai-analysis-result{background:#0f172a;border-radius:var(--radius);padding:20px;margin-top:14px;display:none;}
-    .ai-analysis-result.show{display:block;}
-    .ai-analysis-result .ai-result-label{margin-bottom:12px;}
-    .ai-analysis-result .ai-result-text{font-size:13.5px;line-height:1.8;}
 
 </style>
 </head>
@@ -576,24 +549,6 @@
     const SESSION_DURATION = 30 * 60 * 1000; // 30 menit
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // ========== GEMINI API CONFIG ==========
-    const GEMINI_API_KEY = 'AQ.Ab8RN6IeJ9rtviE2RDyc1MplLCwkiBb0CQ7e7W4mrTKBox-xGw'; // Ganti dengan API key Gemini Anda
-    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-    async function callGemini(prompt) {
-        const res = await fetch(GEMINI_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
-        if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err?.error?.message || 'Gagal menghubungi Gemini API');
-        }
-        const data = await res.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    }
 
     // ========== USER ROLES ==========
     // role: 'administrator' = akses penuh | 'cs' = hanya jadwal tamu
@@ -897,14 +852,6 @@
 
             <!-- FORM TAMBAH/EDIT (hanya administrator) -->
             ${isAdmin ? `
-            <!-- AI: Parse form dari teks bebas -->
-            <div class="ai-parse-box">
-                <label><i class="fas fa-wand-magic-sparkles" style="color:#7c3aed;"></i> ✨ Isi Form Otomatis dengan AI</label>
-                <div class="ai-parse-row">
-                    <input type="text" id="aiParseInput" placeholder='Contoh: "Umroh Plus Aqsa 20 Maret 2026 12 hari Garuda 42 juta"' maxlength="300">
-                    <button id="aiParseBtn" class="ai-btn ai-btn-generate" onclick="aiParseForm()"><i class="fas fa-wand-magic-sparkles"></i> Isi Form</button>
-                </div>
-            </div>
             <div id="adminFormContainer" style="display:none;" class="admin-form">
                 <div class="admin-form-header">
                     <span><i class="fas fa-edit"></i> <span id="adminFormTitle">Tambah Program Baru</span></span>
@@ -921,20 +868,7 @@
                     <div class="admin-form-group"><label>Link Poster</label><input type="url" id="admin_link_poster" placeholder="https://..."></div>
                     <div class="admin-form-group"><label>Link Meta Ads</label><input type="url" id="admin_link_metaads" placeholder="https://..."></div>
                     <div class="admin-form-group"><label>Link Dokumentasi</label><input type="url" id="admin_link_dokumentasi" placeholder="https://..."></div>
-                    <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis" maxlength="5000"></textarea>
-                        <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                            <button id="aiGenerateWABtn" class="ai-btn ai-btn-generate" onclick="aiGenerateWA()"><i class="fas fa-magic"></i> ✨ Generate AI</button>
-                            <span style="font-size:11px;color:var(--text-3);">Buat teks WA marketing otomatis dari data program di atas</span>
-                        </div>
-                        <div id="aiWAResultBox" class="ai-result-box">
-                            <div class="ai-result-label"><i class="fas fa-robot"></i> Hasil Generate Gemini AI</div>
-                            <div class="ai-result-text" id="aiWAResultText"></div>
-                            <div class="ai-result-actions">
-                                <button class="ai-btn ai-btn-generate" onclick="aiApplyWA()"><i class="fas fa-check"></i> Terapkan ke Form</button>
-                                <button class="ai-btn" style="background:#1e293b;color:#94a3b8;" onclick="aiCopyWA()"><i class="fas fa-copy"></i> Salin</button>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis" maxlength="5000"></textarea></div>
                 </div>
                 <div class="form-actions">
                     <button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button>
@@ -1009,18 +943,6 @@
                         <button class="jadwal-admin-btn" style="padding:7px 14px;font-size:12px;" onclick="openJadwalModal()">
                             <i class="fas fa-plus"></i> Tambah Jadwal
                         </button>
-                    </div>
-                </div>
-                <!-- AI: Analisis jadwal tamu -->
-                <div class="ai-analysis-bar">
-                    <span><i class="fas fa-robot" style="color:#6366f1;"></i> Analisis jadwal tamu dengan Gemini AI untuk insight &amp; rekomendasi tindakan</span>
-                    <button id="aiAnalyzeBtn" class="ai-btn ai-btn-analyze" onclick="aiAnalyzeJadwal()"><i class="fas fa-robot"></i> 🤖 Analisis AI</button>
-                </div>
-                <div id="aiAnalysisResult" class="ai-analysis-result">
-                    <div class="ai-result-label"><i class="fas fa-chart-line"></i> Hasil Analisis Gemini AI</div>
-                    <div class="ai-result-text" id="aiAnalysisText"></div>
-                    <div class="ai-result-actions" style="margin-top:14px;">
-                        <button class="ai-btn" style="background:#1e293b;color:#94a3b8;" onclick="aiCopyAnalysis()"><i class="fas fa-copy"></i> Salin Analisis</button>
                     </div>
                 </div>
                 <div class="admin-table">
@@ -1245,161 +1167,6 @@
     function showCsLockWarning() { showToast('🔒 Fitur ini hanya untuk Administrator'); }
     window.showCsLockWarning = showCsLockWarning;
 
-    // ========== GEMINI FITUR 1: GENERATE TEKS WA ==========
-    async function aiGenerateWA() {
-        const btn = document.getElementById('aiGenerateWABtn');
-        const resultBox = document.getElementById('aiWAResultBox');
-        const resultText = document.getElementById('aiWAResultText');
-        const data = getAdminFormData();
-        if (!data.nama) { showToast('⚠️ Isi nama program terlebih dahulu'); return; }
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-        const prompt = `Kamu adalah copywriter marketing umroh profesional Indonesia. Buat teks WhatsApp marketing yang menarik, persuasif, dan islami untuk program umroh berikut:
-
-Nama Program: ${data.nama}
-Tanggal: ${data.tgl || 'belum ditentukan'}
-Durasi: ${data.durasi || 'belum ditentukan'}
-Maskapai: ${data.maskapai || 'belum ditentukan'}
-Harga: ${data.harga_quint || 'belum ditentukan'}
-
-Ketentuan:
-- Gunakan emoji yang relevan (🕋✈️🌙💎)
-- Sertakan kalimat pembuka yang menarik perhatian
-- Highlight keunggulan program
-- Sertakan fasilitas standar (tiket PP, visa, hotel bintang, makan fullboard, perlengkapan umroh)
-- Akhiri dengan call-to-action dan nomor WA 6285122336300
-- Format rapi dengan baris baru yang jelas
-- Maksimal 300 kata`;
-        try {
-            const result = await callGemini(prompt);
-            resultText.textContent = result;
-            resultBox.classList.add('show');
-            btn.innerHTML = '<i class="fas fa-magic"></i> Generate Ulang';
-        } catch(err) {
-            showToast('❌ ' + err.message);
-            btn.innerHTML = '<i class="fas fa-magic"></i> Generate AI';
-        }
-        btn.disabled = false;
-    }
-
-    function aiApplyWA() {
-        const text = document.getElementById('aiWAResultText')?.textContent;
-        if (!text) return;
-        const field = document.getElementById('admin_teks_wa');
-        if (field) { field.value = text; showToast('✅ Teks WA berhasil diterapkan!'); }
-    }
-
-    function aiCopyWA() {
-        const text = document.getElementById('aiWAResultText')?.textContent;
-        if (!text) return;
-        navigator.clipboard.writeText(text).then(() => showToast('✅ Teks WA disalin!')).catch(() => showToast('❌ Gagal menyalin'));
-    }
-
-    window.aiGenerateWA = aiGenerateWA;
-    window.aiApplyWA = aiApplyWA;
-    window.aiCopyWA = aiCopyWA;
-
-    // ========== GEMINI FITUR 2: ANALISIS JADWAL TAMU ==========
-    async function aiAnalyzeJadwal() {
-        const btn = document.getElementById('aiAnalyzeBtn');
-        const resultBox = document.getElementById('aiAnalysisResult');
-        const resultText = document.getElementById('aiAnalysisText');
-        loadJadwal();
-        if (!jadwalList.length) { showToast('⚠️ Belum ada data jadwal tamu'); return; }
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menganalisis...';
-        const today = new Date(); today.setHours(0,0,0,0);
-        const jadwalSummary = jadwalList.map(j => {
-            const d = new Date(j.tgl); d.setHours(0,0,0,0);
-            const status = d.getTime() === today.getTime() ? 'Hari Ini' : (d < today ? 'Selesai' : 'Mendatang');
-            return `- ${j.nama||'-'} | Asal: ${j.asal||'-'} | Tgl: ${j.tgl} | Jam: ${j.jam||'-'} | Jumlah: ${j.jumlah||1} orang | Keperluan: ${j.keperluan||'-'} | Status: ${status}`;
-        }).join('\n');
-        const prompt = `Kamu adalah analis bisnis untuk agen travel umroh PT Amiru Haramain Indonesia. Analisis data jadwal kunjungan tamu berikut dan berikan insight yang actionable:
-
-DATA JADWAL TAMU:
-${jadwalSummary}
-
-Berikan analisis meliputi:
-1. 📊 Ringkasan statistik (total tamu, hari ini, mendatang, selesai)
-2. 🎯 Keperluan terbanyak dan polanya
-3. 📅 Pola waktu kunjungan (hari sibuk, jam ramai)
-4. 💡 Saran follow-up untuk tamu yang belum closing
-5. ⚡ Rekomendasi tindakan prioritas minggu ini
-
-Gunakan bahasa Indonesia yang profesional dan praktis. Gunakan emoji untuk keterbacaan.`;
-        try {
-            const result = await callGemini(prompt);
-            resultText.textContent = result;
-            resultBox.classList.add('show');
-            btn.innerHTML = '<i class="fas fa-robot"></i> Analisis Ulang';
-        } catch(err) {
-            showToast('❌ ' + err.message);
-            btn.innerHTML = '<i class="fas fa-robot"></i> Analisis AI';
-        }
-        btn.disabled = false;
-    }
-
-    function aiCopyAnalysis() {
-        const text = document.getElementById('aiAnalysisText')?.textContent;
-        if (!text) return;
-        navigator.clipboard.writeText(text).then(() => showToast('✅ Analisis disalin!')).catch(() => showToast('❌ Gagal menyalin'));
-    }
-
-    window.aiAnalyzeJadwal = aiAnalyzeJadwal;
-    window.aiCopyAnalysis = aiCopyAnalysis;
-
-    // ========== GEMINI FITUR 3: PARSE FORM DARI TEKS BEBAS ==========
-    async function aiParseForm() {
-        const btn = document.getElementById('aiParseBtn');
-        const input = document.getElementById('aiParseInput');
-        const rawText = input?.value?.trim();
-        if (!rawText) { showToast('⚠️ Ketik deskripsi program terlebih dahulu'); return; }
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-        const maskapaiList = MASKAPAI_LIST.join(', ');
-        const prompt = `Ekstrak informasi program umroh dari teks berikut dan kembalikan HANYA dalam format JSON valid tanpa markdown, tanpa penjelasan apapun:
-
-Teks: "${rawText}"
-
-Format JSON yang harus dikembalikan:
-{
-  "nama": "nama lengkap program umroh",
-  "tgl": "tanggal dalam format D MMMM YYYY dalam bahasa Indonesia, contoh: 15 Maret 2026",
-  "durasi": "durasi, contoh: 9 Hari",
-  "maskapai": "salah satu dari: ${maskapaiList} — pilih yang paling cocok, atau kosong jika tidak disebut",
-  "harga_quint": "harga dalam format Rp X.XXX.XXX, atau kosong jika tidak disebut"
-}
-
-Jika informasi tidak ada dalam teks, isi dengan string kosong "". Kembalikan HANYA JSON, tidak ada teks lain.`;
-        try {
-            const raw = await callGemini(prompt);
-            const clean = raw.replace(/```json|```/gi, '').trim();
-            const parsed = JSON.parse(clean);
-            if (parsed.nama) document.getElementById('admin_nama').value = parsed.nama;
-            if (parsed.tgl) {
-                document.getElementById('admin_tgl').value = parsed.tgl;
-                // Coba set date input juga
-                try {
-                    const d = parseDateFromString(parsed.tgl);
-                    if (d && !isNaN(d.getTime())) {
-                        const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
-                        document.getElementById('admin_tgl_date').value = `${y}-${m}-${day}`;
-                    }
-                } catch(e) {}
-            }
-            if (parsed.durasi) document.getElementById('admin_durasi').value = parsed.durasi;
-            if (parsed.maskapai) { const sel = document.getElementById('admin_maskapai'); if (sel) sel.value = parsed.maskapai; }
-            if (parsed.harga_quint) document.getElementById('admin_harga_quint').value = parsed.harga_quint;
-            input.value = '';
-            showToast('✨ Form berhasil diisi oleh AI!');
-        } catch(err) {
-            showToast('❌ Gagal parse: ' + err.message);
-        }
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Isi Form';
-    }
-
-    window.aiParseForm = aiParseForm;
 
     // ========== PROGRAM UNGGULAN ==========
     const FEATURED_KEY = 'amiru_featured_ids';
