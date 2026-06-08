@@ -257,7 +257,7 @@
     .featured-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
     .featured-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--primary);}
     .featured-label i{font-size:14px;color:#f59e0b;}
-    .featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+    .featured-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
     .featured-card{background:#fff;border-radius:var(--radius-lg);border:2px solid #fde68a;box-shadow:0 2px 12px rgba(245,158,11,.12);padding:16px;position:relative;overflow:hidden;transition:transform var(--transition),box-shadow var(--transition);cursor:pointer;}
     .featured-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,158,11,.2);}
     .featured-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f59e0b,#fbbf24);}
@@ -285,7 +285,7 @@
     .featured-section-header{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:var(--radius);padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
     .featured-section-header i{color:#f59e0b;font-size:16px;}
     .featured-section-header span{font-size:13px;font-weight:700;color:#92400e;}
-    @media(max-width:768px){.featured-grid{grid-template-columns:1fr;}}
+    @media(max-width:768px){.featured-grid{grid-template-columns:1fr;}}@media(max-width:1024px) and (min-width:769px){.featured-grid{grid-template-columns:repeat(3,1fr);}}
     @media(min-width:1600px){.featured-section{padding-left:24px;padding-right:24px;}}
 
 </style>
@@ -658,7 +658,7 @@
                 <div class="admin-form-group"><label>Link Dokumentasi</label><input type="url" id="admin_link_dokumentasi" placeholder="https://..."></div>
                 <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis" maxlength="5000"></textarea></div></div>
                 <div class="form-actions"><button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button><button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button><button class="admin-btn" onclick="hideAdminForm()">Batal</button></div></div>
-                <div class="featured-section-header"><i class="fas fa-star"></i><span>Program Unggulan</span><small>Tampil di antara running text dan tabel program</small></div>
+                <div class="featured-section-header"><i class="fas fa-star"></i><span>Program Unggulan</span><small>Tampil di antara running text dan tabel program</small><span id="featuredCounter" style="margin-left:auto;background:#f59e0b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;">0/3</span></div>
                 <div class="admin-table" style="margin-bottom:20px;"><table><thead><tr><th>Nama Program</th><th>Tanggal</th><th>Status Unggulan</th></tr></thead><tbody id="featuredAdminTableBody"></tbody></table></div>
                 <div class="admin-table"><table><thead><tr><th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th><th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal <i class="fas fa-sort"></i></th><th>Aksi</th></tr></thead><tbody id="adminTableBody"></tbody></table></div>`;
             const dateInput = document.getElementById('admin_tgl_date'); if(dateInput) dateInput.addEventListener('change',function(){if(this.value)document.getElementById('admin_tgl').value=formatDateToIndonesian(new Date(this.value));else document.getElementById('admin_tgl').value='';});
@@ -835,6 +835,8 @@
     }
     function isFeatured(id) { return getFeaturedIds().includes(String(id)); }
 
+    const MAX_FEATURED = 3;
+
     function toggleFeatured(id) {
         id = String(id);
         let ids = getFeaturedIds();
@@ -842,6 +844,10 @@
             ids = ids.filter(i => i !== id);
             showToast('⭐ Program dihapus dari unggulan');
         } else {
+            if (ids.length >= MAX_FEATURED) {
+                showToast('⚠️ Maksimal ' + MAX_FEATURED + ' program unggulan!');
+                return;
+            }
             ids.push(id);
             showToast('⭐ Program ditambahkan ke unggulan!');
         }
@@ -893,15 +899,22 @@
             tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-3)">Belum ada program.</td></tr>';
             return;
         }
+        const currentCount = getFeaturedIds().length;
+        const isFull = currentCount >= MAX_FEATURED;
+        // update counter badge if exists
+        const counter = document.getElementById('featuredCounter');
+        if (counter) counter.textContent = currentCount + '/' + MAX_FEATURED;
         tbody.innerHTML = adminPrograms.map(p => {
             const featured = isFeatured(p.id);
+            const canAdd = featured || !isFull;
             return `<tr>
                 <td><strong>${escapeHtml(p.nama||'-')}</strong></td>
                 <td>${escapeHtml(p.tgl||'-')}</td>
                 <td>
-                    <button class="featured-toggle-btn ${featured ? 'on' : 'off'}" onclick="toggleFeatured('${p.id}'); renderFeaturedAdminTable();">
-                        <i class="fas fa-${featured ? 'star' : 'star'}"></i>
-                        ${featured ? '⭐ Tampil di Unggulan' : '☆ Jadikan Unggulan'}
+                    <button class="featured-toggle-btn ${featured ? 'on' : 'off'}" 
+                        ${!canAdd ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}
+                        onclick="toggleFeatured('${p.id}'); renderFeaturedAdminTable();">
+                        ${featured ? '⭐ Tampil di Unggulan' : (isFull ? '🚫 Slot Penuh' : '☆ Jadikan Unggulan')}
                     </button>
                 </td>
             </tr>`;
