@@ -548,12 +548,12 @@
         data.forEach(item => {
             const isAvailable = item.dateObj >= now, statusClass = isAvailable ? "status-available" : "status-expired";
             const diffMs = item.dateObj - now;
-            let cdText = "Sudah berangkat", cdClass = "expired";
+            let cdText = "sudah berangkat", cdClass = "expired";
             if (diffMs >= 0) {
                 const diffDays = Math.floor(diffMs / (1000*60*60*24));
                 const years = Math.floor(diffDays/365), months = Math.floor((diffDays%365)/30), days = diffDays%30;
                 const parts = []; if (years) parts.push(`${years}th`); if (months) parts.push(`${months}bl`); if (days) parts.push(`${days}hr`);
-                if (!parts.length) parts.push("Hari ini!");
+                if (!parts.length) parts.push("hari ini!");
                 cdText = parts.join(" ") + (diffDays>0?" lagi":""); cdClass = diffDays<=30?"soon":diffDays<=90?"medium":"far";
             }
             const maskapaiLower = (item.maskapai||'').toLowerCase();
