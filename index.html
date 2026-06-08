@@ -1174,17 +1174,30 @@
             return;
         }
         const activeId = selectedId || kbSelectedAdminProgram || null;
+        // Admin: tampilkan SEMUA program (supaya bisa input ke program manapun)
+        // tapi bedakan yang sudah ada jamaahnya vs belum
         const programs = dataUmroh.slice().sort((a,b) => new Date(a.tgl_berangkat||0) - new Date(b.tgl_berangkat||0));
-        sel.innerHTML = programs.map(p => {
+        const programsWithJamaah = programs.filter(p => kbJamaahList.some(j => String(j.program_id) === String(p.id)));
+        // Tampilkan hanya yang sudah ada jamaahnya di selector; kalau kosong, tampilkan info
+        if (programsWithJamaah.length === 0) {
+            sel.innerHTML = '<div style="font-size:13px;color:var(--text-3);font-style:italic;">Belum ada data jamaah. Klik Tambah Jamaah untuk mulai input.</div>';
+            const content = document.getElementById('kbAdminJamaahContent');
+            if (content) content.innerHTML = `<div class="kb-no-program"><i class="fa-solid fa-plane-departure"></i><p>Belum ada data jamaah. Klik tombol Tambah Jamaah di atas.</p></div>`;
+            return;
+        }
+        // Reset activeId jika programnya sudah tidak ada di list
+        const resolvedId = (activeId && programsWithJamaah.find(p => String(p.id) === String(activeId))) ? activeId : null;
+        if (resolvedId !== kbSelectedAdminProgram) kbSelectedAdminProgram = resolvedId;
+        sel.innerHTML = programsWithJamaah.map(p => {
             const count = kbJamaahList.filter(j => String(j.program_id) === String(p.id)).length;
-            const isActive = String(activeId) === String(p.id);
+            const isActive = String(resolvedId) === String(p.id);
             return `<button class="kb-program-pill${isActive?' active':''}" onclick="selectKbAdminProgram('${escapeHtml(String(p.id))}')">
                 <i class="fa-solid fa-plane-departure" style="font-size:11px;"></i>
                 ${escapeHtml(p.nama||'Program')}
                 <span class="pill-count">${count}</span>
             </button>`;
         }).join('');
-        renderKbAdminContent(activeId);
+        renderKbAdminContent(resolvedId);
     }
 
     let kbSelectedAdminProgram = null;
@@ -1789,10 +1802,23 @@
             sel.innerHTML = '<div style="padding:10px;color:var(--text-3);font-size:13px;font-style:italic;">Belum ada data program. Silakan muat ulang halaman.</div>';
             return;
         }
-        const programs = dataUmroh.slice().sort((a,b) => new Date(a.tgl_berangkat||0) - new Date(b.tgl_berangkat||0));
+        // Hanya tampilkan program yang sudah ada data jamaahnya
+        const programs = dataUmroh
+            .filter(p => kbJamaahList.some(j => String(j.program_id) === String(p.id)))
+            .sort((a,b) => new Date(a.tgl_berangkat||0) - new Date(b.tgl_berangkat||0));
+        if (programs.length === 0) {
+            sel.innerHTML = '<div style="padding:10px;color:var(--text-3);font-size:13px;font-style:italic;">Belum ada data jamaah yang diinput.</div>';
+            const content = document.getElementById('kbJamaahContent');
+            if (content) content.innerHTML = `<div class="kb-no-program"><i class="fa-solid fa-plane-departure"></i><p>Belum ada data jamaah. Silakan input melalui Admin Panel.</p></div>`;
+            return;
+        }
+        // Jika program yang dipilih sudah tidak ada di list, reset
+        if (kbSelectedProgram && !programs.find(p => String(p.id) === String(kbSelectedProgram))) {
+            kbSelectedProgram = null;
+        }
         sel.innerHTML = programs.map(p => {
-            const count = kbJamaahList.filter(j => j.program_id === p.id).length;
-            const isActive = kbSelectedProgram === p.id;
+            const count = kbJamaahList.filter(j => String(j.program_id) === String(p.id)).length;
+            const isActive = String(kbSelectedProgram) === String(p.id);
             return `<button class="kb-program-pill${isActive?' active':''}" onclick="selectKbProgram('${escapeHtml(String(p.id))}')">
                 <i class="fa-solid fa-plane-departure" style="font-size:11px;"></i>
                 ${escapeHtml(p.nama||'Program')}
