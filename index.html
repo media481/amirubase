@@ -1567,38 +1567,101 @@
     window.confirmDeleteProgram = confirmDeleteProgram;
     async function clearAllAdminData(){if(confirm('⚠️ PERINGATAN: Hapus SEMUA program?')){try{const{data}=await supabaseClient.from('programs').select('id');for(const prog of data)await deleteProgramById(prog.id);await loadDataFromSupabase(true);await renderAdminPanel();showToast('Semua program dihapus');}catch(err){showToast('Gagal: '+err.message);}}}
     function previewAdminWA(){const data=getAdminFormData();const waText=data.teks_wa||generateAutoWAText(data);alert('📱 Preview Teks WA:\n\n'+waText);}
-    function exportAdminData(){const dataStr=JSON.stringify(adminPrograms,null,2);const blob=new Blob([dataStr],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`amiru_programs_${new Date().toISOString().slice(0,19)}.json`;a.click();URL.revokeObjectURL(a.href);showToast('✅ Data diexport');}
-    
-    function importAdminData(){
-        const input=document.createElement('input');
-        input.type='file';
-        input.accept='.json';
-        input.onchange=async(e)=>{
-            const file=e.target.files[0];
-            if(!file)return;
-            
-            // Batasi ukuran file
-            if(file.size>MAX_FILE_SIZE){
-                showToast('❌ File terlalu besar! Maksimal 5MB.');
-                return;
-            }
-            
-            const reader=new FileReader();
-            reader.onload=async(event)=>{
-                try{
-                    const imported=JSON.parse(event.target.result);
-                    if(Array.isArray(imported)){
-                        for(const prog of imported){
-                            // Validasi data sebelum insert
-                            if(prog.nama && isValidProgramName(prog.nama)){
-                                await insertProgram(prog);
+    async function exportAdminData() {
+        showToast('⏳ Menyiapkan backup...');
+        try {
+            const headers = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
+            const [resPrograms, resJadwal, resKb, resFeatured] = await Promise.all([
+                fetch(`${SUPABASE_URL}/rest/v1/programs?select=*&order=created_at.asc`, { headers }),
+                fetch(`${SUPABASE_URL}/rest/v1/jadwal_tamu?select=*&order=tgl.asc`, { headers }),
+                fetch(`${SUPABASE_URL}/rest/v1/kb_jamaah?select=*&order=nama.asc`, { headers }),
+                fetch(`${SUPABASE_URL}/rest/v1/featured_programs?select=*`, { headers }),
+            ]);
+            const backup = {
+                _meta: {
+                    app: 'Amiru Repository',
+                    exported_at: new Date().toISOString(),
+                    version: '2.0',
+                },
+                programs:          resPrograms.ok  ? await resPrograms.json()  : [],
+                jadwal_tamu:       resJadwal.ok    ? await resJadwal.json()    : [],
+                kb_jamaah:         resKb.ok        ? await resKb.json()        : [],
+                featured_programs: resFeatured.ok  ? await resFeatured.json() : [],
+            };
+            const total = backup.programs.length + backup.jadwal_tamu.length + backup.kb_jamaah.length;
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `amiru_backup_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast(`✅ Backup berhasil — ${total} record`);
+        } catch(err) {
+            showToast('❌ Gagal backup: ' + err.message);
+        }
+    }
+
+    function importAdminData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > MAX_FILE_SIZE) { showToast('❌ File terlalu besar! Maksimal 5MB.'); return; }
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    // Format baru: objek dengan _meta (backup lengkap)
+                    if (imported && imported._meta && imported.programs) {
+                        const { programs = [], jadwal_tamu = [], kb_jamaah = [], featured_programs = [] } = imported;
+                        const tgl = new Date(imported._meta.exported_at).toLocaleString('id-ID');
+                        const msg = `Restore backup dari ${tgl}?\n\n` +
+                            `• ${programs.length} program umroh\n` +
+                            `• ${jadwal_tamu.length} jadwal tamu\n` +
+                            `• ${kb_jamaah.length} data jamaah\n` +
+                            `• ${featured_programs.length} program unggulan\n\n` +
+                            `Data yang sudah ada TIDAK akan dihapus, hanya ditambah/diperbarui.`;
+                        if (!confirm(msg)) return;
+                        showToast('⏳ Mengimport data...');
+                        let ok = 0, fail = 0;
+                        for (const prog of programs) {
+                            if (prog.nama && isValidProgramName(prog.nama)) {
+                                try { await insertProgram(prog); ok++; } catch { fail++; }
+                            }
+                        }
+                        const hdr = {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'resolution=merge-duplicates',
+                        };
+                        if (jadwal_tamu.length) await fetch(`${SUPABASE_URL}/rest/v1/jadwal_tamu`, { method: 'POST', headers: hdr, body: JSON.stringify(jadwal_tamu) });
+                        if (kb_jamaah.length) await fetch(`${SUPABASE_URL}/rest/v1/kb_jamaah`, { method: 'POST', headers: hdr, body: JSON.stringify(kb_jamaah) });
+                        if (featured_programs.length) await fetch(`${SUPABASE_URL}/rest/v1/featured_programs`, { method: 'POST', headers: hdr, body: JSON.stringify(featured_programs) });
+                        await loadDataFromSupabase(true);
+                        await loadJadwal();
+                        await loadKbJamaah();
+                        await loadFeaturedIds();
+                        await renderAdminPanel();
+                        showToast(`✅ Restore selesai — ${ok} program${fail ? ', ' + fail + ' gagal' : ''}`);
+                    // Format lama: array program saja
+                    } else if (Array.isArray(imported)) {
+                        if (!confirm(`Import ${imported.length} program umroh? Data yang sudah ada tidak akan dihapus.`)) return;
+                        let ok = 0;
+                        for (const prog of imported) {
+                            if (prog.nama && isValidProgramName(prog.nama)) {
+                                try { await insertProgram(prog); ok++; } catch {}
                             }
                         }
                         await loadDataFromSupabase(true);
                         await renderAdminPanel();
-                        showToast('✅ Import berhasil');
-                    }else showToast('❌ Format tidak valid');
-                }catch(err){showToast('❌ Gagal: '+err.message);}
+                        showToast(`✅ Import berhasil — ${ok} program`);
+                    } else {
+                        showToast('❌ Format file tidak dikenali');
+                    }
+                } catch(err) { showToast('❌ Gagal: ' + err.message); }
             };
             reader.readAsText(file);
         };
