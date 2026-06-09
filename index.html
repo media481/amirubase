@@ -537,13 +537,13 @@
 <div class="pub-tabs-wrapper">
     <div class="pub-tabs-bar">
         <button class="pub-tab-btn active tab-info" id="pubTabBtnInfo" onclick="switchPubTab('info', this)">
-            <span class="pub-tab-icon"></span> Jadwal Kunjungan Tamu
+            <span class="pub-tab-icon"></span> Jadwal Tamu
         </button>
         <button class="pub-tab-btn tab-unggulan" id="pubTabBtnUnggulan" onclick="switchPubTab('unggulan', this)">
-            <span class="pub-tab-icon"></span> Program Unggulan Amiru
+            <span class="pub-tab-icon"></span> Program Unggulan
         </button>
         <button class="pub-tab-btn" id="pubTabBtnUmroh" onclick="switchPubTab('umroh', this)">
-            <span class="pub-tab-icon"></span> Program Umroh Amiru
+            <span class="pub-tab-icon"></span> Program Umroh
         </button>
         <button class="pub-tab-btn tab-keberangkatan" id="pubTabBtnKeberangkatan" onclick="switchPubTab('keberangkatan', this)">
             <span class="pub-tab-icon"></span> Detail Keberangkatan
@@ -1863,17 +1863,15 @@
         };
         let err = null;
         if (editingJadwalId) {
-            const { data: updJt, error } = await supabaseClient.from('jadwal_tamu').update(entry).eq('id', editingJadwalId).select();
-            if (!error && (!updJt || updJt.length === 0)) { err = { message: 'Data tidak ditemukan atau tidak ada perubahan' }; } else { err = error; }
-            console.log('[saveJadwalTamu] update:', updJt, error);
+            const { error } = await supabaseClient.from('jadwal_tamu').update(entry).eq('id', editingJadwalId);
+            err = error;
         } else {
-            const { data: insJt, error } = await supabaseClient.from('jadwal_tamu').insert([{ ...entry, created_at: new Date().toISOString() }]).select();
-            console.log('[saveJadwalTamu] insert:', insJt, error);
+            const { error } = await supabaseClient.from('jadwal_tamu').insert([{ ...entry, id: 'j' + Date.now(), created_at: Date.now() }]);
             err = error;
         }
-        if (err) { console.error('[saveKbJamaah] error:', err); showToast('❌ Gagal simpan: ' + (err.message || err.details || err.code || JSON.stringify(err))); return; }
+        if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
         const isEdit = !!editingJadwalId;
-        try { await loadJadwal(); } catch(le) { console.warn('[loadJadwal]', le); }
+        await loadJadwal();
         closeJadwalModal();
         renderJadwalSection();
         renderJadwalAdminTable();
@@ -2250,16 +2248,14 @@
         };
         let err = null;
         if (editingKbId) {
-            const { data: updData, error } = await supabaseClient.from('kb_jamaah').update(entry).eq('id', editingKbId).select();
-            if (!error && (!updData || updData.length === 0)) { err = { message: 'Data tidak ditemukan atau tidak ada perubahan' }; } else { err = error; }
-            console.log('[saveKbJamaah] update result:', updData, error);
-        } else {
-            const { data: insData, error } = await supabaseClient.from('kb_jamaah').insert([{ ...entry, created_at: new Date().toISOString() }]).select();
+            const { error } = await supabaseClient.from('kb_jamaah').update(entry).eq('id', editingKbId);
             err = error;
-            console.log('[saveKbJamaah] insert result:', insData, error);
+        } else {
+            const { error } = await supabaseClient.from('kb_jamaah').insert([{ ...entry, id: 'kb_' + Date.now(), created_at: Date.now() }]);
+            err = error;
         }
         if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
-        try { await loadKbJamaah(); } catch(le) { console.warn('[loadKbJamaah]', le); }
+        await loadKbJamaah();
         closeKbModal();
         // Refresh tampilan sesuai konteks (public atau admin)
         if (kbEditFromAdmin || document.getElementById('adminModal')?.classList.contains('show')) {
