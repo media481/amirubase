@@ -20,7 +20,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
     <style>
         /* ========== CSS MINIFIED ========== */
         :root{--primary:#1a6fa8;--primary-light:#2580be;--primary-subtle:#e8f4fd;--accent:#0ea5e9;--white:#fff;--bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text-1:#0f172a;--text-2:#475569;--text-3:#94a3b8;--green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;--red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;--blue-bg:#eff6ff;--blue-text:#1d4ed8;--whatsapp:#25D366;--whatsapp-dark:#128C7E;--shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);--shadow-lg:0 10px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.02);--radius:8px;--radius-lg:12px;--transition:0.15s ease;}
@@ -973,7 +973,6 @@
 
             const { data } = await supabaseClient.from('programs').select('*').order('created_at');
             adminPrograms = data || [];
-            loadJadwal();
             const featuredCount = getFeaturedIds().length;
             const jadwalCount = jadwalList.length;
             const programCount = adminPrograms.length;
@@ -1038,7 +1037,7 @@
                 </button>
                 <button class="admin-tab-btn tab-keberangkatan" onclick="switchAdminTab('keberangkatan',this)">
                     <i class="fas fa-plane-departure"></i> Keberangkatan
-                    <span class="tab-count" id="tabCountKeberangkatan">${(() => { try { return (JSON.parse(localStorage.getItem('amiru_kb_jamaah')||'[]')).length; } catch(e){return 0;} })()}</span>
+                    <span class="tab-count" id="tabCountKeberangkatan">${kbJamaahList.length}</span>
                 </button>
             </div>
 
@@ -1163,7 +1162,6 @@
     window.switchAdminTab = switchAdminTab;
 
     function renderKbAdminSelector(selectedId) {
-        loadKbJamaah();
         const sel = document.getElementById('kbAdminProgramSelector');
         if (!sel) return;
         if (!dataUmroh || dataUmroh.length === 0) {
@@ -1266,11 +1264,11 @@
     let kbEditFromAdmin = false;
     window.kbEditFromAdmin = kbEditFromAdmin;
 
-    function deleteKbJamaahAdmin(id) {
+    async function deleteKbJamaahAdmin(id) {
         if (!confirm('Hapus data jamaah ini?')) return;
-        loadKbJamaah();
+        const { error } = await supabaseClient.from('kb_jamaah').delete().eq('id', id);
+        if (error) { showToast('❌ Gagal hapus: ' + error.message); return; }
         kbJamaahList = kbJamaahList.filter(j => j.id !== id);
-        saveKbJamaah_data();
         renderKbAdminSelector(kbSelectedAdminProgram);
         showToast('🗑️ Data jamaah dihapus');
     }
@@ -1494,34 +1492,33 @@
     window.showCsLockWarning = showCsLockWarning;
 
 
-    // ========== PROGRAM UNGGULAN ==========
-    const FEATURED_KEY = 'amiru_featured_ids';
-
-    function getFeaturedIds() {
-        try { return JSON.parse(localStorage.getItem(FEATURED_KEY) || '[]'); } catch { return []; }
-    }
-    function saveFeaturedIds(ids) {
-        localStorage.setItem(FEATURED_KEY, JSON.stringify(ids));
-    }
-    function isFeatured(id) { return getFeaturedIds().includes(String(id)); }
-
+    // ========== PROGRAM UNGGULAN (Supabase) ==========
     const MAX_FEATURED = 3;
+    let featuredIds = [];
 
-    function toggleFeatured(id) {
+    async function loadFeaturedIds() {
+        const { data, error } = await supabaseClient.from('featured_programs').select('program_id');
+        if (error) { console.error('loadFeaturedIds error:', error.message || error.code); featuredIds = []; return; }
+        featuredIds = (data || []).map(r => String(r.program_id));
+    }
+
+    function getFeaturedIds() { return featuredIds; }
+    function isFeatured(id) { return featuredIds.includes(String(id)); }
+
+    async function toggleFeatured(id) {
         id = String(id);
-        let ids = getFeaturedIds();
-        if (ids.includes(id)) {
-            ids = ids.filter(i => i !== id);
+        if (isFeatured(id)) {
+            const { error } = await supabaseClient.from('featured_programs').delete().eq('program_id', id);
+            if (error) { showToast('❌ Gagal: ' + error.message); return; }
+            featuredIds = featuredIds.filter(i => i !== id);
             showToast('⭐ Program dihapus dari unggulan');
         } else {
-            if (ids.length >= MAX_FEATURED) {
-                showToast('⚠️ Maksimal ' + MAX_FEATURED + ' program unggulan!');
-                return;
-            }
-            ids.push(id);
+            if (featuredIds.length >= MAX_FEATURED) { showToast('⚠️ Maksimal ' + MAX_FEATURED + ' program unggulan!'); return; }
+            const { error } = await supabaseClient.from('featured_programs').insert([{ program_id: id }]);
+            if (error) { showToast('❌ Gagal: ' + error.message); return; }
+            featuredIds.push(id);
             showToast('⭐ Program ditambahkan ke unggulan!');
         }
-        saveFeaturedIds(ids);
         renderFeaturedSection();
         renderFeaturedAdminTable();
     }
@@ -1591,21 +1588,59 @@
         }).join('');
     }
 
-    // ========== JADWAL BERKUNJUNG TAMU ==========
-    const JADWAL_KEY = 'amiru_jadwal_tamu';
+    // ========== JADWAL BERKUNJUNG TAMU (Supabase) ==========
     let jadwalList = [];
     let editingJadwalId = null;
 
-    function loadJadwal() {
-        try { jadwalList = JSON.parse(localStorage.getItem(JADWAL_KEY) || '[]'); } catch { jadwalList = []; }
+    async function loadJadwal() {
+        const { data, error } = await supabaseClient.from('jadwal_tamu').select('*').order('tgl', { ascending: true });
+        if (error) { console.error('loadJadwal error:', error.message || error.code); jadwalList = []; return; }
+        jadwalList = data || [];
     }
-    function saveJadwal() {
-        localStorage.setItem(JADWAL_KEY, JSON.stringify(jadwalList));
-    }
+
     function getJadwalById(id) { return jadwalList.find(j => j.id === id); }
 
+    async function saveJadwalTamu() {
+        const nama = document.getElementById('jf_nama').value.trim();
+        const tgl = document.getElementById('jf_tgl').value;
+        if (!nama) { alert('Nama tamu wajib diisi!'); return; }
+        if (!tgl) { alert('Tanggal kunjungan wajib diisi!'); return; }
+        const entry = {
+            nama,
+            asal: document.getElementById('jf_asal').value.trim(),
+            tgl,
+            jam: document.getElementById('jf_jam').value,
+            jumlah: document.getElementById('jf_jumlah').value ? parseInt(document.getElementById('jf_jumlah').value) : null,
+            keperluan: document.getElementById('jf_keperluan').value,
+            wa: document.getElementById('jf_wa').value.trim(),
+            catatan: document.getElementById('jf_catatan').value.trim(),
+        };
+        const { error: errUpdate } = editingJadwalId
+            ? await supabaseClient.from('jadwal_tamu').update(entry).eq('id', editingJadwalId)
+            : { error: null };
+        const { error: errInsert } = !editingJadwalId
+            ? await supabaseClient.from('jadwal_tamu').insert([{ ...entry, id: 'j' + Date.now(), created_at: Date.now() }])
+            : { error: null };
+        const err = errUpdate || errInsert;
+        if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
+        await loadJadwal();
+        closeJadwalModal();
+        renderJadwalSection();
+        renderJadwalAdminTable();
+        showToast('📅 Jadwal tamu berhasil disimpan!');
+    }
+
+    async function deleteJadwalTamu(id) {
+        if (!confirm('Hapus jadwal tamu ini?')) return;
+        const { error } = await supabaseClient.from('jadwal_tamu').delete().eq('id', id);
+        if (error) { showToast('❌ Gagal hapus: ' + error.message); return; }
+        jadwalList = jadwalList.filter(j => j.id !== id);
+        renderJadwalSection();
+        renderJadwalAdminTable();
+        showToast('🗑️ Jadwal tamu dihapus');
+    }
+
     function renderJadwalSection() {
-        loadJadwal();
         const grid = document.getElementById('jadwalGrid');
         const todayBadge = document.getElementById('jadwalTodayCount');
         const todayNum = document.getElementById('jadwalTodayNum');
@@ -1711,45 +1746,6 @@
         editingJadwalId = null;
     }
 
-    function saveJadwalTamu() {
-        const nama = document.getElementById('jf_nama').value.trim();
-        const tgl = document.getElementById('jf_tgl').value;
-        if (!nama) { alert('Nama tamu wajib diisi!'); return; }
-        if (!tgl) { alert('Tanggal kunjungan wajib diisi!'); return; }
-        const entry = {
-            id: editingJadwalId || ('j' + Date.now()),
-            nama,
-            asal: document.getElementById('jf_asal').value.trim(),
-            tgl,
-            jam: document.getElementById('jf_jam').value,
-            jumlah: document.getElementById('jf_jumlah').value,
-            keperluan: document.getElementById('jf_keperluan').value,
-            wa: document.getElementById('jf_wa').value.trim(),
-            catatan: document.getElementById('jf_catatan').value.trim(),
-            created_at: editingJadwalId ? (getJadwalById(editingJadwalId)?.created_at || Date.now()) : Date.now()
-        };
-        if (editingJadwalId) {
-            const idx = jadwalList.findIndex(j => j.id === editingJadwalId);
-            if (idx >= 0) jadwalList[idx] = entry;
-        } else {
-            jadwalList.push(entry);
-        }
-        saveJadwal();
-        closeJadwalModal();
-        renderJadwalSection();
-        renderJadwalAdminTable();
-        showToast('📅 Jadwal tamu berhasil disimpan!');
-    }
-
-    function deleteJadwalTamu(id) {
-        if (!confirm('Hapus jadwal tamu ini?')) return;
-        jadwalList = jadwalList.filter(j => j.id !== id);
-        saveJadwal();
-        renderJadwalSection();
-        renderJadwalAdminTable();
-        showToast('🗑️ Jadwal tamu dihapus');
-    }
-
     function hubungiTamu(wa, nama) {
         const no = wa.replace(/\D/g,'');
         const pesan = encodeURIComponent(`Assalamualaikum ${nama}, kami dari PT Amiru Haramain Indonesia mengingatkan jadwal kunjungan Anda. Terima kasih 🕋`);
@@ -1759,7 +1755,6 @@
     function renderJadwalAdminTable() {
         const tbody = document.getElementById('jadwalAdminTableBody');
         if (!tbody) return;
-        loadJadwal();
         const tabBadge = document.getElementById('tabCountJadwal');
         if (tabBadge) tabBadge.textContent = jadwalList.length;
         const today = new Date(); today.setHours(0,0,0,0);
@@ -1812,24 +1807,18 @@
     }
     window.switchPubTab = switchPubTab;
 
-    // ========== DETAIL KEBERANGKATAN ==========
-    const KB_STORAGE_KEY = 'amiru_kb_jamaah';
+    // ========== DETAIL KEBERANGKATAN (Supabase) ==========
     let kbJamaahList = [];
     let kbSelectedProgram = null;
     let editingKbId = null;
 
-    function loadKbJamaah() {
-        try {
-            kbJamaahList = JSON.parse(localStorage.getItem(KB_STORAGE_KEY) || '[]');
-        } catch(e) { kbJamaahList = []; }
-    }
-
-    function saveKbJamaah_data() {
-        localStorage.setItem(KB_STORAGE_KEY, JSON.stringify(kbJamaahList));
+    async function loadKbJamaah() {
+        const { data, error } = await supabaseClient.from('kb_jamaah').select('*').order('nama', { ascending: true });
+        if (error) { console.error('loadKbJamaah error:', error.message || error.code); kbJamaahList = []; return; }
+        kbJamaahList = data || [];
     }
 
     function renderKbProgramSelector() {
-        loadKbJamaah();
         const sel = document.getElementById('kbProgramSelector');
         if (!sel) return;
         if (!dataUmroh || dataUmroh.length === 0) {
@@ -1932,7 +1921,6 @@
     }
 
     function openKbModal(id) {
-        loadKbJamaah();
         editingKbId = id || null;
         const modal = document.getElementById('kbModal');
         const titleEl = document.getElementById('kbModalTitle');
@@ -1971,42 +1959,41 @@
         editingKbId = null;
     }
 
-    function saveKbJamaah() {
+    async function saveKbJamaah() {
         const nama = document.getElementById('kb_nama').value.trim();
         if (!nama) { showToast('⚠️ Nama jamaah wajib diisi'); return; }
         const progId = document.getElementById('kb_program').value;
         if (!progId) { showToast('⚠️ Pilih program keberangkatan'); return; }
-        loadKbJamaah();
         const entry = {
-            id: editingKbId || ('kb_' + Date.now()),
             program_id: progId,
-            nama: nama,
+            nama,
             nik: document.getElementById('kb_nik').value.trim(),
             paspor: document.getElementById('kb_paspor').value.trim(),
             wa: document.getElementById('kb_wa').value.trim(),
             asal: document.getElementById('kb_asal').value.trim(),
             status: document.getElementById('kb_status').value,
             catatan: document.getElementById('kb_catatan').value.trim(),
-            created_at: editingKbId ? (kbJamaahList.find(x=>x.id===editingKbId)?.created_at || Date.now()) : Date.now()
         };
-        if (editingKbId) {
-            const idx = kbJamaahList.findIndex(x => x.id === editingKbId);
-            if (idx >= 0) kbJamaahList[idx] = entry;
-        } else {
-            kbJamaahList.push(entry);
-        }
-        saveKbJamaah_data();
+        const { error: errUpdate } = editingKbId
+            ? await supabaseClient.from('kb_jamaah').update(entry).eq('id', editingKbId)
+            : { error: null };
+        const { error: errInsert } = !editingKbId
+            ? await supabaseClient.from('kb_jamaah').insert([{ ...entry, id: 'kb_' + Date.now(), created_at: Date.now() }])
+            : { error: null };
+        const err = errUpdate || errInsert;
+        if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
+        await loadKbJamaah();
         kbSelectedProgram = progId;
         closeKbModal();
         renderKbProgramSelector();
         showToast('✈️ Data jamaah berhasil disimpan!');
     }
 
-    function deleteKbJamaah(id) {
+    async function deleteKbJamaah(id) {
         if (!confirm('Hapus data jamaah ini?')) return;
-        loadKbJamaah();
+        const { error } = await supabaseClient.from('kb_jamaah').delete().eq('id', id);
+        if (error) { showToast('❌ Gagal hapus: ' + error.message); return; }
         kbJamaahList = kbJamaahList.filter(j => j.id !== id);
-        saveKbJamaah_data();
         renderKbProgramSelector();
         showToast('🗑️ Data jamaah dihapus');
     }
@@ -2035,10 +2022,13 @@
     window.renderFeaturedAdminTable = renderFeaturedAdminTable;
 
     checkSession();
-    loadJadwal();
-    renderJadwalSection();
-    loadKbJamaah();
-    loadDataFromSupabase();
+    (async () => {
+        await loadJadwal();
+        renderJadwalSection();
+        await loadKbJamaah();
+        await loadFeaturedIds();
+        await loadDataFromSupabase();
+    })();
 </script>
 <!-- DELETE CONFIRM MODAL -->
 <style>
