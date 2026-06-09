@@ -1863,15 +1863,17 @@
         };
         let err = null;
         if (editingJadwalId) {
-            const { error } = await supabaseClient.from('jadwal_tamu').update(entry).eq('id', editingJadwalId);
-            err = error;
+            const { data: updJt, error } = await supabaseClient.from('jadwal_tamu').update(entry).eq('id', editingJadwalId).select();
+            if (!error && (!updJt || updJt.length === 0)) { err = { message: 'Data tidak ditemukan atau tidak ada perubahan' }; } else { err = error; }
+            console.log('[saveJadwalTamu] update:', updJt, error);
         } else {
-            const { error } = await supabaseClient.from('jadwal_tamu').insert([{ ...entry, id: 'j' + Date.now(), created_at: Date.now() }]);
+            const { data: insJt, error } = await supabaseClient.from('jadwal_tamu').insert([{ ...entry, created_at: new Date().toISOString() }]).select();
+            console.log('[saveJadwalTamu] insert:', insJt, error);
             err = error;
         }
         if (err) { console.error('[saveKbJamaah] error:', err); showToast('❌ Gagal simpan: ' + (err.message || err.details || err.code || JSON.stringify(err))); return; }
         const isEdit = !!editingJadwalId;
-        await loadJadwal();
+        try { await loadJadwal(); } catch(le) { console.warn('[loadJadwal]', le); }
         closeJadwalModal();
         renderJadwalSection();
         renderJadwalAdminTable();
