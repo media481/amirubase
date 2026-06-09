@@ -146,6 +146,23 @@
         .loading-state{text-align:center;padding:60px 20px;}
         .loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
         @keyframes spin{to{transform:rotate(360deg);}}
+        /* ===== SKELETON ===== */
+        .skeleton-table{width:100%;border-collapse:collapse;}
+        .skeleton-table td{padding:14px;}
+        .skeleton-table tr{border-bottom:1px solid var(--border);}
+        .skeleton-table tr:last-child{border-bottom:none;}
+        .sk{background:linear-gradient(90deg,#f0f4f8 25%,#e2e8f0 50%,#f0f4f8 75%);background-size:200% 100%;animation:skshimmer 1.4s infinite;border-radius:6px;display:inline-block;}
+        @keyframes skshimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+        .sk-name{height:14px;width:65%;}
+        .sk-badge{height:12px;width:40%;margin-top:6px;}
+        .sk-price{height:14px;width:80%;}
+        .sk-price-sub{height:10px;width:55%;margin-top:5px;}
+        .sk-date{height:14px;width:75%;}
+        .sk-dur{height:22px;width:70%;border-radius:20px;}
+        .sk-airline{height:14px;width:80%;}
+        .sk-icons{display:flex;gap:6px;}
+        .sk-icon{width:30px;height:30px;border-radius:7px;}
+        .sk-status{height:22px;width:65px;border-radius:20px;}
         .wa-float{position:fixed;bottom:24px;right:24px;z-index:9998;animation:waPulse 1.5s infinite;}
         .wa-float a{display:flex;align-items:center;justify-content:center;width:60px;height:60px;background:var(--whatsapp);color:#fff;border-radius:50%;font-size:32px;box-shadow:0 4px 15px rgba(37,211,102,.4);transition:all var(--transition);text-decoration:none;}
         .wa-float a:hover{background:var(--whatsapp-dark);transform:scale(1.1);box-shadow:0 6px 20px rgba(37,211,102,.5);}
@@ -586,7 +603,11 @@
                 <div class="stats-row" id="statsRow"></div>
             </div>
             <div class="table-container">
-                <div id="loadingState" class="loading-state"><div class="loading-spinner"></div><p>Memuat data dari database...</p></div>
+                <div id="loadingState" class="loading-state" style="padding:0;text-align:left;">
+                    <table class="skeleton-table">
+                        <tbody id="skeletonBody"></tbody>
+                    </table>
+                </div>
                 <table id="packageTable" style="display:none;">
                     <thead><tr><th class="sortable col-nama" data-sort="nama">Nama Program <span id="icon-nama" class="sort-icon">&#x21D5;</span></th><th class="col-harga">Biaya Program</th><th class="sortable" data-sort="tgl">Berangkat <span id="icon-tgl" class="sort-icon">&#x21D5;</span></th><th class="col-durasi">Durasi</th><th class="sortable col-maskapai" data-sort="maskapai">Maskapai <span id="icon-maskapai" class="sort-icon">&#x21D5;</span></th><th>Aset &amp; Aksi</th><th class="sortable" data-sort="isAvailable">Status <span id="icon-isAvailable" class="sort-icon">&#x21D5;</span></th></tr></thead>
                     <tbody id="tableBody"></tbody>
@@ -866,10 +887,27 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
     function showToast(msg) { const t = document.getElementById('toast'); t.innerHTML = '<i class="fas fa-check"></i> '; const span = document.createElement('span'); span.textContent = msg; t.appendChild(span); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
 
+    // ===== SKELETON LOADER =====
+    function renderSkeleton(rows = 6) {
+        const tbody = document.getElementById('skeletonBody');
+        if (!tbody) return;
+        tbody.innerHTML = Array.from({length: rows}, () => `
+            <tr>
+                <td><span class="sk sk-name"></span><span class="sk sk-badge"></span></td>
+                <td><span class="sk sk-price"></span><span class="sk sk-price-sub"></span></td>
+                <td><span class="sk sk-date"></span></td>
+                <td><span class="sk sk-dur"></span></td>
+                <td><span class="sk sk-airline"></span></td>
+                <td><div class="sk-icons"><span class="sk sk-icon"></span><span class="sk sk-icon"></span><span class="sk sk-icon"></span></div></td>
+                <td><span class="sk sk-status"></span></td>
+            </tr>`).join('');
+    }
+
     // Database dengan CACHE
     async function loadDataFromSupabase(forceRefresh = false) {
         const loadingEl = document.getElementById('loadingState'), tableEl = document.getElementById('packageTable');
         loadingEl.style.display = 'block'; tableEl.style.display = 'none';
+        renderSkeleton();
         
         if (!forceRefresh) {
             const cached = sessionStorage.getItem(CACHE_KEY), cacheTime = sessionStorage.getItem(CACHE_TIME_KEY);
