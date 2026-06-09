@@ -470,7 +470,7 @@
     </a>
     <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="searchInput" placeholder="Cari paket, maskapai, status...">
+        <input type="text" id="searchInput" placeholder="Cari paket, maskapai, fitur... (mis: kereta cepat)">
     </div>
     <nav class="nav-links">
         <a href="https://drive.google.com/drive/folders/1YvMs0hxnenQaae50CuSmp3SobM822NnF?usp=sharing" class="nav-item" target="_blank" rel="noopener noreferrer">Video Promosi</a>
@@ -486,7 +486,7 @@
 <div class="mobile-overlay" id="mobileOverlay" onclick="closeDrawer()">
     <div class="mobile-drawer" onclick="event.stopPropagation()">
         <div class="drawer-header"><span>🕋 Menu Navigasi</span><button class="drawer-close" onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button></div>
-        <div class="drawer-search"><i class="fa-solid fa-magnifying-glass search-icon"></i><input type="text" id="searchInputMobile" placeholder="Cari paket..."></div>
+        <div class="drawer-search"><i class="fa-solid fa-magnifying-glass search-icon"></i><input type="text" id="searchInputMobile" placeholder="Cari paket, fitur..."></div>
         <nav class="drawer-nav">
             <a href="https://drive.google.com/open?id=1YLrU5P7YqxpPKCGlua51pOlEAJeYEhvz&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-pen"></i>Form Pendaftaran</a>
             <a href="https://drive.google.com/open?id=1Kq_iZa6sPBHIG1YAxXhPMNglOkXSDU93&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-layer-group"></i>Semua Paket</a>
@@ -943,8 +943,24 @@
     // Search with DEBOUNCE (300ms)
     function filterData(term) {
         const t = term.toLowerCase().trim(), now = new Date();
-        if (!t) currentData = [...dataUmroh];
-        else currentData = dataUmroh.filter(item => (item.nama||'').toLowerCase().includes(t) || (item.maskapai||'').toLowerCase().includes(t) || (item.tgl||'').toLowerCase().includes(t) || ((item.dateObj>=now?"tersedia":"expired").includes(t)));
+        if (!t) { currentData = [...dataUmroh]; }
+        else {
+            currentData = dataUmroh.filter(item => {
+                const status = item.dateObj >= now ? 'tersedia' : 'expired';
+                // Pecah kata kunci: semua kata harus match di field manapun
+                const keywords = t.split(/\s+/).filter(Boolean);
+                const haystack = [
+                    item.nama || '',
+                    item.maskapai || '',
+                    item.tgl || '',
+                    item.durasi || '',
+                    item.harga_quint || '',
+                    item.teks_wa || '',
+                    status
+                ].join(' ').toLowerCase();
+                return keywords.every(kw => haystack.includes(kw));
+            });
+        }
         if (currentSort.column) sortTable(currentSort.column);
         else renderTable(currentData);
     }
