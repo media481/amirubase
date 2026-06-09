@@ -1869,7 +1869,7 @@
             const { error } = await supabaseClient.from('jadwal_tamu').insert([{ ...entry, id: 'j' + Date.now(), created_at: Date.now() }]);
             err = error;
         }
-        if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
+        if (err) { console.error('[saveKbJamaah] error:', err); showToast('❌ Gagal simpan: ' + (err.message || err.details || err.code || JSON.stringify(err))); return; }
         const isEdit = !!editingJadwalId;
         await loadJadwal();
         closeJadwalModal();
@@ -2248,14 +2248,16 @@
         };
         let err = null;
         if (editingKbId) {
-            const { error } = await supabaseClient.from('kb_jamaah').update(entry).eq('id', editingKbId);
-            err = error;
+            const { data: updData, error } = await supabaseClient.from('kb_jamaah').update(entry).eq('id', editingKbId).select();
+            if (!error && (!updData || updData.length === 0)) { err = { message: 'Data tidak ditemukan atau tidak ada perubahan' }; } else { err = error; }
+            console.log('[saveKbJamaah] update result:', updData, error);
         } else {
-            const { error } = await supabaseClient.from('kb_jamaah').insert([{ ...entry, id: 'kb_' + Date.now(), created_at: Date.now() }]);
+            const { data: insData, error } = await supabaseClient.from('kb_jamaah').insert([{ ...entry, created_at: new Date().toISOString() }]).select();
             err = error;
+            console.log('[saveKbJamaah] insert result:', insData, error);
         }
         if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
-        await loadKbJamaah();
+        try { await loadKbJamaah(); } catch(le) { console.warn('[loadKbJamaah]', le); }
         closeKbModal();
         // Refresh tampilan sesuai konteks (public atau admin)
         if (kbEditFromAdmin || document.getElementById('adminModal')?.classList.contains('show')) {
