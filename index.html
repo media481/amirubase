@@ -1866,7 +1866,7 @@
             const { error } = await supabaseClient.from('jadwal_tamu').update(entry).eq('id', editingJadwalId);
             err = error;
         } else {
-            const { error } = await supabaseClient.from('jadwal_tamu').insert([{ ...entry, id: 'j' + Date.now(), created_at: Date.now() }]);
+            const { error } = await supabaseClient.from('jadwal_tamu').insert([{ ...entry, id: 'j' + Date.now(), created_at: new Date().toISOString() }]);
             err = error;
         }
         if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
@@ -2251,7 +2251,7 @@
             const { error } = await supabaseClient.from('kb_jamaah').update(entry).eq('id', editingKbId);
             err = error;
         } else {
-            const { error } = await supabaseClient.from('kb_jamaah').insert([{ ...entry, id: 'kb_' + Date.now(), created_at: Date.now() }]);
+            const { error } = await supabaseClient.from('kb_jamaah').insert([{ ...entry, id: 'kb_' + Date.now(), created_at: new Date().toISOString() }]);
             err = error;
         }
         if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
