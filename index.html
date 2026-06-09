@@ -693,7 +693,22 @@
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB max file import
     const SESSION_DURATION = 30 * 60 * 1000; // 30 menit
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Custom fetch: hindari DataCloneError dari Supabase internal postMessage
+    const _nativeFetch = window.fetch.bind(window);
+    const _safeFetch = (input, init) => _nativeFetch(input, init);
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+            storageKey: 'amiru_supabase_auth',
+            storage: window.sessionStorage,
+            autoRefreshToken: false,
+            persistSession: false,
+            detectSessionInUrl: false,
+        },
+        global: {
+            fetch: _safeFetch,
+        },
+    });
 
     // ========== USER ROLES ==========
     // role: 'administrator' = akses penuh | 'cs' = hanya jadwal tamu
