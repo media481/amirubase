@@ -738,11 +738,18 @@
     });
 
     // ========== USER ROLES ==========
-    // role: 'administrator' = akses penuh | 'cs' = hanya jadwal tamu
-    const USER_ROLES = {
-        'amiru2026':   { role: 'administrator', label: 'Administrator' },
-        'amirucs2026': { role: 'cs',             label: 'CS / Customer Service' }
-    };
+    // Password disimpan di Supabase tabel app_config, bukan di sini
+    let USER_ROLES = {};
+    async function loadUserRoles() {
+        try {
+            const { data, error } = await supabaseClient.from('app_config').select('key, value');
+            if (error || !data) return;
+            data.forEach(row => {
+                if (row.key === 'pass_administrator') USER_ROLES[row.value] = { role: 'administrator', label: 'Administrator' };
+                if (row.key === 'pass_cs')            USER_ROLES[row.value] = { role: 'cs',            label: 'CS / Customer Service' };
+            });
+        } catch (_) {}
+    }
 
     let dataUmroh = [], currentData = [], currentSort = { column: null, asc: true };
     let adminLoggedIn = false, currentRole = null, editingProgramId = null, adminSortColumn = null, adminSortAsc = true, adminPrograms = [];
@@ -2560,6 +2567,7 @@
     window.renderTgRecipients = renderTgRecipients;
     // ========== END TELEGRAM ==========
     (async () => {
+        await loadUserRoles();
         await loadJadwal();
         renderJadwalSection();
         await loadKbJamaah();
