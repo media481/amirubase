@@ -1070,9 +1070,6 @@
             ${isAdmin ? `
             <div class="admin-toolbar">
                 <button class="admin-btn admin-btn-primary" onclick="showAdminForm()"><i class="fas fa-plus"></i> Program Baru</button>
-                <button class="admin-btn" onclick="exportAdminData()"><i class="fas fa-download"></i> Export</button>
-                <button class="admin-btn" onclick="importAdminData()"><i class="fas fa-upload"></i> Import</button>
-                <button class="admin-btn admin-btn-danger" onclick="clearAllAdminData()"><i class="fas fa-trash"></i> Hapus Semua</button>
                 <button class="admin-btn" onclick="logoutAdmin()" style="margin-left:auto;"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>` : `
             <div class="admin-toolbar" style="background:#faf5ff;border-color:#c4b5fd;align-items:center;">
@@ -1153,6 +1150,11 @@
                         </tr></thead>
                         <tbody id="adminTableBody"></tbody>
                     </table>
+                </div>
+                <div class="admin-toolbar" style="margin-top:12px;margin-bottom:0;">
+                    <button class="admin-btn" onclick="exportAdminData()"><i class="fas fa-download"></i> Export</button>
+                    <button class="admin-btn" onclick="importAdminData()"><i class="fas fa-upload"></i> Import</button>
+                    <button class="admin-btn admin-btn-danger" onclick="clearAllAdminData()" style="margin-left:auto;"><i class="fas fa-trash"></i> Hapus Semua</button>
                 </div>`}
             </div>
 
