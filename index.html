@@ -20,7 +20,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
     <style>
         /* ========== CSS MINIFIED ========== */
         :root{--primary:#1a6fa8;--primary-light:#2580be;--primary-subtle:#e8f4fd;--accent:#0ea5e9;--white:#fff;--bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text-1:#0f172a;--text-2:#475569;--text-3:#94a3b8;--green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;--red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;--blue-bg:#eff6ff;--blue-text:#1d4ed8;--whatsapp:#25D366;--whatsapp-dark:#128C7E;--shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);--shadow-lg:0 10px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.02);--radius:8px;--radius-lg:12px;--transition:0.15s ease;}
@@ -457,6 +457,35 @@
     /* Admin panel tab keberangkatan */
     .admin-tab-btn.active.tab-keberangkatan{color:#0369a1;border-bottom-color:#0369a1;}
     .admin-tab-btn.active.tab-keberangkatan .tab-count{background:#eff6ff;color:#0369a1;}
+
+    /* ===== TELEGRAM SETTINGS ===== */
+    .admin-tab-btn.active.tab-telegram{color:#0088cc;border-bottom-color:#0088cc;}
+    .admin-tab-btn.active.tab-telegram .tab-count{background:#e8f4fd;color:#0088cc;}
+    .admin-panel-section-header.telegram{background:linear-gradient(135deg,#e8f4fd,#d0eaf8);border:1px solid #90cdf4;}
+    .tg-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+    @media(max-width:768px){.tg-settings-grid{grid-template-columns:1fr;}}
+    .tg-recipients-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+    .tg-recipient-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    .tg-recipient-row input{flex:1;min-width:100px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;}
+    .tg-recipient-row input:focus{outline:none;border-color:#0088cc;box-shadow:0 0 0 2px rgba(0,136,204,0.12);}
+    .tg-remove-btn{background:#fee2e2;color:#dc2626;border:none;border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition);}
+    .tg-remove-btn:hover{background:#dc2626;color:#fff;}
+    .tg-add-btn{background:#e8f4fd;color:#0088cc;border:1px solid #90cdf4;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all var(--transition);}
+    .tg-add-btn:hover{background:#0088cc;color:#fff;}
+    .tg-save-btn{background:#0088cc;color:#fff;border:none;border-radius:6px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all var(--transition);}
+    .tg-save-btn:hover{background:#006aa3;}
+    .tg-test-btn{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:6px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all var(--transition);}
+    .tg-test-btn:hover{background:#16a34a;color:#fff;}
+    .tg-status{font-size:12px;font-weight:600;padding:6px 12px;border-radius:6px;display:inline-flex;align-items:center;gap:6px;}
+    .tg-status.ok{background:#f0fdf4;color:#16a34a;}
+    .tg-status.err{background:#fef2f2;color:#dc2626;}
+    .tg-notif-log{background:#0f172a;border-radius:var(--radius);padding:14px 16px;margin-top:16px;max-height:200px;overflow-y:auto;}
+    .tg-notif-log p{font-size:11.5px;font-family:monospace;color:#94a3b8;margin:0;line-height:1.8;}
+    .tg-notif-log p.ok{color:#4ade80;}
+    .tg-notif-log p.err{color:#f87171;}
+    .tg-info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius);padding:14px 16px;margin-bottom:18px;font-size:12.5px;color:#1e40af;line-height:1.7;}
+    .tg-info-box code{background:#dbeafe;padding:2px 6px;border-radius:4px;font-size:11.5px;}
+    .tg-type-label{font-size:11.5px;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;}
     .admin-panel-section-header.keberangkatan{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #bae6fd;}
 
 </style>
@@ -693,10 +722,7 @@
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB max file import
     const SESSION_DURATION = 30 * 60 * 1000; // 30 menit
 
-    // Custom fetch: hindari DataCloneError dari Supabase internal postMessage
-    const _nativeFetch = window.fetch.bind(window);
-    const _safeFetch = (input, init) => _nativeFetch(input, init);
-
+    // Hindari DataCloneError: gunakan fetch native langsung, tanpa wrapper tambahan
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: {
             storageKey: 'amiru_supabase_auth',
@@ -705,8 +731,9 @@
             persistSession: false,
             detectSessionInUrl: false,
         },
+        realtime: { enabled: false },
         global: {
-            fetch: _safeFetch,
+            fetch: (...args) => fetch(...args),
         },
     });
 
@@ -869,10 +896,30 @@
         } catch (err) {
             const msg = err?.message || String(err);
             if (msg.includes('DataCloneError') || msg.includes('postMessage')) {
-                // Retry sekali untuk DataCloneError (bug Supabase versi lama)
-                console.warn('loadDataFromSupabase: DataCloneError, retrying...');
-                setTimeout(() => loadDataFromSupabase(forceRefresh), 800);
-                return;
+                // Fallback: REST API langsung, bypass SDK sepenuhnya
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/programs?select=*&order=created_at.asc`, {
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+                    });
+                    if (res.ok) {
+                        const raw = await res.json();
+                        const plainData = (raw || []).map(p => ({
+                            id: p.id, nama: p.nama, tgl: p.tgl, durasi: p.durasi, maskapai: p.maskapai,
+                            harga_quint: p.harga_quint, teks_wa: p.teks_wa,
+                            link_form: p.link_form, link_itinerary: p.link_itinerary,
+                            link_poster: p.link_poster, link_metaads: p.link_metaads,
+                            link_dokumentasi: p.link_dokumentasi, created_at: p.created_at
+                        }));
+                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(plainData));
+                        sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+                        dataUmroh = plainData;
+                        dataUmroh.forEach(p => { p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
+                        currentData = [...dataUmroh];
+                        renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
+                        loadingEl.style.display = 'none'; tableEl.style.display = 'table';
+                        return;
+                    }
+                } catch (_) {}
             }
             loadingEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Gagal memuat data: ${sanitizeHtml(msg)}</p><button class="btn-reset" onclick="location.reload()">Coba Lagi</button></div>`;
         }
@@ -1078,6 +1125,10 @@
                     <i class="fas fa-plane-departure"></i> Keberangkatan
                     <span class="tab-count" id="tabCountKeberangkatan">${kbJamaahList.length}</span>
                 </button>
+                ${isAdmin ? `
+                <button class="admin-tab-btn tab-telegram" onclick="switchAdminTab('telegram',this)">
+                    <i class="fab fa-telegram"></i> Telegram
+                </button>` : ''}
             </div>
 
             <!-- TAB: PROGRAM UMROH -->
@@ -1163,7 +1214,53 @@
                 <div id="kbAdminJamaahContent">
                     <div class="kb-no-program"><i class="fa-solid fa-plane-departure"></i><p>Pilih program di atas untuk melihat data jamaah.</p></div>
                 </div>
-            </div>`;
+            </div>
+
+            <!-- TAB: TELEGRAM SETTINGS -->
+            ${isAdmin ? `
+            <div class="admin-tab-panel" id="tab-telegram">
+                <div class="admin-panel-section-header telegram">
+                    <i class="fab fa-telegram" style="color:#0088cc;font-size:18px;"></i>
+                    <div>
+                        <div class="sec-title" style="color:#0088cc;">Notifikasi Telegram</div>
+                        <div class="sec-sub">Kirim notifikasi otomatis ke grup/chat Telegram</div>
+                    </div>
+                </div>
+                <div class="tg-info-box">
+                    <b>📌 Cara Setup:</b><br>
+                    1. Buat bot via <b>@BotFather</b> di Telegram → dapatkan <b>Bot Token</b><br>
+                    2. Tambahkan bot ke grup/chat yang diinginkan, jadikan <b>Admin</b><br>
+                    3. Dapatkan <b>Chat ID</b> via <code>@userinfobot</code> atau <code>https://api.telegram.org/bot[TOKEN]/getUpdates</code><br>
+                    4. Buat <b>Edge Function</b> di Supabase bernama <code>send-telegram</code> → isi URL-nya di bawah<br>
+                    5. Simpan konfigurasi → notifikasi otomatis aktif!
+                </div>
+                <div class="tg-settings-grid">
+                    <div>
+                        <div style="font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Bot Token</div>
+                        <input type="text" id="tg_bot_token" placeholder="1234567890:ABCdefGHIjklMNOpqrSTUvwxYZ"
+                            style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:monospace;">
+                        <small style="color:var(--text-3);font-size:11px;">Dari @BotFather</small>
+                    </div>
+                    <div>
+                        <div style="font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Edge Function URL</div>
+                        <input type="url" id="tg_edge_url" placeholder="https://xxx.supabase.co/functions/v1/send-telegram"
+                            style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:monospace;">
+                        <small style="color:var(--text-3);font-size:11px;">URL Edge Function Supabase</small>
+                    </div>
+                </div>
+                <div style="font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Penerima Notifikasi</div>
+                <div style="font-size:11.5px;color:var(--text-3);margin-bottom:10px;">Centang jenis notifikasi yang diterima tiap penerima. <b>Pengingat 1 bulan</b> dikirim otomatis saat halaman dibuka.</div>
+                <div class="tg-recipients-list" id="tgRecipientsList"></div>
+                <button class="tg-add-btn" onclick="addTgRecipient()"><i class="fas fa-plus"></i> Tambah Penerima</button>
+                <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;">
+                    <button class="tg-save-btn" onclick="saveTgConfig()"><i class="fas fa-save"></i> Simpan Konfigurasi</button>
+                    <button class="tg-test-btn" onclick="testTgNotif()"><i class="fas fa-paper-plane"></i> Test Kirim</button>
+                </div>
+                <div id="tgStatusMsg" style="margin-top:12px;"></div>
+                <div class="tg-notif-log" id="tgNotifLog" style="display:none;">
+                    <p style="color:#475569;font-size:11px;margin-bottom:6px;">▶ LOG PENGIRIMAN TELEGRAM:</p>
+                </div>
+            </div>` : ''}`;
 
             if (isAdmin) {
                 const dateInput = document.getElementById('admin_tgl_date');
@@ -1201,6 +1298,9 @@
             } else {
                 loadKbJamaah().then(() => renderKbAdminSelector());
             }
+        }
+        if (name === 'telegram') {
+            renderTgRecipients();
         }
     }
     window.switchAdminTab = switchAdminTab;
@@ -1395,7 +1495,13 @@
         }
         
         if(!formData.teks_wa)formData.teks_wa=generateAutoWAText(formData); 
-        try{if(editingProgramId)await updateProgramById(editingProgramId,formData);else await insertProgram(formData);await loadDataFromSupabase(true);await renderAdminPanel();hideAdminForm();showToast('Program berhasil disimpan!');}catch(err){showToast('Gagal: '+err.message);} 
+        try{
+            const isEdit = !!editingProgramId;
+            if(editingProgramId)await updateProgramById(editingProgramId,formData);else await insertProgram(formData);
+            await loadDataFromSupabase(true);await renderAdminPanel();hideAdminForm();showToast('Program berhasil disimpan!');
+            // Kirim notif Telegram
+            sendTelegramNotif(formatTgProgram(formData, isEdit), 'program');
+        }catch(err){showToast('Gagal: '+err.message);} 
     }
     
     async function editAdminProgram(id){const{data}=await supabaseClient.from('programs').select('*').eq('id',id).single();if(data){setAdminFormData(data);editingProgramId=id;document.getElementById('adminFormTitle').innerText='Edit Program';document.getElementById('adminFormContainer').style.display='block';}}
@@ -1548,10 +1654,12 @@
         } catch (err) {
             const msg = err?.message || String(err);
             if (msg.includes('DataCloneError') || msg.includes('postMessage')) {
-                console.warn('loadFeaturedIds: DataCloneError terdeteksi, mencoba fetch ulang...');
                 try {
-                    const { data, error } = await supabaseClient.from('featured_programs').select('program_id');
-                    if (!error) { featuredIds = (data || []).map(r => String(r.program_id)); return; }
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/featured_programs?select=program_id`, {
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+                    });
+                    featuredIds = res.ok ? (await res.json()).map(r => String(r.program_id)) : [];
+                    return;
                 } catch (_) {}
             }
             console.error('loadFeaturedIds error:', msg);
@@ -1657,10 +1765,13 @@
         } catch (err) {
             const msg = err?.message || String(err);
             if (msg.includes('DataCloneError') || msg.includes('postMessage')) {
-                console.warn('loadJadwal: DataCloneError terdeteksi, mencoba fetch ulang...');
+                // Fallback: REST API langsung
                 try {
-                    const { data, error } = await supabaseClient.from('jadwal_tamu').select('*').order('tgl', { ascending: true });
-                    if (!error) { jadwalList = data || []; return; }
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/jadwal_tamu?select=*&order=tgl.asc`, {
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+                    });
+                    jadwalList = res.ok ? (await res.json()) : [];
+                    return;
                 } catch (_) {}
             }
             console.error('loadJadwal error:', msg);
@@ -1694,11 +1805,14 @@
             err = error;
         }
         if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
+        const isEdit = !!editingJadwalId;
         await loadJadwal();
         closeJadwalModal();
         renderJadwalSection();
         renderJadwalAdminTable();
         showToast('📅 Jadwal tamu berhasil disimpan!');
+        // Kirim notif Telegram
+        sendTelegramNotif(formatTgJadwal(entry, isEdit), 'jadwal');
     }
 
     async function deleteJadwalTamu(id) {
@@ -1891,10 +2005,12 @@
         } catch (err) {
             const msg = err?.message || String(err);
             if (msg.includes('DataCloneError') || msg.includes('postMessage')) {
-                console.warn('loadKbJamaah: DataCloneError terdeteksi, mencoba fetch ulang...');
                 try {
-                    const { data, error } = await supabaseClient.from('kb_jamaah').select('*').order('nama', { ascending: true });
-                    if (!error) { kbJamaahList = data || []; return; }
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/kb_jamaah?select=*&order=nama.asc`, {
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+                    });
+                    kbJamaahList = res.ok ? (await res.json()) : [];
+                    return;
                 } catch (_) {}
             }
             console.error('loadKbJamaah error:', msg);
@@ -2123,13 +2239,268 @@
     window.toggleFeatured = toggleFeatured;
     window.renderFeaturedAdminTable = renderFeaturedAdminTable;
 
-    checkSession();
+    // ========== TELEGRAM NOTIFIKASI ==========
+    const TG_CONFIG_KEY = 'amiru_tg_config';
+    const TG_REMINDER_KEY = 'amiru_tg_reminder_sent'; // { programId: 'YYYY-MM-DD' }
+
+    function getTgConfig() {
+        try { return JSON.parse(localStorage.getItem(TG_CONFIG_KEY) || '{}'); }
+        catch { return {}; }
+    }
+
+    function saveTgConfig() {
+        const botToken = document.getElementById('tg_bot_token')?.value.trim();
+        const edgeUrl  = document.getElementById('tg_edge_url')?.value.trim();
+        if (!botToken) { showTgStatus('❌ Bot Token wajib diisi', 'err'); return; }
+        if (!edgeUrl)  { showTgStatus('❌ Edge Function URL wajib diisi', 'err'); return; }
+        const recipients = collectTgRecipients();
+        if (!recipients.length) { showTgStatus('❌ Tambahkan minimal 1 penerima', 'err'); return; }
+        localStorage.setItem(TG_CONFIG_KEY, JSON.stringify({ botToken, edgeUrl, recipients }));
+        showTgStatus('✅ Konfigurasi tersimpan!', 'ok');
+    }
+
+    function collectTgRecipients() {
+        const rows = document.querySelectorAll('.tg-recipient-row');
+        const result = [];
+        rows.forEach(row => {
+            const chatId = row.querySelector('.tg-chat-id')?.value.trim();
+            const label  = row.querySelector('.tg-label')?.value.trim();
+            const types  = [...row.querySelectorAll('.tg-type-check:checked')].map(c => c.value);
+            if (chatId) result.push({ chatId, label: label || chatId, types });
+        });
+        return result;
+    }
+
+    function renderTgRecipients() {
+        const list = document.getElementById('tgRecipientsList');
+        if (!list) return;
+        // Set saved values for token & edge url
+        const cfg = getTgConfig();
+        const tokenInput = document.getElementById('tg_bot_token');
+        const edgeInput  = document.getElementById('tg_edge_url');
+        if (tokenInput && cfg.botToken) tokenInput.value = cfg.botToken;
+        if (edgeInput  && cfg.edgeUrl)  edgeInput.value  = cfg.edgeUrl;
+        const recipients = cfg.recipients || [];
+        list.innerHTML = '';
+        if (!recipients.length) { addTgRecipient(); return; }
+        recipients.forEach(r => addTgRecipientRow(r));
+    }
+
+    function addTgRecipient() {
+        addTgRecipientRow({ chatId: '', label: '', types: ['program', 'jadwal', 'reminder'] });
+    }
+
+    function addTgRecipientRow(r) {
+        const list = document.getElementById('tgRecipientsList');
+        if (!list) return;
+        const row = document.createElement('div');
+        row.className = 'tg-recipient-row';
+        const typeOpts = [
+            { val: 'program',  label: '📦 Program Baru' },
+            { val: 'jadwal',   label: '📅 Jadwal Tamu' },
+            { val: 'reminder', label: '🔔 Pengingat 1 Bulan' },
+        ];
+        row.innerHTML = `
+            <input class="tg-chat-id" placeholder="Chat ID (mis: -1001234567890)" value="${escapeHtml(r.chatId||'')}" style="flex:1.2;min-width:160px;">
+            <input class="tg-label" placeholder="Label (mis: Grup Admin)" value="${escapeHtml(r.label||'')}" style="flex:1;min-width:120px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                ${typeOpts.map(t => `<label class="tg-type-label">
+                    <input type="checkbox" class="tg-type-check" value="${t.val}" ${(r.types||[]).includes(t.val)?'checked':''}> ${t.label}
+                </label>`).join('')}
+            </div>
+            <button class="tg-remove-btn" onclick="this.closest('.tg-recipient-row').remove()" title="Hapus penerima"><i class="fas fa-times"></i></button>`;
+        list.appendChild(row);
+    }
+
+    function showTgStatus(msg, type) {
+        const el = document.getElementById('tgStatusMsg');
+        if (!el) return;
+        el.innerHTML = `<span class="tg-status ${type}">${sanitizeHtml(msg)}</span>`;
+        setTimeout(() => { if(el) el.innerHTML = ''; }, 4000);
+    }
+
+    function logTg(msg, ok = true) {
+        const log = document.getElementById('tgNotifLog');
+        if (!log) return;
+        log.style.display = 'block';
+        const p = document.createElement('p');
+        p.className = ok ? 'ok' : 'err';
+        p.textContent = '[' + new Date().toLocaleTimeString('id-ID') + '] ' + msg;
+        log.appendChild(p);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    // Kirim ke Supabase Edge Function
+    async function sendTelegramNotif(message, eventType = 'program') {
+        const cfg = getTgConfig();
+        if (!cfg.botToken || !cfg.edgeUrl) return;
+        const targets = (cfg.recipients || []).filter(r => (r.types || []).includes(eventType));
+        if (!targets.length) return;
+        for (const target of targets) {
+            try {
+                const res = await fetch(cfg.edgeUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bot_token: cfg.botToken,
+                        chat_id: target.chatId,
+                        message,
+                        parse_mode: 'HTML'
+                    })
+                });
+                const result = await res.json().catch(() => ({}));
+                if (res.ok && result.ok !== false) {
+                    logTg('✅ Terkirim ke ' + target.label, true);
+                } else {
+                    logTg('❌ Gagal ke ' + target.label + ': ' + (result.description || res.status), false);
+                }
+            } catch (err) {
+                logTg('❌ Error ke ' + target.label + ': ' + err.message, false);
+            }
+        }
+    }
+
+    // Format pesan: Program baru / edit
+    function formatTgProgram(data, isEdit = false) {
+        const icon   = isEdit ? '✏️' : '🆕';
+        const action = isEdit ? 'diperbarui' : 'ditambahkan';
+        return `${icon} <b>Program Umroh ${action}!</b>
+
+🕌 <b>${escapeHtml(data.nama||'-')}</b>
+📅 Berangkat: ${escapeHtml(data.tgl||'-')}
+⏳ Durasi: ${escapeHtml(data.durasi||'-')}
+✈️ Maskapai: ${escapeHtml(data.maskapai||'-')}
+💰 Harga: ${escapeHtml(data.harga_quint||'-')}
+
+📌 <i>PT Amiru Haramain Indonesia</i>
+🕐 ${new Date().toLocaleString('id-ID')}`;
+    }
+
+    // Format pesan: Jadwal tamu baru / edit
+    function formatTgJadwal(entry, isEdit = false) {
+        const icon   = isEdit ? '✏️' : '📅';
+        const action = isEdit ? 'diperbarui' : 'baru';
+        const tglFormatted = entry.tgl
+            ? new Date(entry.tgl).toLocaleDateString('id-ID', {weekday:'long',day:'numeric',month:'long',year:'numeric'})
+            : '-';
+        return `${icon} <b>Jadwal Tamu ${action}!</b>
+
+👤 <b>${escapeHtml(entry.nama||'-')}</b>
+🏠 Asal: ${escapeHtml(entry.asal||'-')}
+📅 Tanggal: ${tglFormatted}
+🕐 Jam: ${escapeHtml(entry.jam||'belum ditentukan')}
+👥 Jumlah: ${entry.jumlah ? entry.jumlah + ' orang' : '-'}
+💼 Keperluan: ${escapeHtml(entry.keperluan||'-')}${entry.catatan ? '\n📝 Catatan: '+escapeHtml(entry.catatan) : ''}
+
+📌 <i>PT Amiru Haramain Indonesia</i>`;
+    }
+
+    // Format pesan: Pengingat program hampir berangkat (≤ 30 hari)
+    function formatTgReminder(data, sisaHari) {
+        const urgency = sisaHari <= 7 ? '🚨' : sisaHari <= 14 ? '⚠️' : '🔔';
+        return `${urgency} <b>PENGINGAT — Program Hampir Berangkat!</b>
+
+🕌 <b>${escapeHtml(data.nama||'-')}</b>
+📅 Tanggal Berangkat: ${escapeHtml(data.tgl||'-')}
+⏰ <b>Sisa ${sisaHari} hari lagi!</b>
+⏳ Durasi: ${escapeHtml(data.durasi||'-')}
+✈️ Maskapai: ${escapeHtml(data.maskapai||'-')}
+💰 Harga: ${escapeHtml(data.harga_quint||'-')}
+
+📌 <i>PT Amiru Haramain Indonesia</i>
+🕐 ${new Date().toLocaleString('id-ID')}`;
+    }
+
+    // Cek program yang tinggal ≤ 30 hari, kirim reminder (1x per hari per program)
+    async function checkAndSendReminders() {
+        const cfg = getTgConfig();
+        if (!cfg.botToken || !cfg.edgeUrl) return;
+        const targets = (cfg.recipients||[]).filter(r => (r.types||[]).includes('reminder'));
+        if (!targets.length) return;
+        if (!dataUmroh || !dataUmroh.length) return;
+
+        let sentLog = {};
+        try { sentLog = JSON.parse(localStorage.getItem(TG_REMINDER_KEY) || '{}'); } catch {}
+        const today = new Date(); today.setHours(0,0,0,0);
+        const todayStr = today.toISOString().split('T')[0];
+
+        for (const prog of dataUmroh) {
+            if (!prog.tgl) continue;
+            const tglParts = prog.tgl.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/);
+            if (!tglParts) continue;
+            const bulanMap = {januari:0,februari:1,maret:2,april:3,mei:4,juni:5,juli:6,agustus:7,september:8,oktober:9,november:10,desember:11};
+            const bln = bulanMap[tglParts[2].toLowerCase()];
+            if (bln === undefined) continue;
+            const tglBerangkat = new Date(parseInt(tglParts[3]), bln, parseInt(tglParts[1]));
+            tglBerangkat.setHours(0,0,0,0);
+            const sisaMs   = tglBerangkat - today;
+            const sisaHari = Math.ceil(sisaMs / (1000 * 60 * 60 * 24));
+            if (sisaHari < 0 || sisaHari > 30) continue;
+
+            // Cek sudah dikirim hari ini?
+            const key = String(prog.id);
+            if (sentLog[key] === todayStr) continue;
+
+            const msg = formatTgReminder(prog, sisaHari);
+            await sendTelegramNotif(msg, 'reminder');
+            sentLog[key] = todayStr;
+        }
+        localStorage.setItem(TG_REMINDER_KEY, JSON.stringify(sentLog));
+    }
+
+    // Test kirim semua jenis notifikasi
+    async function testTgNotif() {
+        saveTgConfig();
+        const waktu = new Date().toLocaleString('id-ID');
+        const msgProgram = `🧪 <b>TEST — Program Baru</b>
+
+🕌 <b>Contoh: Umroh Ramadhan 2025</b>
+📅 Berangkat: 01 Maret 2025
+⏳ Durasi: 9 Hari
+✈️ Maskapai: Saudia Airlines
+💰 Harga: Rp 34.500.000
+
+📌 <i>PT Amiru Haramain Indonesia</i>
+🕐 ${waktu}`;
+        const msgJadwal = `🧪 <b>TEST — Jadwal Tamu Baru</b>
+
+👤 <b>H. Budi Santoso</b>
+🏠 Asal: Ponorogo
+📅 Tanggal: Senin, 27 Januari 2025
+🕐 Jam: 09:00
+👥 Jumlah: 3 orang
+💼 Keperluan: Konsultasi Paket Umroh
+
+📌 <i>PT Amiru Haramain Indonesia</i>`;
+        const msgReminder = `🔔 <b>TEST — Pengingat Program</b>
+
+🕌 <b>Umroh Spesial Akbar</b>
+📅 Tanggal Berangkat: 15 Februari 2025
+⏰ <b>Sisa 20 hari lagi!</b>
+
+📌 <i>PT Amiru Haramain Indonesia</i>
+🕐 ${waktu}`;
+
+        showTgStatus('⏳ Mengirim test...', 'ok');
+        await sendTelegramNotif(msgProgram,  'program');
+        await sendTelegramNotif(msgJadwal,   'jadwal');
+        await sendTelegramNotif(msgReminder, 'reminder');
+        showTgStatus('✅ Test selesai! Cek log di bawah.', 'ok');
+    }
+
+    window.saveTgConfig       = saveTgConfig;
+    window.addTgRecipient     = addTgRecipient;
+    window.testTgNotif        = testTgNotif;
+    window.renderTgRecipients = renderTgRecipients;
+    // ========== END TELEGRAM ==========
     (async () => {
         await loadJadwal();
         renderJadwalSection();
         await loadKbJamaah();
         await loadFeaturedIds();
         await loadDataFromSupabase();
+        // Cek & kirim pengingat program ≤ 30 hari setelah data loaded
+        setTimeout(() => checkAndSendReminders(), 2000);
     })();
 </script>
 <!-- DELETE CONFIRM MODAL -->
