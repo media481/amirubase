@@ -864,7 +864,7 @@
     }
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-    function showToast(msg) { const t = document.getElementById('toast'); t.innerHTML = `<i class="fas fa-check"></i> ${sanitizeHtml(msg)}`; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+    function showToast(msg) { const t = document.getElementById('toast'); t.innerHTML = '<i class="fas fa-check"></i> '; const span = document.createElement('span'); span.textContent = msg; t.appendChild(span); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
 
     // Database dengan CACHE
     async function loadDataFromSupabase(forceRefresh = false) {
@@ -1275,7 +1275,7 @@
             if (isAdmin) {
                 const dateInput = document.getElementById('admin_tgl_date');
                 if(dateInput) dateInput.addEventListener('change',function(){
-                    if(this.value) document.getElementById('admin_tgl').value=formatDateToIndonesian(new Date(this.value));
+                    if(this.value){const [y,m,d]=this.value.split('-');document.getElementById('admin_tgl').value=formatDateToIndonesian(new Date(parseInt(y),parseInt(m)-1,parseInt(d)));}
                     else document.getElementById('admin_tgl').value='';
                 });
                 renderAdminTable();
@@ -1325,7 +1325,7 @@
         const activeId = selectedId || kbSelectedAdminProgram || null;
         // Admin: tampilkan SEMUA program (supaya bisa input ke program manapun)
         // tapi bedakan yang sudah ada jamaahnya vs belum
-        const programs = dataUmroh.slice().sort((a,b) => new Date(a.tgl_berangkat||0) - new Date(b.tgl_berangkat||0));
+        const programs = dataUmroh.slice().sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
         const programsWithJamaah = programs.filter(p => kbJamaahList.some(j => String(j.program_id) === String(p.id)));
         // Tampilkan hanya yang sudah ada jamaahnya di selector; kalau kosong, tampilkan info
         if (programsWithJamaah.length === 0) {
@@ -1389,7 +1389,7 @@
                 </tr>`;
             }).join('');
         }
-        const tglDisplay = prog.tgl_berangkat ? new Date(prog.tgl_berangkat).toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}) : '-';
+        const tglDisplay = prog.tgl ? prog.tgl : '-';
         content.innerHTML = `
         <div class="kb-section-header">
             <div class="kb-section-title">
@@ -1444,7 +1444,7 @@
     function getAdminFormData() { 
         return { 
             nama: document.getElementById('admin_nama')?.value.trim()||'', 
-            tgl: document.getElementById('admin_tgl')?.value||(document.getElementById('admin_tgl_date')?.value?formatDateToIndonesian(new Date(document.getElementById('admin_tgl_date').value)):''), 
+            tgl: document.getElementById('admin_tgl')?.value||(document.getElementById('admin_tgl_date')?.value?(()=>{const [y,m,d]=document.getElementById('admin_tgl_date').value.split('-');return formatDateToIndonesian(new Date(parseInt(y),parseInt(m)-1,parseInt(d)));})():''), 
             durasi: document.getElementById('admin_durasi')?.value||'', 
             maskapai: document.getElementById('admin_maskapai')?.value||'', 
             link_form: document.getElementById('admin_link_form')?.value||'', 
@@ -2101,7 +2101,7 @@
         // Hanya tampilkan program yang sudah ada data jamaahnya
         const programs = dataUmroh
             .filter(p => kbJamaahList.some(j => String(j.program_id) === String(p.id)))
-            .sort((a,b) => new Date(a.tgl_berangkat||0) - new Date(b.tgl_berangkat||0));
+            .sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
         if (programs.length === 0) {
             sel.innerHTML = '<div style="padding:10px;color:var(--text-3);font-size:13px;font-style:italic;">Belum ada data jamaah yang diinput.</div>';
             const content = document.getElementById('kbJamaahContent');
@@ -2163,7 +2163,7 @@
             }).join('');
         }
 
-        const tglDisplay = prog.tgl_berangkat ? new Date(prog.tgl_berangkat).toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}) : '-';
+        const tglDisplay = prog.tgl ? prog.tgl : '-';
         content.innerHTML = `
         <div class="kb-section-header">
             <div class="kb-section-title">
@@ -2199,6 +2199,10 @@
         const titleEl = document.getElementById('kbModalTitle');
         // Populate program dropdown
         const progSel = document.getElementById('kb_program');
+        if (!dataUmroh || dataUmroh.length === 0) {
+            showToast('⚠️ Data program belum dimuat, coba lagi sebentar');
+            return;
+        }
         progSel.innerHTML = dataUmroh.map(p => `<option value="${escapeHtml(String(p.id))}">${escapeHtml(p.nama||'Program')}</option>`).join('');
         if (editingKbId) {
             const j = kbJamaahList.find(x => x.id === editingKbId);
