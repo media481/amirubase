@@ -936,7 +936,7 @@
 
     // Modal Detail
     function openDetailModal(programId) {
-        const program = dataUmroh.find(p => p.id === programId);
+        const program = dataUmroh.find(p => String(p.id) === String(programId));
         if (!program) return;
         const waText = program.teks_wa || generateAutoWAText(program);
         document.getElementById('detailModalBody').innerHTML = `
@@ -1156,7 +1156,12 @@
         if (panel) panel.classList.add('active');
         if (btn) btn.classList.add('active');
         if (name === 'keberangkatan') {
-            renderKbAdminSelector();
+            // Pastikan data sudah loaded sebelum render selector
+            if (kbJamaahList.length > 0 || dataUmroh.length > 0) {
+                renderKbAdminSelector();
+            } else {
+                loadKbJamaah().then(() => renderKbAdminSelector());
+            }
         }
     }
     window.switchAdminTab = switchAdminTab;
@@ -1228,7 +1233,7 @@
                     <td style="font-size:12.5px;">${j.wa ? escapeHtml(j.wa) : '-'}</td>
                     <td><span class="kb-status-pill ${statusClass}">${statusLabel}</span></td>
                     <td><div class="admin-action-btns">
-                        <button onclick="openKbModal('${j.id}');kbEditFromAdmin=true;" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-edit"></i> Edit</button>
+                        <button onclick="kbEditFromAdmin=true;openKbModal('${j.id}');" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-edit"></i> Edit</button>
                         ${j.wa ? `<button onclick="kbHubungi('${escapeHtml(j.wa)}','${escapeHtml(j.nama||'')}')" style="background:#dcfce7;color:#16a34a;"><i class="fab fa-whatsapp"></i></button>` : ''}
                         <button onclick="deleteKbJamaahAdmin('${j.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i></button>
                     </div></td>
@@ -1262,7 +1267,7 @@
     }
 
     let kbEditFromAdmin = false;
-    window.kbEditFromAdmin = kbEditFromAdmin;
+    window.__kbEditFromAdminProxy = { get val() { return kbEditFromAdmin; }, set val(v) { kbEditFromAdmin = v; } };
 
     async function deleteKbJamaahAdmin(id) {
         if (!confirm('Hapus data jamaah ini?')) return;
@@ -1615,13 +1620,14 @@
             wa: document.getElementById('jf_wa').value.trim(),
             catatan: document.getElementById('jf_catatan').value.trim(),
         };
-        const { error: errUpdate } = editingJadwalId
-            ? await supabaseClient.from('jadwal_tamu').update(entry).eq('id', editingJadwalId)
-            : { error: null };
-        const { error: errInsert } = !editingJadwalId
-            ? await supabaseClient.from('jadwal_tamu').insert([{ ...entry, id: 'j' + Date.now(), created_at: Date.now() }])
-            : { error: null };
-        const err = errUpdate || errInsert;
+        let err = null;
+        if (editingJadwalId) {
+            const { error } = await supabaseClient.from('jadwal_tamu').update(entry).eq('id', editingJadwalId);
+            err = error;
+        } else {
+            const { error } = await supabaseClient.from('jadwal_tamu').insert([{ ...entry, id: 'j' + Date.now(), created_at: Date.now() }]);
+            err = error;
+        }
         if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
         await loadJadwal();
         closeJadwalModal();
@@ -1942,7 +1948,11 @@
             }
         } else {
             titleEl.textContent = 'Tambah Data Jamaah';
-            if (kbSelectedProgram) progSel.value = String(kbSelectedProgram);
+            // Pre-select program: gunakan kbSelectedAdminProgram jika modal dibuka dari admin panel
+            const preselect = kbEditFromAdmin || document.getElementById('adminModal')?.classList.contains('show')
+                ? (kbSelectedAdminProgram || kbSelectedProgram)
+                : kbSelectedProgram;
+            if (preselect) progSel.value = String(preselect);
             document.getElementById('kb_nama').value = '';
             document.getElementById('kb_nik').value = '';
             document.getElementById('kb_paspor').value = '';
@@ -1952,11 +1962,14 @@
             document.getElementById('kb_catatan').value = '';
         }
         modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
     }
 
     function closeKbModal() {
         document.getElementById('kbModal').classList.remove('show');
+        document.body.style.overflow = '';
         editingKbId = null;
+        kbEditFromAdmin = false;
     }
 
     async function saveKbJamaah() {
@@ -1974,18 +1987,26 @@
             status: document.getElementById('kb_status').value,
             catatan: document.getElementById('kb_catatan').value.trim(),
         };
-        const { error: errUpdate } = editingKbId
-            ? await supabaseClient.from('kb_jamaah').update(entry).eq('id', editingKbId)
-            : { error: null };
-        const { error: errInsert } = !editingKbId
-            ? await supabaseClient.from('kb_jamaah').insert([{ ...entry, id: 'kb_' + Date.now(), created_at: Date.now() }])
-            : { error: null };
-        const err = errUpdate || errInsert;
+        let err = null;
+        if (editingKbId) {
+            const { error } = await supabaseClient.from('kb_jamaah').update(entry).eq('id', editingKbId);
+            err = error;
+        } else {
+            const { error } = await supabaseClient.from('kb_jamaah').insert([{ ...entry, id: 'kb_' + Date.now(), created_at: Date.now() }]);
+            err = error;
+        }
         if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
         await loadKbJamaah();
-        kbSelectedProgram = progId;
         closeKbModal();
-        renderKbProgramSelector();
+        // Refresh tampilan sesuai konteks (public atau admin)
+        if (kbEditFromAdmin || document.getElementById('adminModal')?.classList.contains('show')) {
+            kbSelectedAdminProgram = progId;
+            renderKbAdminSelector(progId);
+        } else {
+            kbSelectedProgram = progId;
+            renderKbProgramSelector();
+        }
+        kbEditFromAdmin = false;
         showToast('✈️ Data jamaah berhasil disimpan!');
     }
 
@@ -1995,6 +2016,9 @@
         if (error) { showToast('❌ Gagal hapus: ' + error.message); return; }
         kbJamaahList = kbJamaahList.filter(j => j.id !== id);
         renderKbProgramSelector();
+        if (document.getElementById('adminModal')?.classList.contains('show')) {
+            renderKbAdminSelector(kbSelectedAdminProgram);
+        }
         showToast('🗑️ Data jamaah dihapus');
     }
 
