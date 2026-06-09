@@ -914,7 +914,7 @@
             if (cached && cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_DURATION)) {
                 dataUmroh = JSON.parse(cached);
                 dataUmroh.forEach(p => { if (p.tgl && !p.dateObj) p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-                currentData = [...dataUmroh];
+                currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
                 renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
                 loadingEl.style.display = 'none'; tableEl.style.display = 'table';
                 return;
@@ -935,7 +935,7 @@
             sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
             dataUmroh = plainData;
             dataUmroh.forEach(p => { p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-            currentData = [...dataUmroh];
+            currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
             renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
             loadingEl.style.display = 'none'; tableEl.style.display = 'table';
         } catch (err) {
@@ -959,7 +959,7 @@
                         sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
                         dataUmroh = plainData;
                         dataUmroh.forEach(p => { p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-                        currentData = [...dataUmroh];
+                        currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
                         renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
                         loadingEl.style.display = 'none'; tableEl.style.display = 'table';
                         return;
@@ -1036,7 +1036,7 @@
     // Search with DEBOUNCE (300ms)
     function filterData(term) {
         const t = term.toLowerCase().trim(), now = new Date();
-        if (!t) { currentData = [...dataUmroh]; }
+        if (!t) { currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0)); }
         else {
             currentData = dataUmroh.filter(item => {
                 const status = item.dateObj >= now ? 'tersedia' : 'expired';
@@ -1058,7 +1058,7 @@
         else renderTable(currentData);
     }
 
-    function resetSearch() { document.getElementById('searchInput').value = ''; document.getElementById('searchInputMobile').value = ''; currentData = [...dataUmroh]; renderTable(currentData); }
+    function resetSearch() { document.getElementById('searchInput').value = ''; document.getElementById('searchInputMobile').value = ''; currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0)); renderTable(currentData); }
 
     // Debounce untuk search
     function handleSearchInput(e) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => filterData(e.target.value), 300); }
