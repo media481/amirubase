@@ -553,13 +553,13 @@
 <!-- PUBLIC TABS -->
 <div class="pub-tabs-wrapper">
     <div class="pub-tabs-bar">
-        <button class="pub-tab-btn active tab-info" id="pubTabBtnInfo" onclick="switchPubTab('info', this)">
+        <button class="pub-tab-btn tab-info" id="pubTabBtnInfo" onclick="switchPubTab('info', this)">
             <span class="pub-tab-icon"></span> Jadwal Tamu
         </button>
         <button class="pub-tab-btn tab-unggulan" id="pubTabBtnUnggulan" onclick="switchPubTab('unggulan', this)">
             <span class="pub-tab-icon"></span> Program Unggulan
         </button>
-        <button class="pub-tab-btn" id="pubTabBtnUmroh" onclick="switchPubTab('umroh', this)">
+        <button class="pub-tab-btn active" id="pubTabBtnUmroh" onclick="switchPubTab('umroh', this)">
             <span class="pub-tab-icon"></span> Program Umroh
         </button>
         <button class="pub-tab-btn tab-keberangkatan" id="pubTabBtnKeberangkatan" onclick="switchPubTab('keberangkatan', this)">
@@ -569,7 +569,7 @@
     <div class="pub-tab-body">
 
         <!-- TAB: JADWAL TAMU -->
-        <div class="pub-tab-panel active" id="pub-tab-info">
+        <div class="pub-tab-panel" id="pub-tab-info">
             <div class="pub-sub-section" id="jadwalSection">
                 <div class="pub-sub-header">
                     <div class="pub-sub-label jadwal"><i class="fa-solid fa-calendar-check"></i> Jadwal Berkunjung Tamu</div>
@@ -594,7 +594,7 @@
         </div>
 
         <!-- TAB: PROGRAM UMROH -->
-        <div class="pub-tab-panel" id="pub-tab-umroh">
+        <div class="pub-tab-panel active" id="pub-tab-umroh">
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:14px 18px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;background:var(--surface2);box-shadow:var(--shadow-sm);">
                 <div class="page-title-row">
                     <div class="page-title-icon">🗹</div>
