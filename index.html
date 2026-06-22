@@ -1552,7 +1552,7 @@
         }catch(err){showToast('Gagal: '+err.message);} 
     }
     
-    async function editAdminProgram(id){const{data}=await supabaseClient.from('programs').select('*').eq('id',id).single();if(data){setAdminFormData(data);editingProgramId=id;document.getElementById('adminFormTitle').innerText='Edit Program';document.getElementById('adminFormContainer').style.display='block';}}
+    async function editAdminProgram(id){const{data}=await supabaseClient.from('programs').select('*').eq('id',id).single();if(data){setAdminFormData(data);editingProgramId=id;document.getElementById('adminFormTitle').innerText='Edit Program';document.getElementById('adminFormContainer').style.display='block';document.getElementById('adminFormContainer').scrollIntoView({behavior:'smooth',block:'start'});}}
     async function duplicateAdminProgram(id){
         const{data}=await supabaseClient.from('programs').select('*').eq('id',id).single();
         if(!data){showToast('❌ Program tidak ditemukan');return;}
