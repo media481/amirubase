@@ -3197,15 +3197,35 @@
     let cxOcrProgress = {}; // {progId: 0..100}
 
     // ---- OCR ENGINE (Tesseract.js) ----
-    async function cxLoadImageAsBlobUrl(url) {
-        // Ambil via fetch supaya tahan masalah hotlink/cache, fallback ke url langsung jika gagal
+    const CX_PROXY_URL = `${SUPABASE_URL}/functions/v1/proxy-image`;
+
+    async function cxLoadImageAsBlobUrl(rawUrl) {
+        // Resolusi dulu (misal link viewer Google Drive -> link thumbnail langsung)
+        const url = resolveImageUrl(rawUrl);
+
+        // 1) Coba fetch langsung (cepat, tanpa beban server, jalan jika host mengizinkan CORS)
         try {
             const res = await fetch(url, { mode: 'cors' });
-            if (!res.ok) throw new Error('fetch gagal');
-            const blob = await res.blob();
-            return URL.createObjectURL(blob);
+            if (res.ok) {
+                const blob = await res.blob();
+                if (blob && blob.size > 0) return URL.createObjectURL(blob);
+            }
+        } catch (e) { /* lanjut ke fallback proxy */ }
+
+        // 2) Fallback: lewat Supabase Edge Function proxy-image (server-side fetch, bebas CORS)
+        try {
+            const proxied = `${CX_PROXY_URL}?url=${encodeURIComponent(url)}`;
+            const res2 = await fetch(proxied);
+            if (!res2.ok) {
+                let detail = '';
+                try { detail = (await res2.json()).error || ''; } catch(e) {}
+                throw new Error(detail || `Proxy gagal (status ${res2.status})`);
+            }
+            const blob2 = await res2.blob();
+            if (!blob2 || blob2.size === 0) throw new Error('Proxy mengembalikan data kosong.');
+            return URL.createObjectURL(blob2);
         } catch (e) {
-            return url; // fallback: biarkan Tesseract fetch langsung
+            throw new Error('Tidak bisa mengambil gambar poster (langsung & via proxy gagal): ' + e.message);
         }
     }
 
