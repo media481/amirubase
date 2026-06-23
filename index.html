@@ -227,10 +227,11 @@
         .admin-modal{display:none;width:100%;max-width:1600px;margin:0 auto;padding:16px 16px 0;}
         .admin-modal.show{display:block;}
         .admin-modal-content{width:100%;background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);border:1px solid var(--border);}
-        .admin-modal-header{background:linear-gradient(135deg,#1a6fa8,#1559a0);color:#fff;padding:18px 28px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;display:flex;justify-content:space-between;align-items:center;}
-        .admin-modal-header h2{font-size:18px;display:flex;align-items:center;gap:10px;font-weight:700;margin:0;}
-        .admin-modal-header button{background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;padding:8px 16px;border-radius:6px;transition:all var(--transition);display:flex;align-items:center;gap:7px;}
-        .admin-modal-header button:hover{background:rgba(255,255,255,0.3);}
+        .admin-modal-header{background:var(--surface);color:var(--text-1);padding:18px 28px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+        .admin-modal-header h2{font-size:18px;display:flex;align-items:center;gap:10px;font-weight:700;margin:0;color:var(--text-1);}
+        .admin-modal-header h2 i{color:var(--primary);}
+        .admin-modal-header button{background:var(--primary-subtle);border:1px solid var(--border);color:var(--primary);font-size:13px;font-weight:700;cursor:pointer;padding:8px 16px;border-radius:6px;transition:all var(--transition);display:flex;align-items:center;gap:7px;}
+        .admin-modal-header button:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
         .admin-modal-body{padding:28px 32px;}
         .admin-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;background:var(--surface2);padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);}
         .admin-btn{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;transition:all var(--transition);display:inline-flex;align-items:center;gap:8px;}
@@ -584,7 +585,7 @@
 </div>
 
 
-<div id="adminModal" class="admin-modal"><div class="admin-modal-content"><div class="admin-modal-header"><h2><i class="fas fa-database"></i> Admin Panel - Kelola Program Umroh <span id="adminRoleBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.2);margin-left:8px;display:none;"></span></h2><button onclick="closeAdminModal()"><i class="fas fa-arrow-left"></i> Kembali</button></div><div class="admin-modal-body" id="adminModalBody"></div></div></div>
+<div id="adminModal" class="admin-modal"><div class="admin-modal-content"><div class="admin-modal-header"><h2><i class="fas fa-database"></i> Admin Panel - Kelola Program Umroh <span id="adminRoleBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--primary-subtle);color:var(--primary);margin-left:8px;display:none;"></span></h2><button onclick="closeAdminModal()"><i class="fas fa-arrow-left"></i> Kembali</button></div><div class="admin-modal-body" id="adminModalBody"></div></div></div>
 
 <!-- PUBLIC TABS -->
 <div class="pub-tabs-wrapper" id="pubTabsWrapper">
