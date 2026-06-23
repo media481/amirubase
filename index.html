@@ -139,8 +139,8 @@
         /* ===== POSTER HOVER POPUP ===== */
         #posterPopup{position:fixed;z-index:99998;pointer-events:none;opacity:0;transition:opacity .18s ease,transform .18s ease;transform:translateY(6px);will-change:opacity,transform;}
         #posterPopup.visible{opacity:1;transform:translateY(0);}
-        .poster-popup-inner{background:#fff;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.22),0 4px 12px rgba(0,0,0,0.1);border:1px solid var(--border);overflow:hidden;width:220px;}
-        .poster-popup-img-wrap{width:220px;height:310px;background:var(--surface2);display:flex;align-items:center;justify-content:center;position:relative;}
+        .poster-popup-inner{background:#fff;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.22),0 4px 12px rgba(0,0,0,0.1);border:1px solid var(--border);overflow:hidden;width:440px;}
+        .poster-popup-img-wrap{width:440px;height:620px;background:var(--surface2);display:flex;align-items:center;justify-content:center;position:relative;}
         .poster-popup-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
         .poster-popup-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-3);font-size:12px;font-weight:600;}
         .poster-popup-loading i{font-size:22px;animation:spin .8s linear infinite;}
@@ -1790,12 +1790,12 @@
         errEl.style.display = 'none';
         nameEl.textContent = posterNama || 'Poster Program';
         // Posisi popup: ikuti mouse, hindari keluar viewport
-        const pw = 220, gap = 14;
+        const pw = 440, gap = 14;
         const vw = window.innerWidth, vh = window.innerHeight;
         let x = e.clientX + gap;
         let y = e.clientY - 40;
         if (x + pw > vw - 8) x = e.clientX - pw - gap;
-        if (y + 370 > vh - 8) y = vh - 370 - 8;
+        if (y + 660 > vh - 8) y = vh - 660 - 8;
         if (y < 8) y = 8;
         popup.style.left = x + 'px';
         popup.style.top = y + 'px';
