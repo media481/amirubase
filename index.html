@@ -139,9 +139,9 @@
         /* ===== POSTER HOVER POPUP ===== */
         #posterPopup{position:fixed;z-index:99998;pointer-events:none;opacity:0;transition:opacity .18s ease,transform .18s ease;transform:translateY(6px);will-change:opacity,transform;}
         #posterPopup.visible{opacity:1;transform:translateY(0);}
-        .poster-popup-inner{background:#fff;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.22),0 4px 12px rgba(0,0,0,0.1);border:1px solid var(--border);overflow:hidden;width:440px;}
-        .poster-popup-img-wrap{width:440px;height:620px;background:var(--surface2);display:flex;align-items:center;justify-content:center;position:relative;}
-        .poster-popup-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+        .poster-popup-inner{background:#fff;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.22),0 4px 12px rgba(0,0,0,0.1);border:1px solid var(--border);overflow:hidden;}
+        .poster-popup-img-wrap{background:var(--surface2);display:flex;align-items:center;justify-content:center;position:relative;}
+        .poster-popup-img-wrap img{width:100%;height:100%;object-fit:contain;display:block;}
         .poster-popup-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-3);font-size:12px;font-weight:600;}
         .poster-popup-loading i{font-size:22px;animation:spin .8s linear infinite;}
         .poster-popup-error{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--text-3);font-size:12px;}
@@ -1766,10 +1766,10 @@
         if (!url) return url;
         // Google Drive: /file/d/ID/view atau /file/d/ID/view?usp=...
         const gdMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-        if (gdMatch) return `https://drive.google.com/thumbnail?id=${gdMatch[1]}&sz=w400`;
+        if (gdMatch) return `https://drive.google.com/thumbnail?id=${gdMatch[1]}&sz=w1080`;
         // Google Drive: open?id=ID
         const gdOpen = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
-        if (gdOpen) return `https://drive.google.com/thumbnail?id=${gdOpen[1]}&sz=w400`;
+        if (gdOpen) return `https://drive.google.com/thumbnail?id=${gdOpen[1]}&sz=w1080`;
         return url;
     }
 
@@ -1789,14 +1789,31 @@
         loading.style.display = 'flex';
         errEl.style.display = 'none';
         nameEl.textContent = posterNama || 'Poster Program';
-        // Posisi popup: ikuti mouse, hindari keluar viewport
-        const pw = 440, gap = 14;
+        // Hitung ukuran popup: rasio 1080:1350, fit ke viewport dengan margin
+        const RATIO = 1080 / 1350;
+        const gap = 16, margin = 12, labelH = 36;
         const vw = window.innerWidth, vh = window.innerHeight;
+        const maxH = vh - margin * 2 - labelH;
+        const maxW = Math.min(vw * 0.85, 1080);
+        let ph, pw;
+        if (maxW / RATIO + labelH <= vh - margin * 2) {
+            pw = maxW; ph = Math.round(pw / RATIO);
+        } else {
+            ph = maxH; pw = Math.round(ph * RATIO);
+        }
+        // Terapkan ukuran ke elemen
+        const inner = popup.querySelector('.poster-popup-inner');
+        const wrap = popup.querySelector('.poster-popup-img-wrap');
+        inner.style.width = pw + 'px';
+        wrap.style.width = pw + 'px';
+        wrap.style.height = ph + 'px';
+        // Posisi: kanan kursor, geser kiri jika terpotong
         let x = e.clientX + gap;
-        let y = e.clientY - 40;
-        if (x + pw > vw - 8) x = e.clientX - pw - gap;
-        if (y + 660 > vh - 8) y = vh - 660 - 8;
-        if (y < 8) y = 8;
+        let y = e.clientY - Math.round(ph / 3);
+        if (x + pw > vw - margin) x = e.clientX - pw - gap;
+        if (x < margin) x = margin;
+        if (y + ph + labelH > vh - margin) y = vh - ph - labelH - margin;
+        if (y < margin) y = margin;
         popup.style.left = x + 'px';
         popup.style.top = y + 'px';
         popup.classList.add('visible');
