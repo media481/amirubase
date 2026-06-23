@@ -1143,6 +1143,16 @@
                     <span><i class="fas fa-edit"></i> <span id="adminFormTitle">Tambah Program Baru</span></span>
                     <button class="admin-btn" onclick="hideAdminForm()">&times;</button>
                 </div>
+                <!-- PARSE DARI TEKS -->
+                <div id="parseBroadcastBox" style="padding:16px 20px;background:#f0fdf4;border-bottom:1px solid #bbf7d0;">
+                    <div style="font-size:12px;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fas fa-magic"></i> Auto-isi dari Teks Broadcast</div>
+                    <textarea id="parseBroadcastInput" rows="4" placeholder="Paste teks broadcast program umroh di sini, lalu klik Isi Otomatis..." style="width:100%;padding:8px 12px;border:1px solid #86efac;border-radius:6px;font-size:12.5px;resize:vertical;font-family:inherit;background:#fff;outline:none;line-height:1.6;"></textarea>
+                    <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+                        <button onclick="parseBroadcastText()" style="background:#16a34a;color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;"><i class="fas fa-wand-magic-sparkles"></i> Isi Otomatis</button>
+                        <button onclick="document.getElementById('parseBroadcastInput').value=''" style="background:transparent;color:#16a34a;border:1px solid #86efac;padding:7px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Hapus</button>
+                        <span id="parseStatus" style="font-size:12px;color:#15803d;font-weight:600;display:none;"></span>
+                    </div>
+                </div>
                 <div class="admin-form-body">
                     <div class="admin-form-group admin-full-width"><label>Nama Program *</label><input type="text" id="admin_nama" placeholder="Contoh: Umroh Akbar Bareng UAS" maxlength="200"></div>
                     <div class="admin-form-group"><label>Tanggal</label><input type="date" id="admin_tgl_date"><input type="hidden" id="admin_tgl"><small style="color:#64748b">Pilih tanggal dari kalender</small></div>
@@ -1827,6 +1837,105 @@
     }
     window.showPosterPopup = showPosterPopup;
     window.hidePosterPopup = hidePosterPopup;
+
+    // ===== PARSE BROADCAST TEXT =====
+    window.parseBroadcastText = function() {
+        const raw = document.getElementById('parseBroadcastInput').value.trim();
+        if (!raw) { showToast('Paste teks broadcast dulu'); return; }
+
+        const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+        const clean = s => s.replace(/^\*+|\*+$/g, '').trim();
+
+        // Nama: baris pertama bold *...*
+        let nama = '';
+        for (const l of lines) {
+            if (/^\*.+\*$/.test(l)) { nama = clean(l); break; }
+        }
+        if (!nama) nama = clean(lines[0]);
+
+        // Durasi: "Program X hari"
+        let durasi = '';
+        for (const l of lines) {
+            const m = l.match(/program\s+(\d+)\s*hari/i) || l.match(/^(\d+)\s*hari/i);
+            if (m) { durasi = m[1] + ' Hari'; break; }
+        }
+
+        // Maskapai: baris setelah *PESAWAT*
+        let maskapai = '';
+        for (let i = 0; i < lines.length - 1; i++) {
+            if (/pesawat/i.test(clean(lines[i]))) { maskapai = clean(lines[i + 1]); break; }
+        }
+
+        // Harga Quad: baris mengandung "quard" atau "quad"
+        let harga = '';
+        for (const l of lines) {
+            if (/qu[ao]r[da]/i.test(l)) {
+                const m = l.replace(/\./g, '').match(/(\d{5,})/);
+                if (m) { harga = 'Rp ' + parseInt(m[1]).toLocaleString('id-ID'); break; }
+            }
+        }
+        // fallback: angka pertama di bawah *BIAYA PROGRAM*
+        if (!harga) {
+            let inBiaya = false;
+            for (const l of lines) {
+                if (/biaya program/i.test(clean(l))) { inBiaya = true; continue; }
+                if (inBiaya) {
+                    const m = l.replace(/\./g, '').match(/(\d{5,})/);
+                    if (m) { harga = 'Rp ' + parseInt(m[1]).toLocaleString('id-ID'); break; }
+                }
+            }
+        }
+
+        // Tanggal: cari format "DD - DD Bulan YYYY" atau "DD Bulan YYYY"
+        let tglISO = '';
+        const BULAN = {januari:'01',februari:'02',maret:'03',april:'04',mei:'05',juni:'06',juli:'07',agustus:'08',september:'09',oktober:'10',november:'11',desember:'12'};
+        for (const l of lines) {
+            // "17 - 26 September 2026" atau "17-26 September 2026"
+            let m = l.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+            if (m) {
+                const bln = BULAN[m[3].toLowerCase()];
+                if (bln) { tglISO = m[4] + '-' + bln + '-' + m[2].padStart(2,'0'); break; }
+            }
+            // "17 September 2026"
+            m = l.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+            if (m) {
+                const bln = BULAN[m[2].toLowerCase()];
+                if (bln) { tglISO = m[3] + '-' + bln + '-' + m[1].padStart(2,'0'); break; }
+            }
+        }
+
+        // Cocokkan maskapai ke select option
+        const sel = document.getElementById('admin_maskapai');
+        if (sel && maskapai) {
+            const opts = Array.from(sel.options);
+            const kata = maskapai.toLowerCase().split(' ')[0];
+            const found = opts.find(o => o.value.toLowerCase().includes(kata));
+            if (found) sel.value = found.value;
+        }
+
+        // Isi form
+        if (nama)   document.getElementById('admin_nama').value = nama;
+        if (durasi) document.getElementById('admin_durasi').value = durasi;
+        if (harga)  document.getElementById('admin_harga_quint').value = harga;
+        if (tglISO) {
+            const tglInput = document.getElementById('admin_tgl_date');
+            if (tglInput) { tglInput.value = tglISO; tglInput.dispatchEvent(new Event('change')); }
+        }
+        document.getElementById('admin_teks_wa').value = raw;
+
+        // Tampilkan status
+        const parts = [];
+        if (nama) parts.push('Nama');
+        if (durasi) parts.push('Durasi');
+        if (maskapai) parts.push('Maskapai');
+        if (harga) parts.push('Harga');
+        if (tglISO) parts.push('Tanggal');
+        const status = document.getElementById('parseStatus');
+        status.textContent = '\u2713 Terisi: ' + parts.join(', ');
+        status.style.display = 'inline';
+        setTimeout(() => status.style.display = 'none', 4000);
+        showToast('Form berhasil diisi otomatis');
+    };
     window.resetSearch=resetSearch;window.openAdminModal=openAdminModal;window.closeAdminModal=closeAdminModal;window.checkAdminLogin=checkAdminLogin;window.logoutAdmin=logoutAdmin;window.showAdminForm=showAdminForm;window.hideAdminForm=hideAdminForm;window.saveAdminProgram=saveAdminProgram;window.editAdminProgram=editAdminProgram;window.duplicateAdminProgram=duplicateAdminProgram;window.deleteAdminProgram=deleteAdminProgram;window.clearAllAdminData=clearAllAdminData;window.exportAdminData=exportAdminData;window.importAdminData=importAdminData;window.previewAdminWA=previewAdminWA;window.sortAdminTable=sortAdminTable;window.openDetailModal=openDetailModal;window.closeDetailModal=closeDetailModal;window.copyDetailWAText=copyDetailWAText;
 
     function showCsLockWarning() { showToast('🔒 Fitur ini hanya untuk Administrator'); }
@@ -1839,21 +1948,12 @@
 
     async function loadFeaturedIds() {
         try {
-            const { data, error } = await supabaseClient.from('featured_programs').select('program_id');
-            if (error) throw error;
-            featuredIds = (data || []).map(r => String(r.program_id));
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/featured_programs?select=program_id`, {
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+            });
+            featuredIds = res.ok ? (await res.json()).map(r => String(r.program_id)) : [];
         } catch (err) {
-            const msg = err?.message || String(err);
-            if (msg.includes('DataCloneError') || msg.includes('postMessage')) {
-                try {
-                    const res = await fetch(`${SUPABASE_URL}/rest/v1/featured_programs?select=program_id`, {
-                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
-                    });
-                    featuredIds = res.ok ? (await res.json()).map(r => String(r.program_id)) : [];
-                    return;
-                } catch (_) {}
-            }
-            console.error('loadFeaturedIds error:', msg);
+            console.error('loadFeaturedIds error:', err?.message || err);
             featuredIds = [];
         }
     }
