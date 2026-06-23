@@ -107,6 +107,15 @@
         /* ===== DUPLIKAT BUTTON ===== */
         .btn-duplicate{background:#fef9c3;color:#854d0e;border:1px solid #fde68a;}
         .btn-duplicate:hover{background:#854d0e;color:#fff;border-color:#854d0e;}
+
+        /* ===== DISABLE / AKTIFKAN BUTTON ===== */
+        .btn-disable{background:#f3f4f6;color:#4b5563;border:1px solid #d1d5db;}
+        .btn-disable:hover{background:#4b5563;color:#fff;border-color:#4b5563;}
+        .btn-enable{background:#dcfce7;color:#15803d;border:1px solid #86efac;}
+        .btn-enable:hover{background:#15803d;color:#fff;border-color:#15803d;}
+        .admin-row-disabled{opacity:.55;}
+        .program-status-badge{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;vertical-align:middle;}
+        .program-status-badge.off{background:#f3f4f6;color:#6b7280;border:1px solid #d1d5db;}
         .price-main{font-weight:800;color:var(--text-1);font-size:13.5px;display:block;}
         .price-sub{font-size:10px;color:var(--text-3);font-weight:600;}
         .date-cell{font-size:13px;font-weight:600;color:var(--text-1);white-space:nowrap;}
@@ -927,7 +936,7 @@
             if (cached && cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_DURATION)) {
                 dataUmroh = JSON.parse(cached);
                 dataUmroh.forEach(p => { if (p.tgl && !p.dateObj) p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-                currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
+                currentData = dataUmroh.filter(p => p.is_active !== false).sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
                 renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
                 loadingEl.style.display = 'none'; tableEl.style.display = 'table';
                 return;
@@ -942,13 +951,14 @@
                 harga_quint: p.harga_quint, teks_wa: p.teks_wa,
                 link_form: p.link_form, link_itinerary: p.link_itinerary,
                 link_poster: p.link_poster, link_metaads: p.link_metaads,
-                link_dokumentasi: p.link_dokumentasi, created_at: p.created_at
+                link_dokumentasi: p.link_dokumentasi, created_at: p.created_at,
+                is_active: p.is_active !== false
             }));
             sessionStorage.setItem(CACHE_KEY, JSON.stringify(plainData));
             sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
             dataUmroh = plainData;
             dataUmroh.forEach(p => { p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-            currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
+            currentData = dataUmroh.filter(p => p.is_active !== false).sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
             renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
             loadingEl.style.display = 'none'; tableEl.style.display = 'table';
         } catch (err) {
@@ -966,13 +976,14 @@
                             harga_quint: p.harga_quint, teks_wa: p.teks_wa,
                             link_form: p.link_form, link_itinerary: p.link_itinerary,
                             link_poster: p.link_poster, link_metaads: p.link_metaads,
-                            link_dokumentasi: p.link_dokumentasi, created_at: p.created_at
+                            link_dokumentasi: p.link_dokumentasi, created_at: p.created_at,
+                            is_active: p.is_active !== false
                         }));
                         sessionStorage.setItem(CACHE_KEY, JSON.stringify(plainData));
                         sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
                         dataUmroh = plainData;
                         dataUmroh.forEach(p => { p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-                        currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
+                        currentData = dataUmroh.filter(p => p.is_active !== false).sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
                         renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
                         loadingEl.style.display = 'none'; tableEl.style.display = 'table';
                         return;
@@ -1028,8 +1039,8 @@
         });
     }
 
-    function renderStats() { const now = new Date(); const total = dataUmroh.length, active = dataUmroh.filter(i=>i.dateObj>=now).length, past = total-active; document.getElementById('statsRow') && (document.getElementById('statsRow').innerHTML = `<span class="stat-chip total"><i class="fa-solid fa-layer-group"></i> ${total} Paket</span><span class="stat-chip active"><i class="fa-solid fa-circle-check"></i> ${active} Tersedia</span><span class="stat-chip inactive"><i class="fa-solid fa-clock-rotate-left"></i> ${past} Expired</span>`); }
-    function initTicker() { const now = new Date(); const active = dataUmroh.filter(i=>i.dateObj>=now).map(i=>`✨ ${escapeHtml(i.nama)} — ${escapeHtml(i.tgl)} (${escapeHtml(i.maskapai)})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); const ticker = document.getElementById('navTicker'); ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); }
+    function renderStats() { const now = new Date(); const visible = dataUmroh.filter(p=>p.is_active!==false); const total = visible.length, active = visible.filter(i=>i.dateObj>=now).length, past = total-active; document.getElementById('statsRow') && (document.getElementById('statsRow').innerHTML = `<span class="stat-chip total"><i class="fa-solid fa-layer-group"></i> ${total} Paket</span><span class="stat-chip active"><i class="fa-solid fa-circle-check"></i> ${active} Tersedia</span><span class="stat-chip inactive"><i class="fa-solid fa-clock-rotate-left"></i> ${past} Expired</span>`); }
+    function initTicker() { const now = new Date(); const active = dataUmroh.filter(i=>i.is_active!==false && i.dateObj>=now).map(i=>`✨ ${escapeHtml(i.nama)} — ${escapeHtml(i.tgl)} (${escapeHtml(i.maskapai)})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); const ticker = document.getElementById('navTicker'); ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); }
 
     // Sorting with debounce
     function sortTable(column) {
@@ -1049,9 +1060,10 @@
     // Search with DEBOUNCE (300ms)
     function filterData(term) {
         const t = term.toLowerCase().trim(), now = new Date();
-        if (!t) { currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0)); }
+        const visiblePrograms = dataUmroh.filter(p => p.is_active !== false);
+        if (!t) { currentData = [...visiblePrograms].sort((a,b) => (a.dateObj||0) - (b.dateObj||0)); }
         else {
-            currentData = dataUmroh.filter(item => {
+            currentData = visiblePrograms.filter(item => {
                 const status = item.dateObj >= now ? 'tersedia' : 'expired';
                 // Pecah kata kunci: semua kata harus match di field manapun
                 const keywords = t.split(/\s+/).filter(Boolean);
@@ -1071,7 +1083,7 @@
         else renderTable(currentData);
     }
 
-    function resetSearch() { document.getElementById('searchInput').value = ''; document.getElementById('searchInputMobile').value = ''; currentData = [...dataUmroh].sort((a,b) => (a.dateObj||0) - (b.dateObj||0)); renderTable(currentData); }
+    function resetSearch() { document.getElementById('searchInput').value = ''; document.getElementById('searchInputMobile').value = ''; currentData = dataUmroh.filter(p => p.is_active !== false).sort((a,b) => (a.dateObj||0) - (b.dateObj||0)); renderTable(currentData); }
 
     // Debounce untuk search
     function handleSearchInput(e) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => filterData(e.target.value), 300); }
@@ -1498,7 +1510,10 @@
         if (tabBadge) tabBadge.textContent = adminPrograms.length;
         if(!adminPrograms.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:40px;">Belum ada program.</td></tr>';return;}
         tbody.innerHTML='';
-        adminPrograms.forEach(p=>{tbody.innerHTML+=`<tr><td><strong>${escapeHtml(p.nama||'-')}</strong></td><td>${escapeHtml(p.harga_quint||'-')}</td><td>${escapeHtml(p.tgl||'-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${p.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button class="btn-duplicate" onclick="duplicateAdminProgram('${p.id}')" style="background:#fef9c3;color:#854d0e;border:1px solid #fde68a;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;"><i class="fas fa-copy"></i> Duplikat</button><button onclick="deleteAdminProgram('${p.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;});
+        adminPrograms.forEach(p=>{
+            const isActive = p.is_active !== false;
+            tbody.innerHTML+=`<tr class="${isActive?'':'admin-row-disabled'}"><td><strong>${escapeHtml(p.nama||'-')}</strong>${isActive?'':'<span class="program-status-badge off">Nonaktif</span>'}</td><td>${escapeHtml(p.harga_quint||'-')}</td><td>${escapeHtml(p.tgl||'-')}</td><td class="admin-action-btns"><button onclick="editAdminProgram('${p.id}')" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-edit"></i> Edit</button><button class="${isActive?'btn-disable':'btn-enable'}" onclick="toggleProgramActive('${p.id}', ${isActive})"><i class="fas fa-power-off"></i> ${isActive?'Disable':'Aktifkan'}</button><button class="btn-duplicate" onclick="duplicateAdminProgram('${p.id}')" style="background:#fef9c3;color:#854d0e;border:1px solid #fde68a;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;"><i class="fas fa-copy"></i> Duplikat</button><button onclick="deleteAdminProgram('${p.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i> Hapus</button></td></tr>`;
+        });
         renderFeaturedAdminTable();
     }
     
@@ -1585,6 +1600,7 @@
         delete dupData.created_at;
         dupData.tgl=''; // kosongkan tanggal agar diisi ulang
         dupData.nama='[DUPLIKAT] ' + (dupData.nama||'');
+        dupData.is_active=true; // duplikat selalu aktif, terlepas status program asal
         setAdminFormData(dupData);
         editingProgramId=null; // mode insert baru
         document.getElementById('adminFormTitle').innerText='Duplikat Program — Ubah Tanggal & Simpan';
@@ -1593,6 +1609,20 @@
         document.getElementById('adminFormContainer').scrollIntoView({behavior:'smooth',block:'start'});
         showToast('📋 Program diduplikat — ubah tanggal lalu simpan!');
     }
+    async function toggleProgramActive(id, currentlyActive){
+        const newStatus = !currentlyActive;
+        try{
+            await updateProgramById(id, { is_active: newStatus });
+            const local = adminPrograms.find(p => String(p.id) === String(id));
+            if (local) local.is_active = newStatus;
+            renderAdminTable();
+            await loadDataFromSupabase(true);
+            showToast(newStatus ? '✅ Program diaktifkan kembali' : '🚫 Program dinonaktifkan — tersembunyi dari halaman publik');
+        }catch(err){
+            showToast('Gagal mengubah status: ' + err.message);
+        }
+    }
+    window.toggleProgramActive = toggleProgramActive;
     let pendingDeleteId = null;
     function deleteAdminProgram(id) {
         const prog = adminPrograms.find(p => String(p.id) === String(id));
@@ -1984,7 +2014,7 @@
         const grid = document.getElementById('featuredGrid');
         if (!grid) return;
 
-        const featuredPrograms = dataUmroh.filter(p => ids.includes(String(p.id)));
+        const featuredPrograms = dataUmroh.filter(p => ids.includes(String(p.id)) && p.is_active !== false);
 
         if (!featuredPrograms.length) {
             grid.innerHTML = '<div class="featured-empty"><i class="fa-solid fa-star"></i>Belum ada program unggulan yang dipilih.</div>';
