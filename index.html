@@ -506,6 +506,53 @@
     .admin-tab-btn.active.tab-keberangkatan{color:#0369a1;border-bottom-color:#0369a1;}
     .admin-tab-btn.active.tab-keberangkatan .tab-count{background:#eff6ff;color:#0369a1;}
 
+    /* ===== CROSSCHECK PANEL ===== */
+    .admin-tab-btn.active.tab-crosscheck{color:#7c3aed;border-bottom-color:#7c3aed;}
+    .admin-tab-btn.active.tab-crosscheck .tab-count{background:#ede9fe;color:#7c3aed;}
+    .admin-panel-section-header.crosscheck{background:linear-gradient(135deg,#faf5ff,#ede9fe);border:1px solid #c4b5fd;}
+    .cx-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+    @media(max-width:768px){.cx-grid{grid-template-columns:1fr;}}
+    .cx-block{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+    .cx-block-header{background:var(--surface2);padding:10px 14px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);display:flex;align-items:center;gap:6px;}
+    .cx-block-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
+    .cx-field{display:flex;flex-direction:column;gap:4px;}
+    .cx-label{font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px;}
+    .cx-value{font-size:13px;font-weight:600;color:var(--text-1);padding:7px 10px;background:var(--surface2);border-radius:6px;border:1px solid var(--border);min-height:34px;line-height:1.4;}
+    .cx-value.empty{color:var(--text-3);font-style:italic;font-weight:400;}
+    .cx-value.area{white-space:pre-wrap;font-size:12.5px;min-height:80px;max-height:160px;overflow-y:auto;}
+    .cx-status-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius);border:1px solid;font-size:12.5px;font-weight:700;margin-bottom:14px;}
+    .cx-status-bar.ok{background:#f0fdf4;border-color:#86efac;color:#15803d;}
+    .cx-status-bar.warn{background:#fff7ed;border-color:#fed7aa;color:#c2410c;}
+    .cx-status-bar.missing{background:#f8fafc;border-color:var(--border);color:var(--text-3);}
+    .cx-compare-row{display:flex;align-items:stretch;gap:10px;padding:10px;border-radius:var(--radius);border:1px solid var(--border);background:#fff;margin-bottom:6px;}
+    .cx-compare-col{flex:1;display:flex;flex-direction:column;gap:4px;}
+    .cx-compare-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--text-3);}
+    .cx-compare-val{font-size:12.5px;font-weight:600;color:var(--text-1);}
+    .cx-compare-val.empty{color:var(--text-3);font-style:italic;}
+    .cx-match{background:#f0fdf4!important;border-color:#86efac!important;}
+    .cx-mismatch{background:#fef2f2!important;border-color:#fecaca!important;}
+    .cx-match .cx-compare-label{color:#15803d;}
+    .cx-mismatch .cx-compare-label{color:#dc2626;}
+    .cx-divider{width:1px;background:var(--border);flex-shrink:0;}
+    .cx-match-pill{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0;align-self:center;}
+    .cx-match-pill.ok{background:#dcfce7;color:#15803d;}
+    .cx-match-pill.no{background:#fee2e2;color:#dc2626;}
+    .cx-match-pill.skip{background:var(--surface2);color:var(--text-3);}
+    .cx-program-selector{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+    .cx-program-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid var(--border);background:#fff;color:var(--text-2);cursor:pointer;transition:all var(--transition);}
+    .cx-program-pill:hover{border-color:#7c3aed;color:#7c3aed;}
+    .cx-program-pill.active{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+    .cx-empty{text-align:center;padding:40px 20px;color:var(--text-3);}
+    .cx-empty i{font-size:32px;display:block;margin-bottom:10px;opacity:.3;}
+    .cx-section-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#7c3aed;margin:16px 0 8px;display:flex;align-items:center;gap:6px;}
+    .cx-poster-area{border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;background:#faf5ff;}
+    .cx-poster-input-label{font-size:11px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+    .cx-poster-note{font-size:11.5px;color:var(--text-3);margin-top:8px;font-style:italic;}
+    .cx-save-btn{background:#7c3aed;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all var(--transition);}
+    .cx-save-btn:hover{background:#6d28d9;}
+    .cx-parse-btn{background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;padding:8px 14px;border-radius:6px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all var(--transition);}
+    .cx-parse-btn:hover{background:#7c3aed;color:#fff;}
+
     /* ===== TELEGRAM SETTINGS ===== */
     .admin-tab-btn.active.tab-telegram{color:#0088cc;border-bottom-color:#0088cc;}
     .admin-tab-btn.active.tab-telegram .tab-count{background:#e8f4fd;color:#0088cc;}
@@ -1281,6 +1328,24 @@
                     <div class="admin-form-group"><label>Link Dokumentasi</label><input type="url" id="admin_link_dokumentasi" placeholder="https://..."></div>
                     <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis" maxlength="5000"></textarea></div>
                 </div>
+                <!-- ADMIN-ONLY: Data Lengkap untuk Crosscheck -->
+                <div style="padding:0 20px;margin-bottom:4px;">
+                    <div style="font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;padding:10px 0 8px;border-top:1px dashed #c4b5fd;margin-top:4px;">
+                        <i class="fas fa-lock" style="font-size:10px;"></i> Data Lengkap Admin (untuk Crosscheck — tidak tampil di publik)
+                    </div>
+                </div>
+                <div class="admin-form-body" style="background:#faf5ff;border-top:1px solid #ede9fe;padding-top:16px;">
+                    <div class="admin-form-group"><label style="color:#7c3aed;">Harga Quad</label><input type="text" id="admin_harga_quad" placeholder="Rp 35.000.000" maxlength="50"></div>
+                    <div class="admin-form-group"><label style="color:#7c3aed;">Harga Triple</label><input type="text" id="admin_harga_triple" placeholder="Rp 37.500.000" maxlength="50"></div>
+                    <div class="admin-form-group"><label style="color:#7c3aed;">Harga Double</label><input type="text" id="admin_harga_double" placeholder="Rp 42.000.000" maxlength="50"></div>
+                    <div class="admin-form-group"><label style="color:#7c3aed;">Hotel Makkah</label><input type="text" id="admin_hotel_makkah" placeholder="Nama hotel & bintang" maxlength="100"></div>
+                    <div class="admin-form-group"><label style="color:#7c3aed;">Hotel Madinah</label><input type="text" id="admin_hotel_madinah" placeholder="Nama hotel & bintang" maxlength="100"></div>
+                    <div class="admin-form-group"><label style="color:#7c3aed;">Makan Makkah</label><input type="text" id="admin_makan_makkah" placeholder="3x Sehari / 2x Sehari" maxlength="80"></div>
+                    <div class="admin-form-group"><label style="color:#7c3aed;">Makan Madinah</label><input type="text" id="admin_makan_madinah" placeholder="3x Sehari / 2x Sehari" maxlength="80"></div>
+                    <div class="admin-form-group admin-full-width"><label style="color:#7c3aed;">Fasilitas / Termasuk</label><textarea id="admin_termasuk" rows="4" placeholder="Tiket pesawat PP&#10;Visa umroh&#10;Hotel bintang 4&#10;Muthawwif berpengalaman" maxlength="2000" style="background:#fff;"></textarea></div>
+                    <div class="admin-form-group admin-full-width"><label style="color:#7c3aed;">Tidak Termasuk</label><textarea id="admin_tidak_termasuk" rows="3" placeholder="Airport tax&#10;Biaya pengurusan paspor&#10;Pengeluaran pribadi" maxlength="1000" style="background:#fff;"></textarea></div>
+                    <div class="admin-form-group admin-full-width"><label style="color:#7c3aed;">Catatan Tambahan Admin</label><textarea id="admin_catatan_cx" rows="2" placeholder="Catatan internal untuk crosscheck..." maxlength="500" style="background:#fff;"></textarea></div>
+                </div>
                 <div class="form-actions">
                     <button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button>
                     <button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button>
@@ -1306,6 +1371,11 @@
                     <i class="fas fa-plane-departure"></i> Keberangkatan
                     <span class="tab-count" id="tabCountKeberangkatan">${kbJamaahList.length}</span>
                 </button>
+                ${isAdmin ? `
+                <button class="admin-tab-btn tab-crosscheck" onclick="switchAdminTab('crosscheck',this)">
+                    <i class="fas fa-magnifying-glass-chart"></i> Crosscheck
+                    <span class="tab-count" id="tabCountCrosscheck">0</span>
+                </button>` : ''}
                 ${isAdmin ? `
                 <button class="admin-tab-btn tab-telegram" onclick="switchAdminTab('telegram',this)">
                     <i class="fab fa-telegram"></i> Telegram
@@ -1404,6 +1474,24 @@
 
             <!-- TAB: TELEGRAM SETTINGS -->
             ${isAdmin ? `
+            <div class="admin-tab-panel" id="tab-crosscheck">
+                <div class="admin-panel-section-header crosscheck">
+                    <i class="fas fa-magnifying-glass-chart" style="color:#7c3aed;font-size:16px;"></i>
+                    <div>
+                        <div class="sec-title" style="color:#5b21b6;">Crosscheck Data Program</div>
+                        <div class="sec-sub">Simpan data lengkap dari teks plain & bandingkan dengan poster</div>
+                    </div>
+                </div>
+                <!-- Pilih program -->
+                <div style="font-size:11.5px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Pilih Program:</div>
+                <div class="cx-program-selector" id="cxProgramSelector"></div>
+                <div id="cxPanelContent">
+                    <div class="cx-empty"><i class="fa-solid fa-magnifying-glass-chart"></i><p>Pilih program di atas untuk melihat data crosscheck.</p></div>
+                </div>
+            </div>` : ''}
+
+            <!-- TAB: TELEGRAM SETTINGS -->
+            ${isAdmin ? `
             <div class="admin-tab-panel" id="tab-telegram">
                 <div class="admin-panel-section-header telegram">
                     <i class="fab fa-telegram" style="color:#0088cc;font-size:18px;"></i>
@@ -1484,6 +1572,10 @@
             } else {
                 loadKbJamaah().then(() => renderKbAdminSelector());
             }
+        }
+        if (name === 'crosscheck') {
+            renderCxProgramSelector();
+            if (cxSelectedProgram) renderCxPanel(cxSelectedProgram);
         }
         if (name === 'telegram') {
             renderTgRecipients();
@@ -1632,7 +1724,18 @@
             link_metaads: document.getElementById('admin_link_metaads')?.value||'', 
             link_dokumentasi: document.getElementById('admin_link_dokumentasi')?.value||'', 
             harga_quint: document.getElementById('admin_harga_quint')?.value||'', 
-            teks_wa: document.getElementById('admin_teks_wa')?.value||'' 
+            teks_wa: document.getElementById('admin_teks_wa')?.value||'',
+            // Admin-only fields (disimpan di admin_data_lengkap JSON)
+            harga_quad: document.getElementById('admin_harga_quad')?.value||'',
+            harga_triple: document.getElementById('admin_harga_triple')?.value||'',
+            harga_double: document.getElementById('admin_harga_double')?.value||'',
+            hotel_makkah: document.getElementById('admin_hotel_makkah')?.value||'',
+            hotel_madinah: document.getElementById('admin_hotel_madinah')?.value||'',
+            makan_makkah: document.getElementById('admin_makan_makkah')?.value||'',
+            makan_madinah: document.getElementById('admin_makan_madinah')?.value||'',
+            termasuk: document.getElementById('admin_termasuk')?.value||'',
+            tidak_termasuk: document.getElementById('admin_tidak_termasuk')?.value||'',
+            catatan_cx: document.getElementById('admin_catatan_cx')?.value||''
         }; 
     }
     
@@ -1648,7 +1751,20 @@
         document.getElementById('admin_link_metaads')&&(document.getElementById('admin_link_metaads').value=data.link_metaads||''); 
         document.getElementById('admin_link_dokumentasi')&&(document.getElementById('admin_link_dokumentasi').value=data.link_dokumentasi||''); 
         document.getElementById('admin_harga_quint')&&(document.getElementById('admin_harga_quint').value=data.harga_quint||''); 
-        document.getElementById('admin_teks_wa')&&(document.getElementById('admin_teks_wa').value=data.teks_wa||''); 
+        document.getElementById('admin_teks_wa')&&(document.getElementById('admin_teks_wa').value=data.teks_wa||'');
+        // Admin-only fields: baca dari admin_data_lengkap (JSON) atau langsung dari data
+        const adl = (() => { try { return data.admin_data_lengkap ? (typeof data.admin_data_lengkap === 'string' ? JSON.parse(data.admin_data_lengkap) : data.admin_data_lengkap) : {}; } catch(e) { return {}; } })();
+        const setV = (id, val) => { const el=document.getElementById(id); if(el) el.value = val||''; };
+        setV('admin_harga_quad',      data.harga_quad      || adl.harga_quad      || '');
+        setV('admin_harga_triple',    data.harga_triple    || adl.harga_triple    || '');
+        setV('admin_harga_double',    data.harga_double    || adl.harga_double    || '');
+        setV('admin_hotel_makkah',    data.hotel_makkah    || adl.hotel_makkah    || '');
+        setV('admin_hotel_madinah',   data.hotel_madinah   || adl.hotel_madinah   || '');
+        setV('admin_makan_makkah',    data.makan_makkah    || adl.makan_makkah    || '');
+        setV('admin_makan_madinah',   data.makan_madinah   || adl.makan_madinah   || '');
+        setV('admin_termasuk',        data.termasuk        || adl.termasuk        || '');
+        setV('admin_tidak_termasuk',  data.tidak_termasuk  || adl.tidak_termasuk  || '');
+        setV('admin_catatan_cx',      data.catatan_cx      || adl.catatan_cx      || '');
     }
     
     function showAdminForm() {
@@ -1683,10 +1799,19 @@
             }
         }
         
-        if(!formData.teks_wa)formData.teks_wa=generateAutoWAText(formData); 
+        if(!formData.teks_wa)formData.teks_wa=generateAutoWAText(formData);
+
+        // Pack admin-only fields ke admin_data_lengkap JSON
+        const adminOnlyFields = ['harga_quad','harga_triple','harga_double','hotel_makkah','hotel_madinah','makan_makkah','makan_madinah','termasuk','tidak_termasuk','catatan_cx'];
+        const adl = {};
+        adminOnlyFields.forEach(f => { if(formData[f]) adl[f] = formData[f]; });
+        const saveData = { ...formData };
+        adminOnlyFields.forEach(f => delete saveData[f]);
+        if (Object.keys(adl).length > 0) saveData.admin_data_lengkap = JSON.stringify(adl);
+
         try{
             const isEdit = !!editingProgramId;
-            if(editingProgramId)await updateProgramById(editingProgramId,formData);else await insertProgram(formData);
+            if(editingProgramId)await updateProgramById(editingProgramId,saveData);else await insertProgram(saveData);
             await loadDataFromSupabase(true);await renderAdminPanel();hideAdminForm();showToast('Program berhasil disimpan!');
             // Kirim notif Telegram
             sendTelegramNotif(formatTgProgram(formData, isEdit), 'program');
@@ -1978,6 +2103,7 @@
 
         const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
         const clean = s => s.replace(/^\*+|\*+$/g, '').trim();
+        const cleanAll = s => s.replace(/\*/g, '').trim();
 
         // Nama: baris pertama bold *...*
         let nama = '';
@@ -1999,22 +2125,33 @@
             if (/pesawat/i.test(clean(lines[i]))) { maskapai = clean(lines[i + 1]); break; }
         }
 
-        // Harga Quad: baris mengandung "quard" atau "quad"
-        let harga = '';
+        // === HARGA SEMUA TIPE ===
+        const parseHarga = (txt) => {
+            const m = txt.replace(/\./g,'').match(/(\d{5,})/);
+            return m ? 'Rp ' + parseInt(m[1]).toLocaleString('id-ID') : '';
+        };
+
+        let harga_quint = '', harga_quad = '', harga_triple = '', harga_double = '';
         for (const l of lines) {
-            if (/qu[ao]r[da]/i.test(l)) {
-                const m = l.replace(/\./g, '').match(/(\d{5,})/);
-                if (m) { harga = 'Rp ' + parseInt(m[1]).toLocaleString('id-ID'); break; }
+            const lc = l.toLowerCase();
+            if (/qu[ai]n[dt]/.test(lc) || /quint/.test(lc)) {
+                if (!harga_quint) harga_quint = parseHarga(l);
+            } else if (/qu[ao]r[da]/.test(lc) || /quad/.test(lc)) {
+                if (!harga_quad) harga_quad = parseHarga(l);
+            } else if (/triple|tripel/.test(lc)) {
+                if (!harga_triple) harga_triple = parseHarga(l);
+            } else if (/double|dbl/.test(lc)) {
+                if (!harga_double) harga_double = parseHarga(l);
             }
         }
-        // fallback: angka pertama di bawah *BIAYA PROGRAM*
-        if (!harga) {
+        // fallback harga quint: angka pertama di bawah *BIAYA PROGRAM*
+        if (!harga_quint) {
             let inBiaya = false;
             for (const l of lines) {
                 if (/biaya program/i.test(clean(l))) { inBiaya = true; continue; }
                 if (inBiaya) {
-                    const m = l.replace(/\./g, '').match(/(\d{5,})/);
-                    if (m) { harga = 'Rp ' + parseInt(m[1]).toLocaleString('id-ID'); break; }
+                    const m = parseHarga(l);
+                    if (m) { harga_quint = m; break; }
                 }
             }
         }
@@ -2023,17 +2160,62 @@
         let tglISO = '';
         const BULAN = {januari:'01',februari:'02',maret:'03',april:'04',mei:'05',juni:'06',juli:'07',agustus:'08',september:'09',oktober:'10',november:'11',desember:'12'};
         for (const l of lines) {
-            // "17 - 26 September 2026" atau "17-26 September 2026"
             let m = l.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
             if (m) {
                 const bln = BULAN[m[3].toLowerCase()];
                 if (bln) { tglISO = m[4] + '-' + bln + '-' + m[2].padStart(2,'0'); break; }
             }
-            // "17 September 2026"
             m = l.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
             if (m) {
                 const bln = BULAN[m[2].toLowerCase()];
                 if (bln) { tglISO = m[3] + '-' + bln + '-' + m[1].padStart(2,'0'); break; }
+            }
+        }
+
+        // === HOTEL ===
+        let hotel_makkah = '', hotel_madinah = '';
+        for (let i = 0; i < lines.length; i++) {
+            const lc = cleanAll(lines[i]).toLowerCase();
+            if (/hotel\s*makkah|hotel\s*mekkah|makkah\s*hotel/.test(lc) && i+1 < lines.length) {
+                hotel_makkah = cleanAll(lines[i+1]); continue;
+            }
+            if (/hotel\s*madinah|madinah\s*hotel/.test(lc) && i+1 < lines.length) {
+                hotel_madinah = cleanAll(lines[i+1]); continue;
+            }
+            // Inline: "Hotel Makkah : Hilton xxx"
+            const mMakkah = lines[i].match(/hotel\s*(?:makkah|mekkah)\s*[:\-]\s*(.+)/i);
+            if (mMakkah && !hotel_makkah) { hotel_makkah = cleanAll(mMakkah[1]); continue; }
+            const mMadinah = lines[i].match(/hotel\s*madinah\s*[:\-]\s*(.+)/i);
+            if (mMadinah && !hotel_madinah) { hotel_madinah = cleanAll(mMadinah[1]); }
+        }
+
+        // === MAKAN ===
+        let makan_makkah = '', makan_madinah = '';
+        for (const l of lines) {
+            const lc = l.toLowerCase();
+            const mMakkah = l.match(/makan(?:an)?\s*(?:makkah|mekkah)\s*[:\-]\s*(.+)/i);
+            if (mMakkah && !makan_makkah) { makan_makkah = cleanAll(mMakkah[1]); continue; }
+            const mMadinah = l.match(/makan(?:an)?\s*madinah\s*[:\-]\s*(.+)/i);
+            if (mMadinah && !makan_madinah) { makan_madinah = cleanAll(mMadinah[1]); continue; }
+            if (/makan|konsumsi/i.test(lc)) {
+                const m3x = l.match(/(\d+\s*[xX]\s*(?:sehari|sehari|makan))/i);
+                if (m3x) { if (!makan_makkah) makan_makkah = m3x[1]; else if (!makan_madinah) makan_madinah = m3x[1]; }
+            }
+        }
+
+        // === FASILITAS TERMASUK & TIDAK TERMASUK ===
+        let termasuk = [], tidak_termasuk = [];
+        let mode = null;
+        for (const l of lines) {
+            const lc = cleanAll(l).toLowerCase();
+            if (/tidak\s*termasuk|not\s*include/i.test(lc)) { mode = 'tidak'; continue; }
+            if (/termasuk|include|fasilitas/i.test(lc)) { mode = 'termasuk'; continue; }
+            if (mode === 'termasuk' && /^[-✓•✈🕌🚌🍽️★]|^\d+\./i.test(l)) {
+                const item = cleanAll(l).replace(/^[-✓•✈🕌🚌🍽️★\d.]+\s*/,'').trim();
+                if (item) termasuk.push(item);
+            } else if (mode === 'tidak' && /^[-✓•✈🕌🚌🍽️★]|^\d+\./i.test(l)) {
+                const item = cleanAll(l).replace(/^[-✓•✈🕌🚌🍽️★\d.]+\s*/,'').trim();
+                if (item) tidak_termasuk.push(item);
             }
         }
 
@@ -2046,28 +2228,47 @@
             if (found) sel.value = found.value;
         }
 
-        // Isi form
+        // Isi form publik
         if (nama)   document.getElementById('admin_nama').value = nama;
         if (durasi) document.getElementById('admin_durasi').value = durasi;
-        if (harga)  document.getElementById('admin_harga_quint').value = harga;
+        if (harga_quint)  document.getElementById('admin_harga_quint').value = harga_quint;
         if (tglISO) {
             const tglInput = document.getElementById('admin_tgl_date');
             if (tglInput) { tglInput.value = tglISO; tglInput.dispatchEvent(new Event('change')); }
         }
         document.getElementById('admin_teks_wa').value = raw;
 
-        // Tampilkan status
+        // Isi field admin-only
+        const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+        setVal('admin_harga_quad', harga_quad);
+        setVal('admin_harga_triple', harga_triple);
+        setVal('admin_harga_double', harga_double);
+        setVal('admin_hotel_makkah', hotel_makkah);
+        setVal('admin_hotel_madinah', hotel_madinah);
+        setVal('admin_makan_makkah', makan_makkah);
+        setVal('admin_makan_madinah', makan_madinah);
+        if (termasuk.length) setVal('admin_termasuk', termasuk.join('\n'));
+        if (tidak_termasuk.length) setVal('admin_tidak_termasuk', tidak_termasuk.join('\n'));
+
+        // Status
         const parts = [];
         if (nama) parts.push('Nama');
         if (durasi) parts.push('Durasi');
         if (maskapai) parts.push('Maskapai');
-        if (harga) parts.push('Harga');
+        if (harga_quint) parts.push('Harga Quint');
+        if (harga_quad) parts.push('Quad');
+        if (harga_triple) parts.push('Triple');
+        if (harga_double) parts.push('Double');
+        if (hotel_makkah) parts.push('Hotel Makkah');
+        if (hotel_madinah) parts.push('Hotel Madinah');
         if (tglISO) parts.push('Tanggal');
+        if (termasuk.length) parts.push('Fasilitas (' + termasuk.length + ' item)');
+
         const status = document.getElementById('parseStatus');
         status.textContent = '\u2713 Terisi: ' + parts.join(', ');
         status.style.display = 'inline';
-        setTimeout(() => status.style.display = 'none', 4000);
-        showToast('Form berhasil diisi otomatis');
+        setTimeout(() => status.style.display = 'none', 6000);
+        showToast('Form berhasil diisi otomatis (' + parts.length + ' field)');
     };
     window.resetSearch=resetSearch;window.openAdminModal=openAdminModal;window.closeAdminModal=closeAdminModal;window.checkAdminLogin=checkAdminLogin;window.logoutAdmin=logoutAdmin;window.showAdminForm=showAdminForm;window.hideAdminForm=hideAdminForm;window.saveAdminProgram=saveAdminProgram;window.editAdminProgram=editAdminProgram;window.duplicateAdminProgram=duplicateAdminProgram;window.deleteAdminProgram=deleteAdminProgram;window.clearAllAdminData=clearAllAdminData;window.exportAdminData=exportAdminData;window.importAdminData=importAdminData;window.previewAdminWA=previewAdminWA;window.sortAdminTable=sortAdminTable;window.openDetailModal=openDetailModal;window.closeDetailModal=closeDetailModal;window.copyDetailWAText=copyDetailWAText;
 
@@ -2958,6 +3159,243 @@
     window.testTgNotif        = testTgNotif;
     window.renderTgRecipients = renderTgRecipients;
     // ========== END TELEGRAM ==========
+
+    // ========== CROSSCHECK PANEL ==========
+    let cxSelectedProgram = null;
+
+    function renderCxProgramSelector() {
+        const sel = document.getElementById('cxProgramSelector');
+        if (!sel) return;
+        if (!adminPrograms || !adminPrograms.length) {
+            sel.innerHTML = '<div style="font-size:13px;color:var(--text-3);font-style:italic;">Belum ada program.</div>';
+            return;
+        }
+        sel.innerHTML = adminPrograms.map(p => {
+            const adl = (() => { try { return p.admin_data_lengkap ? (typeof p.admin_data_lengkap === 'string' ? JSON.parse(p.admin_data_lengkap) : p.admin_data_lengkap) : null; } catch(e) { return null; } })();
+            const hasData = adl && Object.keys(adl).length > 0;
+            const isActive = String(cxSelectedProgram) === String(p.id);
+            return `<button class="cx-program-pill${isActive?' active':''}" onclick="selectCxProgram('${p.id}')">
+                ${escapeHtml(p.nama||'Program')}
+                ${hasData ? '<i class="fas fa-circle-check" style="color:#86efac;font-size:9px;margin-left:2px;" title="Ada data lengkap"></i>' : ''}
+            </button>`;
+        }).join('');
+        // Update badge
+        const badge = document.getElementById('tabCountCrosscheck');
+        if (badge) badge.textContent = adminPrograms.filter(p => p.admin_data_lengkap).length;
+    }
+
+    function selectCxProgram(id) {
+        cxSelectedProgram = id;
+        renderCxProgramSelector();
+        renderCxPanel(id);
+    }
+
+    function renderCxPanel(progId) {
+        const content = document.getElementById('cxPanelContent');
+        if (!content) return;
+        const prog = adminPrograms.find(p => String(p.id) === String(progId));
+        if (!prog) {
+            content.innerHTML = '<div class="cx-empty"><i class="fa-solid fa-magnifying-glass-chart"></i><p>Program tidak ditemukan.</p></div>';
+            return;
+        }
+        const adl = (() => { try { return prog.admin_data_lengkap ? (typeof prog.admin_data_lengkap === 'string' ? JSON.parse(prog.admin_data_lengkap) : prog.admin_data_lengkap) : {}; } catch(e) { return {}; } })();
+        const val = (v) => v ? escapeHtml(v) : '<span class="cx-value empty">—</span>';
+        const hasAdl = Object.keys(adl).length > 0;
+        const hasPoster = !!prog.link_poster;
+
+        // Bangun rows perbandingan
+        const buildCompareRows = () => {
+            const rows = [
+                { label: 'Nama Program',    plain: prog.nama,          poster: null, field: 'nama' },
+                { label: 'Tanggal',         plain: prog.tgl,           poster: null, field: 'tgl' },
+                { label: 'Durasi',          plain: prog.durasi,        poster: null, field: 'durasi' },
+                { label: 'Maskapai',        plain: prog.maskapai,      poster: null, field: 'maskapai' },
+                { label: 'Harga Quint',     plain: prog.harga_quint,   poster: null, field: 'harga_quint' },
+                { label: 'Harga Quad',      plain: adl.harga_quad,     poster: null, field: 'harga_quad' },
+                { label: 'Harga Triple',    plain: adl.harga_triple,   poster: null, field: 'harga_triple' },
+                { label: 'Harga Double',    plain: adl.harga_double,   poster: null, field: 'harga_double' },
+                { label: 'Hotel Makkah',    plain: adl.hotel_makkah,   poster: null, field: 'hotel_makkah' },
+                { label: 'Hotel Madinah',   plain: adl.hotel_madinah,  poster: null, field: 'hotel_madinah' },
+                { label: 'Makan Makkah',    plain: adl.makan_makkah,   poster: null, field: 'makan_makkah' },
+                { label: 'Makan Madinah',   plain: adl.makan_madinah,  poster: null, field: 'makan_madinah' },
+            ];
+            // Baca data poster (dari adl.poster_data jika sudah disimpan)
+            const pd = (() => { try { return adl.poster_data ? (typeof adl.poster_data === 'string' ? JSON.parse(adl.poster_data) : adl.poster_data) : {}; } catch(e) { return {}; } })();
+            rows.forEach(r => { if (pd[r.field]) r.poster = pd[r.field]; });
+
+            return rows.map(r => {
+                const hasBoth = r.plain && r.poster;
+                const isMatch = hasBoth && r.plain.toLowerCase().trim() === r.poster.toLowerCase().trim();
+                const rowClass = hasBoth ? (isMatch ? 'cx-match' : 'cx-mismatch') : '';
+                const pill = hasBoth ? `<span class="cx-match-pill ${isMatch?'ok':'no'}">${isMatch?'✓ Cocok':'✗ Beda'}</span>` : `<span class="cx-match-pill skip">—</span>`;
+                return `<div class="cx-compare-row ${rowClass}">
+                    <div class="cx-compare-col">
+                        <div class="cx-compare-label"><i class="fas fa-file-text" style="margin-right:3px;font-size:8px;"></i>Teks Plain</div>
+                        <div class="cx-compare-val ${r.plain?'':'empty'}">${r.plain ? escapeHtml(r.plain) : '—'}</div>
+                    </div>
+                    <div class="cx-divider"></div>
+                    <div class="cx-compare-col">
+                        <div class="cx-compare-label"><i class="fas fa-image" style="margin-right:3px;font-size:8px;"></i>Poster</div>
+                        <div class="cx-compare-val ${r.poster?'':'empty'}">${r.poster ? escapeHtml(r.poster) : '—'}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;padding-left:8px;">
+                        <div class="cx-compare-label" style="margin-bottom:4px;text-align:center;min-width:60px;">${escapeHtml(r.label)}</div>
+                    </div>
+                    ${pill}
+                </div>`;
+            }).join('');
+        };
+
+        content.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+            <div style="font-size:14px;font-weight:700;color:#5b21b6;">${escapeHtml(prog.nama||'Program')}</div>
+            <div style="display:flex;gap:8px;">
+                <button class="cx-parse-btn" onclick="openCxEditModal('${prog.id}')"><i class="fas fa-edit"></i> Input Data Poster</button>
+                ${hasPoster ? `<button class="cx-parse-btn" onclick="window.open('${escapeHtml(prog.link_poster)}','_blank')"><i class="fas fa-image"></i> Lihat Poster</button>` : ''}
+            </div>
+        </div>
+
+        <!-- Status banner -->
+        <div class="cx-status-bar ${hasAdl ? 'ok' : 'missing'}">
+            <i class="fas fa-${hasAdl ? 'circle-check' : 'circle-info'}"></i>
+            ${hasAdl ? 'Data lengkap tersedia. ' + (adl.poster_data ? 'Data poster sudah diinput — lihat perbandingan di bawah.' : 'Data poster belum diinput. Klik <b>Input Data Poster</b> untuk crosscheck.') : 'Belum ada data lengkap. Paste teks plain di form tambah/edit program lalu simpan.'}
+        </div>
+
+        <!-- Data dari teks plain -->
+        <div class="cx-section-title"><i class="fas fa-file-lines"></i> Data dari Teks Plain (Konsep)</div>
+        <div class="cx-grid">
+            <div class="cx-block">
+                <div class="cx-block-header"><i class="fas fa-tag"></i> Harga</div>
+                <div class="cx-block-body">
+                    <div class="cx-field"><div class="cx-label">Quint (5 org)</div><div class="cx-value">${val(prog.harga_quint)}</div></div>
+                    <div class="cx-field"><div class="cx-label">Quad (4 org)</div><div class="cx-value">${val(adl.harga_quad)}</div></div>
+                    <div class="cx-field"><div class="cx-label">Triple (3 org)</div><div class="cx-value">${val(adl.harga_triple)}</div></div>
+                    <div class="cx-field"><div class="cx-label">Double (2 org)</div><div class="cx-value">${val(adl.harga_double)}</div></div>
+                </div>
+            </div>
+            <div class="cx-block">
+                <div class="cx-block-header"><i class="fas fa-hotel"></i> Hotel & Konsumsi</div>
+                <div class="cx-block-body">
+                    <div class="cx-field"><div class="cx-label">Hotel Makkah</div><div class="cx-value">${val(adl.hotel_makkah)}</div></div>
+                    <div class="cx-field"><div class="cx-label">Hotel Madinah</div><div class="cx-value">${val(adl.hotel_madinah)}</div></div>
+                    <div class="cx-field"><div class="cx-label">Makan Makkah</div><div class="cx-value">${val(adl.makan_makkah)}</div></div>
+                    <div class="cx-field"><div class="cx-label">Makan Madinah</div><div class="cx-value">${val(adl.makan_madinah)}</div></div>
+                </div>
+            </div>
+            <div class="cx-block" style="grid-column:1/-1;">
+                <div class="cx-block-header"><i class="fas fa-circle-check" style="color:#16a34a;"></i> Termasuk dalam Paket</div>
+                <div class="cx-block-body"><div class="cx-value area">${adl.termasuk ? escapeHtml(adl.termasuk) : '<span class="empty" style="color:var(--text-3);font-style:italic;">Belum diisi</span>'}</div></div>
+            </div>
+            <div class="cx-block" style="grid-column:1/-1;">
+                <div class="cx-block-header"><i class="fas fa-circle-xmark" style="color:#dc2626;"></i> Tidak Termasuk</div>
+                <div class="cx-block-body"><div class="cx-value area">${adl.tidak_termasuk ? escapeHtml(adl.tidak_termasuk) : '<span class="empty" style="color:var(--text-3);font-style:italic;">Belum diisi</span>'}</div></div>
+            </div>
+            ${adl.catatan_cx ? `<div class="cx-block" style="grid-column:1/-1;">
+                <div class="cx-block-header"><i class="fas fa-note-sticky"></i> Catatan Admin</div>
+                <div class="cx-block-body"><div class="cx-value area">${escapeHtml(adl.catatan_cx)}</div></div>
+            </div>` : ''}
+        </div>
+
+        <!-- Perbandingan dengan poster -->
+        ${adl.poster_data ? `
+        <div class="cx-section-title" style="margin-top:20px;"><i class="fas fa-code-compare"></i> Perbandingan: Teks Plain vs Poster</div>
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:10px;"><i class="fas fa-circle-check" style="color:#86efac;"></i> Hijau = cocok &nbsp; <i class="fas fa-circle-xmark" style="color:#fca5a5;"></i> Merah = tidak sesuai</div>
+        ${buildCompareRows()}
+        ` : ''}
+        `;
+    }
+
+    // Modal untuk input data poster (untuk crosscheck)
+    function openCxEditModal(progId) {
+        const prog = adminPrograms.find(p => String(p.id) === String(progId));
+        if (!prog) return;
+        const adl = (() => { try { return prog.admin_data_lengkap ? (typeof prog.admin_data_lengkap === 'string' ? JSON.parse(prog.admin_data_lengkap) : prog.admin_data_lengkap) : {}; } catch(e) { return {}; } })();
+        const pd = adl.poster_data || {};
+
+        // Buat modal dinamis
+        let modal = document.getElementById('cxEditModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'cxEditModal';
+            modal.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:40000;overflow-y:auto;padding:24px;backdrop-filter:blur(4px);';
+            document.body.appendChild(modal);
+        }
+        const fields = [
+            { key: 'nama',          label: 'Nama Program',  val: pd.nama    || prog.nama    || '' },
+            { key: 'tgl',           label: 'Tanggal',       val: pd.tgl     || prog.tgl     || '' },
+            { key: 'durasi',        label: 'Durasi',        val: pd.durasi  || prog.durasi  || '' },
+            { key: 'maskapai',      label: 'Maskapai',      val: pd.maskapai|| prog.maskapai|| '' },
+            { key: 'harga_quint',   label: 'Harga Quint',   val: pd.harga_quint  || prog.harga_quint  || '' },
+            { key: 'harga_quad',    label: 'Harga Quad',    val: pd.harga_quad   || adl.harga_quad    || '' },
+            { key: 'harga_triple',  label: 'Harga Triple',  val: pd.harga_triple || adl.harga_triple  || '' },
+            { key: 'harga_double',  label: 'Harga Double',  val: pd.harga_double || adl.harga_double  || '' },
+            { key: 'hotel_makkah',  label: 'Hotel Makkah',  val: pd.hotel_makkah || adl.hotel_makkah  || '' },
+            { key: 'hotel_madinah', label: 'Hotel Madinah', val: pd.hotel_madinah|| adl.hotel_madinah || '' },
+            { key: 'makan_makkah',  label: 'Makan Makkah',  val: pd.makan_makkah || adl.makan_makkah  || '' },
+            { key: 'makan_madinah', label: 'Makan Madinah', val: pd.makan_madinah|| adl.makan_madinah || '' },
+        ];
+
+        modal.innerHTML = `
+        <div style="max-width:600px;width:100%;background:#fff;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);margin:0 auto;animation:modalFadeIn .25s ease;">
+            <div style="background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div style="font-size:16px;font-weight:700;">Input Data Poster</div>
+                    <div style="font-size:11.5px;opacity:.8;margin-top:3px;">Ketik data yang tampil di poster untuk crosscheck</div>
+                </div>
+                <button onclick="document.getElementById('cxEditModal').style.display='none'" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;width:34px;height:34px;border-radius:6px;">×</button>
+            </div>
+            <div style="padding:20px;">
+                <div style="background:#faf5ff;border:1px solid #ede9fe;border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;color:#5b21b6;display:flex;gap:8px;align-items:flex-start;">
+                    <i class="fas fa-circle-info" style="margin-top:1px;flex-shrink:0;"></i>
+                    <span>Arahkan pointer ke nama program untuk melihat poster, lalu ketik data yang tertera di poster ke kolom di bawah ini.</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    ${fields.map(f => `
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        <label style="font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px;">${escapeHtml(f.label)}</label>
+                        <input type="text" id="cxp_${f.key}" value="${escapeHtml(f.val)}" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;" placeholder="Dari poster...">
+                    </div>`).join('')}
+                </div>
+                <div style="display:flex;gap:8px;margin-top:18px;">
+                    <button class="cx-save-btn" onclick="saveCxPosterData('${prog.id}')"><i class="fas fa-save"></i> Simpan & Bandingkan</button>
+                    <button class="cx-parse-btn" onclick="document.getElementById('cxEditModal').style.display='none'">Batal</button>
+                </div>
+            </div>
+        </div>`;
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+    }
+
+    async function saveCxPosterData(progId) {
+        const prog = adminPrograms.find(p => String(p.id) === String(progId));
+        if (!prog) return;
+        const adl = (() => { try { return prog.admin_data_lengkap ? (typeof prog.admin_data_lengkap === 'string' ? JSON.parse(prog.admin_data_lengkap) : prog.admin_data_lengkap) : {}; } catch(e) { return {}; } })();
+        const keys = ['nama','tgl','durasi','maskapai','harga_quint','harga_quad','harga_triple','harga_double','hotel_makkah','hotel_madinah','makan_makkah','makan_madinah'];
+        const pd = {};
+        keys.forEach(k => {
+            const el = document.getElementById('cxp_' + k);
+            if (el && el.value.trim()) pd[k] = el.value.trim();
+        });
+        adl.poster_data = pd;
+        try {
+            await updateProgramById(progId, { admin_data_lengkap: JSON.stringify(adl) });
+            // Update local
+            const idx = adminPrograms.findIndex(p => String(p.id) === String(progId));
+            if (idx >= 0) adminPrograms[idx].admin_data_lengkap = JSON.stringify(adl);
+            document.getElementById('cxEditModal').style.display = 'none';
+            renderCxProgramSelector();
+            renderCxPanel(progId);
+            showToast('✅ Data poster disimpan — crosscheck siap!');
+        } catch(err) {
+            showToast('❌ Gagal simpan: ' + err.message);
+        }
+    }
+
+    window.selectCxProgram = selectCxProgram;
+    window.openCxEditModal = openCxEditModal;
+    window.saveCxPosterData = saveCxPosterData;
+    // ========== END CROSSCHECK ==========
     (async () => {
         initInfoBar();
         await loadUserRoles();
