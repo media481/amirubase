@@ -1762,6 +1762,17 @@
     window.closeDrawer=()=>{const ov=document.getElementById('mobileOverlay');ov&&(ov.classList.remove('open'),document.body.style.overflow='');};
 
     // ===== POSTER HOVER POPUP =====
+    function resolveImageUrl(url) {
+        if (!url) return url;
+        // Google Drive: /file/d/ID/view atau /file/d/ID/view?usp=...
+        const gdMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (gdMatch) return `https://drive.google.com/thumbnail?id=${gdMatch[1]}&sz=w400`;
+        // Google Drive: open?id=ID
+        const gdOpen = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+        if (gdOpen) return `https://drive.google.com/thumbnail?id=${gdOpen[1]}&sz=w400`;
+        return url;
+    }
+
     let _posterHideTimer = null;
     function showPosterPopup(e, el) {
         clearTimeout(_posterHideTimer);
@@ -1770,7 +1781,7 @@
         const loading = document.getElementById('posterPopupLoading');
         const errEl = document.getElementById('posterPopupError');
         const nameEl = document.getElementById('posterPopupName');
-        const posterUrl = el.getAttribute('data-poster');
+        const posterUrl = resolveImageUrl(el.getAttribute('data-poster'));
         const posterNama = el.getAttribute('data-nama');
         // Reset state
         img.style.display = 'none';
