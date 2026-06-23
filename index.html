@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js"></script>
     <style>
         /* ========== CSS MINIFIED ========== */
         :root{--primary:#1a6fa8;--primary-light:#2580be;--primary-subtle:#e8f4fd;--accent:#0ea5e9;--white:#fff;--bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text-1:#0f172a;--text-2:#475569;--text-3:#94a3b8;--green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;--red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;--blue-bg:#eff6ff;--blue-text:#1d4ed8;--whatsapp:#25D366;--whatsapp-dark:#128C7E;--shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);--shadow-lg:0 10px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.02);--radius:8px;--radius-lg:12px;--transition:0.15s ease;}
@@ -552,6 +553,20 @@
     .cx-save-btn:hover{background:#6d28d9;}
     .cx-parse-btn{background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;padding:8px 14px;border-radius:6px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all var(--transition);}
     .cx-parse-btn:hover{background:#7c3aed;color:#fff;}
+    .cx-parse-btn:disabled{opacity:.5;cursor:not-allowed;}
+    .cx-program-pill.has-warning{border-color:#fca5a5;}
+    .cx-program-pill .cx-pill-warn{color:#dc2626;margin-left:2px;font-size:9px;}
+    .cx-status-bar.warn{background:#fff7ed;border-color:#fed7aa;color:#c2410c;}
+    .cx-status-bar.scanning{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+    .cx-status-bar.scanning i{animation:cxSpin 1s linear infinite;}
+    @keyframes cxSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+    .cx-ocr-progress-wrap{margin-top:8px;background:rgba(255,255,255,.6);border-radius:20px;height:6px;overflow:hidden;}
+    .cx-ocr-progress-bar{height:100%;background:#1d4ed8;border-radius:20px;transition:width .2s ease;}
+    .cx-ocr-badge{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:20px;background:#eff6ff;color:#1d4ed8;margin-left:6px;vertical-align:middle;}
+    .cx-mismatch-count{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;background:#fee2e2;color:#dc2626;}
+    .cx-source-tag{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:1px 6px;border-radius:10px;margin-left:6px;}
+    .cx-source-tag.ocr{background:#dbeafe;color:#1d4ed8;}
+    .cx-source-tag.manual{background:#f3e8ff;color:#7c3aed;}
 
     /* ===== TELEGRAM SETTINGS ===== */
     .admin-tab-btn.active.tab-telegram{color:#0088cc;border-bottom-color:#0088cc;}
@@ -1479,7 +1494,7 @@
                     <i class="fas fa-magnifying-glass-chart" style="color:#7c3aed;font-size:16px;"></i>
                     <div>
                         <div class="sec-title" style="color:#5b21b6;">Crosscheck Data Program</div>
-                        <div class="sec-sub">Simpan data lengkap dari teks plain & bandingkan dengan poster</div>
+                        <div class="sec-sub">Poster dibaca otomatis (OCR) & dibandingkan dengan teks plain saat program disimpan</div>
                     </div>
                 </div>
                 <!-- Pilih program -->
@@ -1811,10 +1826,16 @@
 
         try{
             const isEdit = !!editingProgramId;
-            if(editingProgramId)await updateProgramById(editingProgramId,saveData);else await insertProgram(saveData);
+            let savedRow;
+            if(editingProgramId){ savedRow = await updateProgramById(editingProgramId,saveData); savedRow = savedRow || {id: editingProgramId}; }
+            else { savedRow = await insertProgram(saveData); }
             await loadDataFromSupabase(true);await renderAdminPanel();hideAdminForm();showToast('Program berhasil disimpan!');
             // Kirim notif Telegram
             sendTelegramNotif(formatTgProgram(formData, isEdit), 'program');
+            // Crosscheck otomatis: kalau ada link poster, baca & bandingkan otomatis di background (tidak menghalangi UI)
+            if (saveData.link_poster && savedRow && savedRow.id) {
+                autoScanPosterForProgram(savedRow.id);
+            }
         }catch(err){showToast('Gagal: '+err.message);} 
     }
     
@@ -3172,6 +3193,161 @@
 
     // ========== CROSSCHECK PANEL ==========
     let cxSelectedProgram = null;
+    let cxScanningIds = new Set(); // program id yang sedang di-OCR
+    let cxOcrProgress = {}; // {progId: 0..100}
+
+    // ---- OCR ENGINE (Tesseract.js) ----
+    async function cxLoadImageAsBlobUrl(url) {
+        // Ambil via fetch supaya tahan masalah hotlink/cache, fallback ke url langsung jika gagal
+        try {
+            const res = await fetch(url, { mode: 'cors' });
+            if (!res.ok) throw new Error('fetch gagal');
+            const blob = await res.blob();
+            return URL.createObjectURL(blob);
+        } catch (e) {
+            return url; // fallback: biarkan Tesseract fetch langsung
+        }
+    }
+
+    async function cxRunOcr(progId, imageUrl, onProgress) {
+        const blobUrl = await cxLoadImageAsBlobUrl(imageUrl);
+        try {
+            const result = await Tesseract.recognize(blobUrl, 'ind+eng', {
+                logger: (m) => {
+                    if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+                        onProgress(Math.round(m.progress * 100));
+                    }
+                }
+            });
+            return result.data.text || '';
+        } finally {
+            if (blobUrl.startsWith('blob:')) URL.revokeObjectURL(blobUrl);
+        }
+    }
+
+    // ---- PARSER: teks mentah hasil OCR -> field terstruktur ----
+    function cxParsePosterText(raw) {
+        const text = (raw || '').replace(/\r/g, '');
+        const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+        const flat = lines.join(' | ');
+        const out = {};
+
+        const findAfter = (labels) => {
+            for (const label of labels) {
+                const re = new RegExp(label + '\\s*[:\\-]?\\s*([^|\\n]{2,60})', 'i');
+                const m = flat.match(re);
+                if (m && m[1]) return m[1].trim().replace(/\s{2,}/g, ' ');
+            }
+            return '';
+        };
+
+        // Tanggal: cari pola "12 Januari 2027" atau "12/01/2027" dll
+        const dateRe = /(\d{1,2}\s*(?:jan(?:uari)?|feb(?:ruari)?|mar(?:et)?|apr(?:il)?|mei|jun(?:i)?|jul(?:i)?|agu(?:stus)?|sep(?:tember)?|okt(?:ober)?|nov(?:ember)?|des(?:ember)?)\s*\d{4})/i;
+        const dateMatch = flat.match(dateRe);
+        if (dateMatch) out.tgl = dateMatch[1].replace(/\s{2,}/g, ' ').trim();
+
+        // Durasi: "X Hari" / "X Hari Y Malam"
+        const durasiRe = /(\d{1,2}\s*hari(?:\s*\d{1,2}\s*malam)?)/i;
+        const durasiMatch = flat.match(durasiRe);
+        if (durasiMatch) out.durasi = durasiMatch[1].trim();
+
+        // Maskapai: cari nama maskapai umum
+        const maskapaiList = ['Garuda Indonesia', 'Garuda', 'Saudia', 'Saudi Airlines', 'Lion Air', 'Citilink', 'Qatar Airways', 'Emirates', 'Etihad', 'Oman Air', 'Flynas', 'Batik Air'];
+        for (const mk of maskapaiList) {
+            if (new RegExp(mk, 'i').test(flat)) { out.maskapai = mk; break; }
+        }
+
+        // Harga per tipe kamar
+        const hargaRe = (label) => new RegExp(label + '\\s*[:\\-]?\\s*(?:Rp\\.?\\s*)?([\\d.,]{5,15})', 'i');
+        const grabHarga = (labels) => {
+            for (const l of labels) {
+                const m = flat.match(hargaRe(l));
+                if (m && m[1]) return 'Rp ' + m[1].replace(/[^\d.,]/g, '');
+            }
+            return '';
+        };
+        out.harga_quint = grabHarga(['Quint', 'Quintuple', '5\\s*org', 'Ber\\s*5']) || out.harga_quint;
+        out.harga_quad  = grabHarga(['Quad', 'Quadruple', '4\\s*org', 'Ber\\s*4']);
+        out.harga_triple= grabHarga(['Triple', '3\\s*org', 'Ber\\s*3']);
+        out.harga_double= grabHarga(['Double', '2\\s*org', 'Ber\\s*2']);
+
+        // Hotel
+        out.hotel_makkah  = findAfter(['Hotel\\s*Makkah', 'Hotel\\s*Mekkah', 'Makkah']);
+        out.hotel_madinah = findAfter(['Hotel\\s*Madinah', 'Madinah']);
+
+        // Nama program: ambil baris pertama yang cukup panjang (heuristik judul poster)
+        const titleLine = lines.find(l => l.length >= 8 && l.length <= 60 && !/^rp|\d{1,2}\s*(jan|feb|mar|apr|mei|jun|jul|agu|sep|okt|nov|des)/i.test(l));
+        if (titleLine) out.nama = titleLine;
+
+        out._raw_ocr_text = text.slice(0, 4000); // simpan mentahnya untuk koreksi manual
+        return out;
+    }
+
+    // ---- ORKESTRATOR: dipanggil otomatis tiap kali program (dengan poster) disimpan ----
+    async function autoScanPosterForProgram(progId) {
+        const prog = adminPrograms.find(p => String(p.id) === String(progId));
+        if (!prog || !prog.link_poster) return;
+        if (cxScanningIds.has(String(progId))) return; // sudah berjalan, jangan dobel
+        if (typeof Tesseract === 'undefined') {
+            showToast('⚠️ Modul OCR gagal dimuat — cek koneksi internet.');
+            return;
+        }
+
+        cxScanningIds.add(String(progId));
+        cxOcrProgress[progId] = 0;
+        if (String(cxSelectedProgram) === String(progId)) renderCxPanel(progId);
+        renderCxProgramSelector();
+
+        try {
+            const rawText = await cxRunOcr(progId, prog.link_poster, (pct) => {
+                cxOcrProgress[progId] = pct;
+                if (String(cxSelectedProgram) === String(progId)) {
+                    const bar = document.getElementById('cxOcrBar_' + progId);
+                    if (bar) bar.style.width = pct + '%';
+                }
+            });
+            const parsed = cxParsePosterText(rawText);
+
+            // Simpan ke admin_data_lengkap.poster_data, tandai sumber = OCR
+            const adl = (() => { try { return prog.admin_data_lengkap ? (typeof prog.admin_data_lengkap === 'string' ? JSON.parse(prog.admin_data_lengkap) : prog.admin_data_lengkap) : {}; } catch(e) { return {}; } })();
+            adl.poster_data = parsed;
+            adl.poster_data_source = 'ocr';
+            adl.poster_scanned_at = new Date().toISOString();
+
+            await updateProgramById(progId, { admin_data_lengkap: JSON.stringify(adl) });
+            const idx = adminPrograms.findIndex(p => String(p.id) === String(progId));
+            if (idx >= 0) adminPrograms[idx].admin_data_lengkap = JSON.stringify(adl);
+
+            const mismatchCount = cxCountMismatch(progId);
+            if (mismatchCount > 0) {
+                showToast(`⚠️ Crosscheck "${prog.nama}": ${mismatchCount} data tidak cocok dengan poster!`);
+            } else {
+                showToast(`✅ Crosscheck "${prog.nama}": semua data cocok dengan poster.`);
+            }
+        } catch (err) {
+            showToast('❌ OCR poster gagal: ' + err.message);
+        } finally {
+            cxScanningIds.delete(String(progId));
+            delete cxOcrProgress[progId];
+            renderCxProgramSelector();
+            if (String(cxSelectedProgram) === String(progId)) renderCxPanel(progId);
+        }
+    }
+    window.autoScanPosterForProgram = autoScanPosterForProgram;
+
+    // Hitung berapa field yang tidak cocok antara teks plain & hasil OCR poster
+    function cxCountMismatch(progId) {
+        const prog = adminPrograms.find(p => String(p.id) === String(progId));
+        if (!prog) return 0;
+        const adl = (() => { try { return prog.admin_data_lengkap ? (typeof prog.admin_data_lengkap === 'string' ? JSON.parse(prog.admin_data_lengkap) : prog.admin_data_lengkap) : {}; } catch(e) { return {}; } })();
+        const pd = adl.poster_data || {};
+        const pairs = [
+            [prog.nama, pd.nama], [prog.tgl, pd.tgl], [prog.durasi, pd.durasi], [prog.maskapai, pd.maskapai],
+            [prog.harga_quint, pd.harga_quint], [adl.harga_quad, pd.harga_quad], [adl.harga_triple, pd.harga_triple],
+            [adl.harga_double, pd.harga_double], [adl.hotel_makkah, pd.hotel_makkah], [adl.hotel_madinah, pd.hotel_madinah],
+        ];
+        return pairs.filter(([a, b]) => a && b && a.toLowerCase().trim() !== b.toLowerCase().trim()).length;
+    }
 
     function renderCxProgramSelector() {
         const sel = document.getElementById('cxProgramSelector');
@@ -3184,9 +3360,13 @@
             const adl = (() => { try { return p.admin_data_lengkap ? (typeof p.admin_data_lengkap === 'string' ? JSON.parse(p.admin_data_lengkap) : p.admin_data_lengkap) : null; } catch(e) { return null; } })();
             const hasData = adl && Object.keys(adl).length > 0;
             const isActive = String(cxSelectedProgram) === String(p.id);
-            return `<button class="cx-program-pill${isActive?' active':''}" onclick="selectCxProgram('${p.id}')">
+            const isScanning = cxScanningIds.has(String(p.id));
+            const mismatchCount = adl && adl.poster_data ? cxCountMismatch(p.id) : 0;
+            return `<button class="cx-program-pill${isActive?' active':''}${mismatchCount>0?' has-warning':''}" onclick="selectCxProgram('${p.id}')">
                 ${escapeHtml(p.nama||'Program')}
-                ${hasData ? '<i class="fas fa-circle-check" style="color:#86efac;font-size:9px;margin-left:2px;" title="Ada data lengkap"></i>' : ''}
+                ${isScanning ? '<i class="fas fa-spinner fa-spin" style="color:#1d4ed8;font-size:9px;margin-left:2px;" title="Sedang scan poster..."></i>' : ''}
+                ${!isScanning && hasData ? '<i class="fas fa-circle-check" style="color:#86efac;font-size:9px;margin-left:2px;" title="Ada data lengkap"></i>' : ''}
+                ${!isScanning && mismatchCount>0 ? `<i class="fas fa-triangle-exclamation cx-pill-warn" title="${mismatchCount} data tidak cocok"></i>` : ''}
             </button>`;
         }).join('');
         // Update badge
@@ -3256,20 +3436,40 @@
             }).join('');
         };
 
+        const isScanning = cxScanningIds.has(String(progId));
+        const mismatchCount = adl.poster_data ? cxCountMismatch(progId) : 0;
+        const posterSource = adl.poster_data_source === 'ocr' ? 'ocr' : (adl.poster_data ? 'manual' : null);
+
         content.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
             <div style="font-size:14px;font-weight:700;color:#5b21b6;">${escapeHtml(prog.nama||'Program')}</div>
-            <div style="display:flex;gap:8px;">
-                <button class="cx-parse-btn" onclick="openCxEditModal('${prog.id}')"><i class="fas fa-edit"></i> Input Data Poster</button>
+            <div style="display:flex;gap:8px;align-items:center;">
+                ${mismatchCount > 0 ? `<span class="cx-mismatch-count"><i class="fas fa-triangle-exclamation"></i> ${mismatchCount} tidak cocok</span>` : ''}
+                <button class="cx-parse-btn" onclick="openCxEditModal('${prog.id}')"><i class="fas fa-edit"></i> Input Manual</button>
+                ${hasPoster ? `<button class="cx-parse-btn" onclick="autoScanPosterForProgram('${prog.id}')" ${isScanning?'disabled':''}><i class="fas fa-${isScanning?'spinner fa-spin':'arrows-rotate'}"></i> ${isScanning?'Memindai...':'Scan Ulang Poster'}</button>` : ''}
                 ${hasPoster ? `<button class="cx-parse-btn" onclick="window.open('${escapeHtml(prog.link_poster)}','_blank')"><i class="fas fa-image"></i> Lihat Poster</button>` : ''}
             </div>
         </div>
 
         <!-- Status banner -->
-        <div class="cx-status-bar ${hasAdl ? 'ok' : 'missing'}">
-            <i class="fas fa-${hasAdl ? 'circle-check' : 'circle-info'}"></i>
-            ${hasAdl ? 'Data lengkap tersedia. ' + (adl.poster_data ? 'Data poster sudah diinput — lihat perbandingan di bawah.' : 'Data poster belum diinput. Klik <b>Input Data Poster</b> untuk crosscheck.') : 'Belum ada data lengkap. Paste teks plain di form tambah/edit program lalu simpan.'}
+        ${isScanning ? `
+        <div class="cx-status-bar scanning">
+            <i class="fas fa-spinner"></i>
+            <div style="flex:1;">
+                <div>Membaca poster secara otomatis (OCR)... mohon tunggu.</div>
+                <div class="cx-ocr-progress-wrap"><div class="cx-ocr-progress-bar" id="cxOcrBar_${progId}" style="width:${cxOcrProgress[progId]||0}%;"></div></div>
+            </div>
         </div>
+        ` : `
+        <div class="cx-status-bar ${mismatchCount > 0 ? 'warn' : (hasAdl ? 'ok' : 'missing')}">
+            <i class="fas fa-${mismatchCount > 0 ? 'triangle-exclamation' : (hasAdl ? 'circle-check' : 'circle-info')}"></i>
+            ${mismatchCount > 0
+                ? `Ditemukan <b>${mismatchCount} field</b> yang tidak cocok antara teks plain & poster. Periksa tabel perbandingan di bawah.`
+                : (hasAdl ? 'Data lengkap tersedia. ' + (adl.poster_data ? 'Data poster sudah terbaca — semua cocok, lihat perbandingan di bawah.' : (hasPoster ? 'Poster akan dibaca otomatis saat program disimpan, atau klik <b>Scan Ulang Poster</b>.' : 'Belum ada link poster.')) : 'Belum ada data lengkap. Paste teks plain di form tambah/edit program lalu simpan.')
+            }
+            ${posterSource ? `<span class="cx-source-tag ${posterSource}">${posterSource === 'ocr' ? 'Sumber: OCR otomatis' : 'Sumber: Input manual'}</span>` : ''}
+        </div>
+        `}
 
         <!-- Data dari teks plain -->
         <div class="cx-section-title"><i class="fas fa-file-lines"></i> Data dari Teks Plain (Konsep)</div>
@@ -3309,7 +3509,7 @@
         <!-- Perbandingan dengan poster -->
         ${adl.poster_data ? `
         <div class="cx-section-title" style="margin-top:20px;"><i class="fas fa-code-compare"></i> Perbandingan: Teks Plain vs Poster</div>
-        <div style="font-size:12px;color:var(--text-3);margin-bottom:10px;"><i class="fas fa-circle-check" style="color:#86efac;"></i> Hijau = cocok &nbsp; <i class="fas fa-circle-xmark" style="color:#fca5a5;"></i> Merah = tidak sesuai</div>
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:10px;"><i class="fas fa-circle-check" style="color:#86efac;"></i> Hijau = cocok &nbsp; <i class="fas fa-circle-xmark" style="color:#fca5a5;"></i> Merah = tidak sesuai${posterSource==='ocr' ? ' &nbsp; · &nbsp; Hasil OCR bisa salah baca — jika ada yang keliru, klik <b>Input Manual</b> untuk mengoreksi.' : ''}</div>
         ${buildCompareRows()}
         ` : ''}
         `;
@@ -3357,8 +3557,14 @@
             <div style="padding:20px;">
                 <div style="background:#faf5ff;border:1px solid #ede9fe;border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;color:#5b21b6;display:flex;gap:8px;align-items:flex-start;">
                     <i class="fas fa-circle-info" style="margin-top:1px;flex-shrink:0;"></i>
-                    <span>Arahkan pointer ke nama program untuk melihat poster, lalu ketik data yang tertera di poster ke kolom di bawah ini.</span>
+                    <span>Arahkan pointer ke nama program untuk melihat poster, lalu ketik/koreksi data yang tertera di poster ke kolom di bawah ini.</span>
                 </div>
+                ${adl.poster_data_source === 'ocr' && pd._raw_ocr_text ? `
+                <details style="margin-bottom:16px;">
+                    <summary style="cursor:pointer;font-size:12px;font-weight:700;color:#7c3aed;">📄 Lihat teks mentah hasil OCR (untuk bantu koreksi)</summary>
+                    <div style="margin-top:8px;background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11.5px;color:var(--text-2);white-space:pre-wrap;max-height:140px;overflow-y:auto;">${escapeHtml(pd._raw_ocr_text)}</div>
+                </details>
+                ` : ''}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     ${fields.map(f => `
                     <div style="display:flex;flex-direction:column;gap:4px;">
@@ -3388,6 +3594,8 @@
             if (el && el.value.trim()) pd[k] = el.value.trim();
         });
         adl.poster_data = pd;
+        adl.poster_data_source = 'manual';
+        adl.poster_scanned_at = new Date().toISOString();
         try {
             await updateProgramById(progId, { admin_data_lengkap: JSON.stringify(adl) });
             // Update local
