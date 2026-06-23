@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js"></script>
     <style>
         /* ========== CSS MINIFIED ========== */
         :root{--primary:#1a6fa8;--primary-light:#2580be;--primary-subtle:#e8f4fd;--accent:#0ea5e9;--white:#fff;--bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text-1:#0f172a;--text-2:#475569;--text-3:#94a3b8;--green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;--red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;--blue-bg:#eff6ff;--blue-text:#1d4ed8;--whatsapp:#25D366;--whatsapp-dark:#128C7E;--shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);--shadow-lg:0 10px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.02);--radius:8px;--radius-lg:12px;--transition:0.15s ease;}
@@ -3196,111 +3195,26 @@
     let cxScanningIds = new Set(); // program id yang sedang di-OCR
     let cxOcrProgress = {}; // {progId: 0..100}
 
-    // ---- OCR ENGINE (Tesseract.js) ----
-    const CX_PROXY_URL = `${SUPABASE_URL}/functions/v1/proxy-image`;
-
-    async function cxLoadImageAsBlobUrl(rawUrl) {
-        // Resolusi dulu (misal link viewer Google Drive -> link thumbnail langsung)
-        const url = resolveImageUrl(rawUrl);
-
-        // 1) Coba fetch langsung (cepat, tanpa beban server, jalan jika host mengizinkan CORS)
-        try {
-            const res = await fetch(url, { mode: 'cors' });
-            if (res.ok) {
-                const blob = await res.blob();
-                if (blob && blob.size > 0) return URL.createObjectURL(blob);
-            }
-        } catch (e) { /* lanjut ke fallback proxy */ }
-
-        // 2) Fallback: lewat Supabase Edge Function proxy-image (server-side fetch, bebas CORS)
-        try {
-            const proxied = `${CX_PROXY_URL}?url=${encodeURIComponent(url)}`;
-            const res2 = await fetch(proxied);
-            if (!res2.ok) {
-                let detail = '';
-                try { detail = (await res2.json()).error || ''; } catch(e) {}
-                throw new Error(detail || `Proxy gagal (status ${res2.status})`);
-            }
-            const blob2 = await res2.blob();
-            if (!blob2 || blob2.size === 0) throw new Error('Proxy mengembalikan data kosong.');
-            return URL.createObjectURL(blob2);
-        } catch (e) {
-            throw new Error('Tidak bisa mengambil gambar poster (langsung & via proxy gagal): ' + e.message);
-        }
-    }
+    // ---- OCR ENGINE: Gemini Vision via Supabase Edge Function ----
+    const CX_OCR_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/scan-poster-ocr`;
 
     async function cxRunOcr(progId, imageUrl, onProgress) {
-        const blobUrl = await cxLoadImageAsBlobUrl(imageUrl);
-        try {
-            const result = await Tesseract.recognize(blobUrl, 'ind+eng', {
-                logger: (m) => {
-                    if (m.status === 'recognizing text' && typeof m.progress === 'number') {
-                        onProgress(Math.round(m.progress * 100));
-                    }
-                }
-            });
-            return result.data.text || '';
-        } finally {
-            if (blobUrl.startsWith('blob:')) URL.revokeObjectURL(blobUrl);
+        onProgress(20); // mulai: kirim request
+        const res = await fetch(CX_OCR_FUNCTION_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageUrl }),
+        });
+        onProgress(80); // request selesai, sedang proses respons
+        if (!res.ok) {
+            let detail = '';
+            try { detail = (await res.json()).error || ''; } catch (e) {}
+            throw new Error(detail || `Server OCR gagal (status ${res.status})`);
         }
-    }
-
-    // ---- PARSER: teks mentah hasil OCR -> field terstruktur ----
-    function cxParsePosterText(raw) {
-        const text = (raw || '').replace(/\r/g, '');
-        const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-        const flat = lines.join(' | ');
-        const out = {};
-
-        const findAfter = (labels) => {
-            for (const label of labels) {
-                const re = new RegExp(label + '\\s*[:\\-]?\\s*([^|\\n]{2,60})', 'i');
-                const m = flat.match(re);
-                if (m && m[1]) return m[1].trim().replace(/\s{2,}/g, ' ');
-            }
-            return '';
-        };
-
-        // Tanggal: cari pola "12 Januari 2027" atau "12/01/2027" dll
-        const dateRe = /(\d{1,2}\s*(?:jan(?:uari)?|feb(?:ruari)?|mar(?:et)?|apr(?:il)?|mei|jun(?:i)?|jul(?:i)?|agu(?:stus)?|sep(?:tember)?|okt(?:ober)?|nov(?:ember)?|des(?:ember)?)\s*\d{4})/i;
-        const dateMatch = flat.match(dateRe);
-        if (dateMatch) out.tgl = dateMatch[1].replace(/\s{2,}/g, ' ').trim();
-
-        // Durasi: "X Hari" / "X Hari Y Malam"
-        const durasiRe = /(\d{1,2}\s*hari(?:\s*\d{1,2}\s*malam)?)/i;
-        const durasiMatch = flat.match(durasiRe);
-        if (durasiMatch) out.durasi = durasiMatch[1].trim();
-
-        // Maskapai: cari nama maskapai umum
-        const maskapaiList = ['Garuda Indonesia', 'Garuda', 'Saudia', 'Saudi Airlines', 'Lion Air', 'Citilink', 'Qatar Airways', 'Emirates', 'Etihad', 'Oman Air', 'Flynas', 'Batik Air'];
-        for (const mk of maskapaiList) {
-            if (new RegExp(mk, 'i').test(flat)) { out.maskapai = mk; break; }
-        }
-
-        // Harga per tipe kamar
-        const hargaRe = (label) => new RegExp(label + '\\s*[:\\-]?\\s*(?:Rp\\.?\\s*)?([\\d.,]{5,15})', 'i');
-        const grabHarga = (labels) => {
-            for (const l of labels) {
-                const m = flat.match(hargaRe(l));
-                if (m && m[1]) return 'Rp ' + m[1].replace(/[^\d.,]/g, '');
-            }
-            return '';
-        };
-        out.harga_quint = grabHarga(['Quint', 'Quintuple', '5\\s*org', 'Ber\\s*5']) || out.harga_quint;
-        out.harga_quad  = grabHarga(['Quad', 'Quadruple', '4\\s*org', 'Ber\\s*4']);
-        out.harga_triple= grabHarga(['Triple', '3\\s*org', 'Ber\\s*3']);
-        out.harga_double= grabHarga(['Double', '2\\s*org', 'Ber\\s*2']);
-
-        // Hotel
-        out.hotel_makkah  = findAfter(['Hotel\\s*Makkah', 'Hotel\\s*Mekkah', 'Makkah']);
-        out.hotel_madinah = findAfter(['Hotel\\s*Madinah', 'Madinah']);
-
-        // Nama program: ambil baris pertama yang cukup panjang (heuristik judul poster)
-        const titleLine = lines.find(l => l.length >= 8 && l.length <= 60 && !/^rp|\d{1,2}\s*(jan|feb|mar|apr|mei|jun|jul|agu|sep|okt|nov|des)/i.test(l));
-        if (titleLine) out.nama = titleLine;
-
-        out._raw_ocr_text = text.slice(0, 4000); // simpan mentahnya untuk koreksi manual
-        return out;
+        const data = await res.json();
+        if (!data || !data.fields) throw new Error('Respons OCR tidak valid.');
+        onProgress(100);
+        return data; // { fields: {...}, raw_text: "..." }
     }
 
     // ---- ORKESTRATOR: dipanggil otomatis tiap kali program (dengan poster) disimpan ----
@@ -3308,10 +3222,6 @@
         const prog = adminPrograms.find(p => String(p.id) === String(progId));
         if (!prog || !prog.link_poster) return;
         if (cxScanningIds.has(String(progId))) return; // sudah berjalan, jangan dobel
-        if (typeof Tesseract === 'undefined') {
-            showToast('⚠️ Modul OCR gagal dimuat — cek koneksi internet.');
-            return;
-        }
 
         cxScanningIds.add(String(progId));
         cxOcrProgress[progId] = 0;
@@ -3319,16 +3229,20 @@
         renderCxProgramSelector();
 
         try {
-            const rawText = await cxRunOcr(progId, prog.link_poster, (pct) => {
+            const result = await cxRunOcr(progId, prog.link_poster, (pct) => {
                 cxOcrProgress[progId] = pct;
                 if (String(cxSelectedProgram) === String(progId)) {
                     const bar = document.getElementById('cxOcrBar_' + progId);
                     if (bar) bar.style.width = pct + '%';
                 }
             });
-            const parsed = cxParsePosterText(rawText);
 
-            // Simpan ke admin_data_lengkap.poster_data, tandai sumber = OCR
+            const parsed = { ...result.fields };
+            // Buang field kosong supaya tidak menimpa data lama dengan string kosong
+            Object.keys(parsed).forEach(k => { if (!parsed[k]) delete parsed[k]; });
+            parsed._raw_ocr_text = (result.raw_text || '').slice(0, 4000);
+
+            // Simpan ke admin_data_lengkap.poster_data, tandai sumber = OCR (AI Vision)
             const adl = (() => { try { return prog.admin_data_lengkap ? (typeof prog.admin_data_lengkap === 'string' ? JSON.parse(prog.admin_data_lengkap) : prog.admin_data_lengkap) : {}; } catch(e) { return {}; } })();
             adl.poster_data = parsed;
             adl.poster_data_source = 'ocr';
@@ -3345,7 +3259,7 @@
                 showToast(`✅ Crosscheck "${prog.nama}": semua data cocok dengan poster.`);
             }
         } catch (err) {
-            showToast('❌ OCR poster gagal: ' + err.message);
+            showToast('❌ Pembacaan poster gagal: ' + err.message);
         } finally {
             cxScanningIds.delete(String(progId));
             delete cxOcrProgress[progId];
@@ -3476,7 +3390,7 @@
         <div class="cx-status-bar scanning">
             <i class="fas fa-spinner"></i>
             <div style="flex:1;">
-                <div>Membaca poster secara otomatis (OCR)... mohon tunggu.</div>
+                <div>Membaca poster otomatis dengan AI (Gemini Vision)... mohon tunggu.</div>
                 <div class="cx-ocr-progress-wrap"><div class="cx-ocr-progress-bar" id="cxOcrBar_${progId}" style="width:${cxOcrProgress[progId]||0}%;"></div></div>
             </div>
         </div>
@@ -3487,7 +3401,7 @@
                 ? `Ditemukan <b>${mismatchCount} field</b> yang tidak cocok antara teks plain & poster. Periksa tabel perbandingan di bawah.`
                 : (hasAdl ? 'Data lengkap tersedia. ' + (adl.poster_data ? 'Data poster sudah terbaca — semua cocok, lihat perbandingan di bawah.' : (hasPoster ? 'Poster akan dibaca otomatis saat program disimpan, atau klik <b>Scan Ulang Poster</b>.' : 'Belum ada link poster.')) : 'Belum ada data lengkap. Paste teks plain di form tambah/edit program lalu simpan.')
             }
-            ${posterSource ? `<span class="cx-source-tag ${posterSource}">${posterSource === 'ocr' ? 'Sumber: OCR otomatis' : 'Sumber: Input manual'}</span>` : ''}
+            ${posterSource ? `<span class="cx-source-tag ${posterSource}">${posterSource === 'ocr' ? 'Sumber: AI Vision (otomatis)' : 'Sumber: Input manual'}</span>` : ''}
         </div>
         `}
 
