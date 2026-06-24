@@ -970,14 +970,74 @@
     }
 
     function generateAutoWAText(data) {
-        let teks = `🕋 *${sanitizeHtml(data.nama || 'Program Umroh')}* 🕋\n\n`;
-        if (data.tgl) teks += `📅 ${sanitizeHtml(data.tgl)}\n`;
-        if (data.durasi) teks += `⏳ Durasi: ${sanitizeHtml(data.durasi)}\n`;
-        if (data.maskapai) teks += `✈️ ${sanitizeHtml(data.maskapai)}\n`;
-        if (data.harga_quint) teks += `\n💰 *BIAYA PROGRAM:*\n• Quad/Quint: ${sanitizeHtml(data.harga_quint)}\n`;
-        teks += `\n✅ *FASILITAS LENGKAP:*\n• Tiket Pesawat PP + Visa Umroh\n• Bus AC Selama Program\n• Fullboard Makan Hotel\n• Perlengkapan Umroh Lengkap\n• Handling Bandara & Asuransi\n`;
-        teks += `\n📞 *INFO & BOOKING:*\nwa.me/6285122336300\n*Segera daftar, kuota terbatas!*`;
+        const s = v => sanitizeHtml(v || '');
+
+        // Judul
+        let teks = `🌟 *${s(data.nama || 'PROGRAM UMROH').toUpperCase()}* 🌟\n`;
+        teks += `    Bersama Amiru Tour\n`;
+
+        // Tanggal & durasi
+        const durasi = data.durasi ? data.durasi.replace(/\s*hari/i,'').trim() : '';
+        if (data.tgl && durasi) teks += `📅 Berangkat ${s(data.tgl)} (${durasi} Hari)\n`;
+        else if (data.tgl) teks += `📅 Berangkat ${s(data.tgl)}\n`;
+
+        // Maskapai
+        if (data.maskapai) teks += `✈️ ${s(data.maskapai)}\n`;
+
+        // Program wisata (dari field atau kosong)
+        if (data.program_wisata) teks += `🕌 Program: ${s(data.program_wisata)}\n`;
+
+        // Hotel
+        const hotelLines = [];
+        if (data.hotel_madinah) {
+            const jarakMadinah = data.hotel_madinah_jarak || '';
+            hotelLines.push(`* Madinah ${data.hotel_madinah_hari||''}${data.hotel_madinah_hari?'D':''}: ${s(data.hotel_madinah)}${jarakMadinah ? ' ('+jarakMadinah+')' : ''}`);
+        }
+        if (data.hotel_makkah) {
+            const jarakMakkah = data.hotel_makkah_jarak || '';
+            hotelLines.push(`* Mekah ${data.hotel_makkah_hari||''}${data.hotel_makkah_hari?'D':''}: ${s(data.hotel_makkah)}${jarakMakkah ? ' ('+jarakMakkah+')' : ''}`);
+        }
+        if (hotelLines.length) {
+            teks += `🏨 Hotel Dekat & Strategis:\n${hotelLines.join('\n')}\n`;
+        }
+
+        // Harga
+        const hargaLines = [];
+        if (data.harga_quad)   hargaLines.push(`* Quad ${formatHargaJuta(data.harga_quad)}`);
+        if (data.harga_triple) hargaLines.push(`* Triple ${formatHargaJuta(data.harga_triple)}`);
+        if (data.harga_double) hargaLines.push(`* Double ${formatHargaJuta(data.harga_double)}`);
+        if (!hargaLines.length && data.harga_quint) hargaLines.push(`* Quad ${formatHargaJuta(data.harga_quint)}`);
+        if (hargaLines.length) {
+            teks += `💰 Harga Paket Start Jakarta:\n${hargaLines.join('\n')}\n`;
+        }
+
+        // Termasuk
+        const termasukList = data.termasuk
+            ? data.termasuk.split('\n').map(i=>i.trim()).filter(Boolean)
+            : ['Tiket Pesawat PP', 'Visa Umroh', 'Fullboard Hotel', 'Perlengkapan Dasar', 'Handling Bandara', 'Asuransi', 'Zamzam 5L'];
+        teks += `✅ Termasuk: ${termasukList.join(', ')}\n`;
+
+        // Tidak termasuk
+        const tidakList = data.tidak_termasuk
+            ? data.tidak_termasuk.split('\n').map(i=>i.trim()).filter(Boolean)
+            : ['Paspor', 'Vaksin', 'Tiket Domestik', 'Hotel Transit', 'Pengeluaran pribadi'];
+        teks += `❌ Tidak termasuk: ${tidakList.join(', ')}\n`;
+
+        // Footer
+        teks += `📞 Info & Itinerary:\nwa.me/6285122336300\nwa.me/6285196241819`;
+
         return teks;
+    }
+
+    function formatHargaJuta(hargaStr) {
+        // Input: "Rp 28.950.000" atau "28950000" → output: "Rp28,95 jt"
+        if (!hargaStr) return '';
+        const num = parseInt(String(hargaStr).replace(/[^\d]/g, ''));
+        if (!num) return hargaStr;
+        const juta = num / 1000000;
+        // Format: hilangkan desimal nol (30.5 jt, bukan 30.50 jt)
+        const formatted = juta % 1 === 0 ? juta.toFixed(0) : juta.toFixed(2).replace(/\.?0+$/, '');
+        return `Rp${formatted} jt`;
     }
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
@@ -2186,26 +2246,68 @@
             }
         }
 
+        // === PROGRAM WISATA ===
+        // Contoh: "2D1N Dubai City Tour" atau "Old Town & Elephant Rock Al Ula"
+        let program_wisata = '';
+        for (const l of lines) {
+            // Baris yang mengandung pola wisata (city tour, dsb) tapi bukan harga/hotel
+            if (/\d+D\d+N|\d+H\d+M|city tour|old town|elephant rock|wisata|tour/i.test(l) && !/hotel|harga|biaya|visa|pesawat/i.test(l)) {
+                const pw = cleanAll(l);
+                if (pw.length > 3) { program_wisata = (program_wisata ? program_wisata + ' + ' : '') + pw; }
+            }
+        }
+
         // === HOTEL ===
         // Format broadcast: "*HOTEL MEKAH 4H*" (header), baris berikut = nama hotel
         // Variasi: Makkah / Mekkah / Mekah / Makkah, bisa ada "3H" / "4H" / "5H" setelah nama kota
         let hotel_makkah = '', hotel_madinah = '';
+        let hotel_makkah_hari = '', hotel_madinah_hari = '';
+        let hotel_makkah_jarak = '', hotel_madinah_jarak = '';
         const isMakkahHeader = s => /hotel\s*m[ae]k+ah/i.test(s);
         const isMadinahHeader = s => /hotel\s*mad[iy]nah/i.test(s);
+        // Helper: ekstrak info jarak dari baris (misal "(750m 10 menit jalan kaki)" atau baris berikutnya)
+        const parseJarak = (txt) => {
+            const m = txt.match(/\(([^)]*(?:m|km|meter)[^)]*)\)/i) || txt.match(/(\d+\s*m[^,\n]*(?:jalan|menit)[^,\n]*)/i);
+            return m ? m[1].trim() : '';
+        };
+        // Helper: ekstrak jumlah hari dari header hotel (misal "4H" → "4")
+        const parseHariHotel = (txt) => {
+            const m = txt.match(/(\d+)\s*[Hh]/);
+            return m ? m[1] : '';
+        };
         for (let i = 0; i < lines.length; i++) {
             const lc = cleanAll(lines[i]).toLowerCase();
+            const rawLine = lines[i];
             // Inline: "Hotel Makkah : Hilton xxx" atau "Hotel Mekah 4H : Hilton"
-            const mMakkahInline = lines[i].match(/hotel\s*m[ae]k+ah[^:]*[:\-]\s*(.+)/i);
-            if (mMakkahInline && !hotel_makkah) { hotel_makkah = cleanAll(mMakkahInline[1]); continue; }
-            const mMadinahInline = lines[i].match(/hotel\s*mad[iy]nah[^:]*[:\-]\s*(.+)/i);
-            if (mMadinahInline && !hotel_madinah) { hotel_madinah = cleanAll(mMadinahInline[1]); continue; }
-            // Header baris terpisah: baris berikut = nama hotel (ambil baris berikutnya yang bukan info jarak)
+            const mMakkahInline = rawLine.match(/hotel\s*m[ae]k+ah([^:]*)[:\-]\s*(.+)/i);
+            if (mMakkahInline && !hotel_makkah) {
+                hotel_makkah = cleanAll(mMakkahInline[2]);
+                hotel_makkah_hari = parseHariHotel(mMakkahInline[1]);
+                continue;
+            }
+            const mMadinahInline = rawLine.match(/hotel\s*mad[iy]nah([^:]*)[:\-]\s*(.+)/i);
+            if (mMadinahInline && !hotel_madinah) {
+                hotel_madinah = cleanAll(mMadinahInline[2]);
+                hotel_madinah_hari = parseHariHotel(mMadinahInline[1]);
+                continue;
+            }
+            // Header baris terpisah: baris berikut = nama hotel
             if (isMakkahHeader(lc) && !hotel_makkah && i+1 < lines.length) {
-                hotel_makkah = cleanAll(lines[i+1]); continue;
+                hotel_makkah_hari = parseHariHotel(lc);
+                hotel_makkah = cleanAll(lines[i+1]);
+                // Cek baris setelah nama hotel untuk jarak
+                if (i+2 < lines.length) hotel_makkah_jarak = parseJarak(lines[i+2]);
+                continue;
             }
             if (isMadinahHeader(lc) && !hotel_madinah && i+1 < lines.length) {
-                hotel_madinah = cleanAll(lines[i+1]); continue;
+                hotel_madinah_hari = parseHariHotel(lc);
+                hotel_madinah = cleanAll(lines[i+1]);
+                if (i+2 < lines.length) hotel_madinah_jarak = parseJarak(lines[i+2]);
+                continue;
             }
+            // Baris jarak standalone setelah hotel sudah diisi (misal "(750m 10 menit jalan kaki)")
+            if (hotel_makkah && !hotel_makkah_jarak) { const j = parseJarak(rawLine); if(j) hotel_makkah_jarak = j; }
+            if (hotel_madinah && !hotel_madinah_jarak) { const j = parseJarak(rawLine); if(j) hotel_madinah_jarak = j; }
         }
 
         // === MAKAN ===
@@ -2266,7 +2368,20 @@
             const tglInput = document.getElementById('admin_tgl_date');
             if (tglInput) { tglInput.value = tglISO; tglInput.dispatchEvent(new Event('change')); }
         }
-        document.getElementById('admin_teks_wa').value = raw;
+        // Generate teks WA dengan format baru
+        const parsedData = {
+            nama,
+            tgl: (() => { for (const l of lines) { if (/\d{1,2}\s*[-\u2013]\s*\d{1,2}\s+[A-Za-z]+\s+\d{4}/.test(l)) return cleanAll(l); if (/\d{1,2}\s+[A-Za-z]+\s+\d{4}/.test(l)) return cleanAll(l); } return ''; })(),
+            durasi, maskapai,
+            harga_quad, harga_triple, harga_double, harga_quint,
+            hotel_makkah, hotel_madinah,
+            hotel_makkah_hari, hotel_madinah_hari,
+            hotel_makkah_jarak, hotel_madinah_jarak,
+            program_wisata,
+            termasuk: termasuk.join('\n'),
+            tidak_termasuk: tidak_termasuk.join('\n')
+        };
+        document.getElementById('admin_teks_wa').value = generateAutoWAText(parsedData);
 
         // Isi field admin-only
         const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
