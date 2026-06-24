@@ -488,7 +488,9 @@
             <div class="detail-wa-section"><div class="label"><i class="fab fa-whatsapp"></i> Teks Marketing WhatsApp</div><div class="detail-wa-text" id="detailWAText">${escapeHtml(waText).replace(/\n/g,'<br>').replace(/javascript:/gi,'blocked:')}</div><button class="btn btn-wa-copy" onclick="copyDetailWAText()"><i class="fas fa-copy"></i> Salin Teks WA</button></div>
             <div class="detail-actions">${program.link_form?`<a href="${escapeHtml(program.link_form)}" target="_blank" class="btn btn-register"><i class="fas fa-edit"></i> Form Pendaftaran</a>`:''}${program.link_itinerary?`<a href="${escapeHtml(program.link_itinerary)}" target="_blank" class="btn btn-link"><i class="fas fa-map"></i> Itinerary</a>`:''}${program.link_poster?`<a href="${escapeHtml(program.link_poster)}" target="_blank" class="btn btn-link"><i class="fas fa-image"></i> Poster</a>`:''}${program.link_metaads?`<a href="${escapeHtml(program.link_metaads)}" target="_blank" class="btn btn-link"><i class="fas fa-chart-line"></i> Meta Ads</a>`:''}${program.link_dokumentasi?`<a href="${escapeHtml(program.link_dokumentasi)}" target="_blank" class="btn btn-link"><i class="fas fa-folder"></i> Dokumentasi</a>`:''}</div>`;
         window.currentDetailWAText = waText;
-        document.getElementById('detailModal').classList.add('show');
+        const detailModalEl = document.getElementById('detailModal');
+        detailModalEl.style.display = '';
+        detailModalEl.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
     function closeDetailModal() { document.getElementById('detailModal').classList.remove('show'); document.body.style.overflow = ''; }
@@ -497,7 +499,9 @@
     // Admin Panel (dengan cache refresh)
     function openAdminModal() { 
         checkSession();
-        document.getElementById('adminModal').classList.add('show'); 
+        const adminModalEl = document.getElementById('adminModal');
+        adminModalEl.style.display = '';
+        adminModalEl.classList.add('show'); 
         const pubWrapper = document.getElementById('pubTabsWrapper');
         if (pubWrapper) pubWrapper.style.display = 'none';
         renderAdminPanel(); 
@@ -1110,7 +1114,9 @@
         document.getElementById('deleteConfirmProgName').textContent = prog.nama || 'Program ini';
         document.getElementById('deleteConfirmInput').value = '';
         document.getElementById('deleteConfirmBtn').disabled = true;
-        document.getElementById('deleteConfirmModal').classList.add('show');
+        const delModalEl = document.getElementById('deleteConfirmModal');
+        delModalEl.style.display = '';
+        delModalEl.classList.add('show');
         setTimeout(() => document.getElementById('deleteConfirmInput').focus(), 100);
     }
     function closeDeleteConfirmModal() {
@@ -1862,7 +1868,9 @@
             ['jf_nama','jf_asal','jf_tgl','jf_jam','jf_jumlah','jf_wa','jf_catatan'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('jf_keperluan').value = '';
         }
-        document.getElementById('jadwalModal').classList.add('show');
+        const jadwalModalEl = document.getElementById('jadwalModal');
+        jadwalModalEl.style.display = '';
+        jadwalModalEl.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
 
@@ -2100,6 +2108,7 @@
             document.getElementById('kb_status').value = 'lunas';
             document.getElementById('kb_catatan').value = '';
         }
+        modal.style.display = '';
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
