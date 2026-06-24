@@ -397,12 +397,14 @@
 
         try {
             // Deteksi lokasi pengunjung via IP — layanan gratis, tanpa API key
-            const geoRes = await fetch('https://ipapi.co/json/');
+            // Gunakan ip-api.com — support CORS, gratis, tanpa API key
+            const geoRes = await fetch('https://ip-api.com/json/?fields=status,city,regionName,lat,lon');
             if (!geoRes.ok) throw new Error('geo fetch gagal');
             const geo = await geoRes.json();
-            const lat = geo.latitude, lon = geo.longitude;
-            const kota = geo.city || geo.region || '-';
-            const provinsi = geo.region || '';
+            if (geo.status !== 'success') throw new Error('geo status gagal');
+            const lat = geo.lat, lon = geo.lon;
+            const kota = geo.city || geo.regionName || '-';
+            const provinsi = geo.regionName || '';
             const lokasi = provinsi && provinsi !== kota ? `${kota}, ${provinsi}` : kota;
 
             if (lat != null && lon != null) {
