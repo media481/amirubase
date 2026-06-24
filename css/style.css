@@ -574,7 +574,6 @@
     .tg-type-label{font-size:11.5px;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;}
     .admin-panel-section-header.keberangkatan{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #bae6fd;}
 
-
 /* ===== DELETE CONFIRM MODAL ===== */
 <style>
 .delete-confirm-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:40000;overflow-y:auto;padding:24px;backdrop-filter:blur(4px);}
