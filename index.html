@@ -970,7 +970,7 @@
     }
 
     function generateAutoWAText(data) {
-        const s = v => sanitizeHtml(v || '');
+        const s = v => (v || '').replace(/javascript:/gi, 'blocked:');
 
         // Judul
         let teks = `🌟 *${s(data.nama || 'PROGRAM UMROH').toUpperCase()}* 🌟\n`;
