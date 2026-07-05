@@ -39,7 +39,48 @@
         };
         return map[code] || "Cerah Berawan";
     }
+    // ========== INFO BAR TOGGLE ==========
+    // Status disimpan di Supabase tabel tg_config (key: 'infobar_enabled'), berlaku global untuk semua pengunjung
+    async function loadInfobarSetting() {
+        try {
+            const { data, error } = await supabaseClient.from('tg_config').select('value').eq('key', 'infobar_enabled').single();
+            infobarEnabled = (error || !data) ? true : data.value !== 'false';
+        } catch (_) {
+            infobarEnabled = true;
+        }
+        applyInfobarVisibility();
+    }
+    function applyInfobarVisibility() {
+        const wrapper = document.querySelector('.infobar-wrapper');
+        if (wrapper) wrapper.style.display = infobarEnabled ? '' : 'none';
+    }
+    async function toggleInfobarEnabled() {
+        const newVal = !infobarEnabled;
+        const btn = document.getElementById('infobarToggleBtn');
+        if (btn) { btn.disabled = true; }
+        try {
+            const { error } = await supabaseClient.from('tg_config').upsert([{ key: 'infobar_enabled', value: String(newVal) }], { onConflict: 'key' });
+            if (error) throw error;
+            infobarEnabled = newVal;
+            applyInfobarVisibility();
+            if (infobarEnabled) initInfoBar();
+            if (btn) {
+                btn.className = 'featured-toggle-btn ' + (infobarEnabled ? 'on' : 'off');
+                btn.innerHTML = `<i class="fas fa-power-off"></i> ${infobarEnabled ? 'Aktif' : 'Nonaktif'}`;
+            }
+            showToast(infobarEnabled ? '✅ Info bar diaktifkan' : '🚫 Info bar dinonaktifkan');
+        } catch (err) {
+            showToast('❌ Gagal menyimpan pengaturan: ' + (err?.message || err));
+        } finally {
+            if (btn) { btn.disabled = false; }
+        }
+    }
+    window.toggleInfobarEnabled = toggleInfobarEnabled;
+    // ========== END INFO BAR TOGGLE ==========
+
     async function initInfoBar() {
+        await loadInfobarSetting();
+        if (!infobarEnabled) return;
         const el = document.getElementById('infoBar');
         if (!el) return;
         const now = new Date();

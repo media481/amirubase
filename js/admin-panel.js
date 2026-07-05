@@ -308,6 +308,15 @@
                         <i class="fas fa-power-off"></i> ${tickerEnabled ? 'Aktif' : 'Nonaktif'}
                     </button>
                 </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border:1px solid var(--border);border-radius:10px;background:#fff;flex-wrap:wrap;margin-top:12px;">
+                    <div>
+                        <div style="font-weight:700;font-size:13.5px;color:var(--text-1);"><i class="fas fa-cloud-sun" style="margin-right:6px;color:var(--text-3);"></i>Info Bar (Cuaca / Lokasi / Quote)</div>
+                        <div style="font-size:12px;color:var(--text-3);margin-top:3px;">Bar biru paling atas berisi lokasi pengunjung, cuaca, tanggal, salam & quote motivasi</div>
+                    </div>
+                    <button class="featured-toggle-btn ${infobarEnabled ? 'on' : 'off'}" id="infobarToggleBtn" onclick="toggleInfobarEnabled()">
+                        <i class="fas fa-power-off"></i> ${infobarEnabled ? 'Aktif' : 'Nonaktif'}
+                    </button>
+                </div>
             </div>` : ''}`;
 
             if (isAdmin) {

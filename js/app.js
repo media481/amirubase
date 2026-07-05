@@ -39,6 +39,7 @@
 
     let dataUmroh = [], currentData = [], currentSort = { column: null, asc: true };
     let tickerEnabled = true; // Status Running Text (ticker), diambil dari Supabase tg_config
+    let infobarEnabled = true; // Status Info Bar (cuaca/lokasi/quote), diambil dari Supabase tg_config
     let adminLoggedIn = false, currentRole = null, editingProgramId = null, adminSortColumn = null, adminSortAsc = true, adminPrograms = [];
     let debounceTimer = null, sessionTimeout = null;
 
@@ -385,7 +386,47 @@
         };
         return map[code] || "Cerah Berawan";
     }
+    // ========== INFO BAR TOGGLE ==========
+    // Status disimpan di Supabase tabel tg_config (key: 'infobar_enabled'), berlaku global untuk semua pengunjung
+    async function loadInfobarSetting() {
+        try {
+            const { data, error } = await supabaseClient.from('tg_config').select('value').eq('key', 'infobar_enabled').single();
+            infobarEnabled = (error || !data) ? true : data.value !== 'false';
+        } catch (_) {
+            infobarEnabled = true;
+        }
+        applyInfobarVisibility();
+    }
+    function applyInfobarVisibility() {
+        const wrapper = document.querySelector('.infobar-wrapper');
+        if (wrapper) wrapper.style.display = infobarEnabled ? '' : 'none';
+    }
+    async function toggleInfobarEnabled() {
+        const newVal = !infobarEnabled;
+        const btn = document.getElementById('infobarToggleBtn');
+        if (btn) { btn.disabled = true; }
+        try {
+            const { error } = await supabaseClient.from('tg_config').upsert([{ key: 'infobar_enabled', value: String(newVal) }], { onConflict: 'key' });
+            if (error) throw error;
+            infobarEnabled = newVal;
+            applyInfobarVisibility();
+            if (infobarEnabled) initInfoBar(); // isi ulang konten kalau baru diaktifkan
+            if (btn) {
+                btn.className = 'featured-toggle-btn ' + (infobarEnabled ? 'on' : 'off');
+                btn.innerHTML = `<i class="fas fa-power-off"></i> ${infobarEnabled ? 'Aktif' : 'Nonaktif'}`;
+            }
+            showToast(infobarEnabled ? '✅ Info bar diaktifkan' : '🚫 Info bar dinonaktifkan');
+        } catch (err) {
+            showToast('❌ Gagal menyimpan pengaturan: ' + (err?.message || err));
+        } finally {
+            if (btn) { btn.disabled = false; }
+        }
+    }
+    // ========== END INFO BAR TOGGLE ==========
+
     async function initInfoBar() {
+        await loadInfobarSetting();
+        if (!infobarEnabled) return; // jangan fetch cuaca/lokasi kalau info bar dinonaktifkan
         const el = document.getElementById('infoBar');
         if (!el) return;
         const now = new Date();
@@ -844,6 +885,15 @@
                     </div>
                     <button class="featured-toggle-btn ${tickerEnabled ? 'on' : 'off'}" id="tickerToggleBtn" onclick="toggleTickerEnabled()">
                         <i class="fas fa-power-off"></i> ${tickerEnabled ? 'Aktif' : 'Nonaktif'}
+                    </button>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border:1px solid var(--border);border-radius:10px;background:#fff;flex-wrap:wrap;margin-top:12px;">
+                    <div>
+                        <div style="font-weight:700;font-size:13.5px;color:var(--text-1);"><i class="fas fa-cloud-sun" style="margin-right:6px;color:var(--text-3);"></i>Info Bar (Cuaca / Lokasi / Quote)</div>
+                        <div style="font-size:12px;color:var(--text-3);margin-top:3px;">Bar biru paling atas berisi lokasi pengunjung, cuaca, tanggal, salam & quote motivasi</div>
+                    </div>
+                    <button class="featured-toggle-btn ${infobarEnabled ? 'on' : 'off'}" id="infobarToggleBtn" onclick="toggleInfobarEnabled()">
+                        <i class="fas fa-power-off"></i> ${infobarEnabled ? 'Aktif' : 'Nonaktif'}
                     </button>
                 </div>
             </div>` : ''}`;
@@ -2255,6 +2305,7 @@
 
     window.toggleFeatured = toggleFeatured;
     window.toggleTickerEnabled = toggleTickerEnabled;
+    window.toggleInfobarEnabled = toggleInfobarEnabled;
     window.renderFeaturedAdminTable = renderFeaturedAdminTable;
 
     // ========== TELEGRAM NOTIFIKASI ==========
