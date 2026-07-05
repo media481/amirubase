@@ -11,6 +11,7 @@
     }
 
     let dataUmroh = [], currentData = [], currentSort = { column: null, asc: true };
+    let tickerEnabled = true; // Status Running Text (ticker), diambil dari Supabase tg_config
     let adminLoggedIn = false, currentRole = null, editingProgramId = null, adminSortColumn = null, adminSortAsc = true, adminPrograms = [];
     let debounceTimer = null, sessionTimeout = null;
 

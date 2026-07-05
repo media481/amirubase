@@ -129,6 +129,10 @@
                 <button class="admin-tab-btn tab-telegram" onclick="switchAdminTab('telegram',this)">
                     <i class="fab fa-telegram"></i> Telegram
                 </button>` : ''}
+                ${isAdmin ? `
+                <button class="admin-tab-btn tab-pengaturan" onclick="switchAdminTab('pengaturan',this)">
+                    <i class="fas fa-sliders"></i> Pengaturan
+                </button>` : ''}
             </div>
 
             <!-- TAB: PROGRAM UMROH -->
@@ -282,6 +286,27 @@
                 <div id="tgStatusMsg" style="margin-top:12px;"></div>
                 <div class="tg-notif-log" id="tgNotifLog" style="display:none;">
                     <p style="color:#475569;font-size:11px;margin-bottom:6px;">▶ LOG PENGIRIMAN TELEGRAM:</p>
+                </div>
+            </div>` : ''}
+
+            <!-- TAB: PENGATURAN -->
+            ${isAdmin ? `
+            <div class="admin-tab-panel" id="tab-pengaturan">
+                <div class="admin-panel-section-header pengaturan">
+                    <i class="fas fa-sliders" style="color:var(--primary);font-size:18px;"></i>
+                    <div>
+                        <div class="sec-title" style="color:var(--primary);">Pengaturan Tampilan</div>
+                        <div class="sec-sub">Atur elemen yang tampil di halaman utama untuk semua pengunjung</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border:1px solid var(--border);border-radius:10px;background:#fff;flex-wrap:wrap;">
+                    <div>
+                        <div style="font-weight:700;font-size:13.5px;color:var(--text-1);"><i class="fas fa-arrows-left-right" style="margin-right:6px;color:var(--text-3);"></i>Running Text Program</div>
+                        <div style="font-size:12px;color:var(--text-3);margin-top:3px;">Teks berjalan berisi daftar program umroh aktif, tampil di bawah header (bar "Live")</div>
+                    </div>
+                    <button class="featured-toggle-btn ${tickerEnabled ? 'on' : 'off'}" id="tickerToggleBtn" onclick="toggleTickerEnabled()">
+                        <i class="fas fa-power-off"></i> ${tickerEnabled ? 'Aktif' : 'Nonaktif'}
+                    </button>
                 </div>
             </div>` : ''}`;
 

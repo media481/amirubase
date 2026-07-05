@@ -38,6 +38,7 @@
     }
 
     let dataUmroh = [], currentData = [], currentSort = { column: null, asc: true };
+    let tickerEnabled = true; // Status Running Text (ticker), diambil dari Supabase tg_config
     let adminLoggedIn = false, currentRole = null, editingProgramId = null, adminSortColumn = null, adminSortAsc = true, adminPrograms = [];
     let debounceTimer = null, sessionTimeout = null;
 
@@ -427,7 +428,44 @@
     // ========== END INFO BAR ==========
 
     function renderStats() { const now = new Date(); const visible = dataUmroh.filter(p=>p.is_active!==false); const total = visible.length, active = visible.filter(i=>i.dateObj>=now).length, past = total-active; document.getElementById('statsRow') && (document.getElementById('statsRow').innerHTML = `<span class="stat-chip total"><i class="fa-solid fa-layer-group"></i> ${total} Paket</span><span class="stat-chip active"><i class="fa-solid fa-circle-check"></i> ${active} Tersedia</span><span class="stat-chip inactive"><i class="fa-solid fa-clock-rotate-left"></i> ${past} Expired</span>`); }
-    function initTicker() { const now = new Date(); const active = dataUmroh.filter(i=>i.is_active!==false && i.dateObj>=now).map(i=>`✨ ${escapeHtml(i.nama)} — ${escapeHtml(i.tgl)} (${escapeHtml(i.maskapai)})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); const ticker = document.getElementById('navTicker'); ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); }
+    function initTicker() { const now = new Date(); const active = dataUmroh.filter(i=>i.is_active!==false && i.dateObj>=now).map(i=>`✨ ${escapeHtml(i.nama)} — ${escapeHtml(i.tgl)} (${escapeHtml(i.maskapai)})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); const ticker = document.getElementById('navTicker'); ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); applyTickerVisibility(); }
+
+    // ========== RUNNING TEXT (TICKER) TOGGLE ==========
+    // Status disimpan di Supabase tabel tg_config (key: 'ticker_enabled'), berlaku global untuk semua pengunjung
+    async function loadTickerSetting() {
+        try {
+            const { data, error } = await supabaseClient.from('tg_config').select('value').eq('key', 'ticker_enabled').single();
+            tickerEnabled = (error || !data) ? true : data.value !== 'false';
+        } catch (_) {
+            tickerEnabled = true;
+        }
+        applyTickerVisibility();
+    }
+    function applyTickerVisibility() {
+        const wrapper = document.querySelector('.ticker-wrapper');
+        if (wrapper) wrapper.style.display = tickerEnabled ? '' : 'none';
+    }
+    async function toggleTickerEnabled() {
+        const newVal = !tickerEnabled;
+        const btn = document.getElementById('tickerToggleBtn');
+        if (btn) { btn.disabled = true; }
+        try {
+            const { error } = await supabaseClient.from('tg_config').upsert([{ key: 'ticker_enabled', value: String(newVal) }], { onConflict: 'key' });
+            if (error) throw error;
+            tickerEnabled = newVal;
+            applyTickerVisibility();
+            if (btn) {
+                btn.className = 'featured-toggle-btn ' + (tickerEnabled ? 'on' : 'off');
+                btn.innerHTML = `<i class="fas fa-power-off"></i> ${tickerEnabled ? 'Aktif' : 'Nonaktif'}`;
+            }
+            showToast(tickerEnabled ? '✅ Running text diaktifkan' : '🚫 Running text dinonaktifkan');
+        } catch (err) {
+            showToast('❌ Gagal menyimpan pengaturan: ' + (err?.message || err));
+        } finally {
+            if (btn) { btn.disabled = false; }
+        }
+    }
+    // ========== END RUNNING TEXT TOGGLE ==========
 
     // Sorting with debounce
     function sortTable(column) {
@@ -629,6 +667,10 @@
                 <button class="admin-tab-btn tab-telegram" onclick="switchAdminTab('telegram',this)">
                     <i class="fab fa-telegram"></i> Telegram
                 </button>` : ''}
+                ${isAdmin ? `
+                <button class="admin-tab-btn tab-pengaturan" onclick="switchAdminTab('pengaturan',this)">
+                    <i class="fas fa-sliders"></i> Pengaturan
+                </button>` : ''}
             </div>
 
             <!-- TAB: PROGRAM UMROH -->
@@ -782,6 +824,27 @@
                 <div id="tgStatusMsg" style="margin-top:12px;"></div>
                 <div class="tg-notif-log" id="tgNotifLog" style="display:none;">
                     <p style="color:#475569;font-size:11px;margin-bottom:6px;">▶ LOG PENGIRIMAN TELEGRAM:</p>
+                </div>
+            </div>` : ''}
+
+            <!-- TAB: PENGATURAN -->
+            ${isAdmin ? `
+            <div class="admin-tab-panel" id="tab-pengaturan">
+                <div class="admin-panel-section-header pengaturan">
+                    <i class="fas fa-sliders" style="color:var(--primary);font-size:18px;"></i>
+                    <div>
+                        <div class="sec-title" style="color:var(--primary);">Pengaturan Tampilan</div>
+                        <div class="sec-sub">Atur elemen yang tampil di halaman utama untuk semua pengunjung</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border:1px solid var(--border);border-radius:10px;background:#fff;flex-wrap:wrap;">
+                    <div>
+                        <div style="font-weight:700;font-size:13.5px;color:var(--text-1);"><i class="fas fa-arrows-left-right" style="margin-right:6px;color:var(--text-3);"></i>Running Text Program</div>
+                        <div style="font-size:12px;color:var(--text-3);margin-top:3px;">Teks berjalan berisi daftar program umroh aktif, tampil di bawah header (bar "Live")</div>
+                    </div>
+                    <button class="featured-toggle-btn ${tickerEnabled ? 'on' : 'off'}" id="tickerToggleBtn" onclick="toggleTickerEnabled()">
+                        <i class="fas fa-power-off"></i> ${tickerEnabled ? 'Aktif' : 'Nonaktif'}
+                    </button>
                 </div>
             </div>` : ''}`;
 
@@ -2191,6 +2254,7 @@
     window.renderJadwalAdminTable = renderJadwalAdminTable;
 
     window.toggleFeatured = toggleFeatured;
+    window.toggleTickerEnabled = toggleTickerEnabled;
     window.renderFeaturedAdminTable = renderFeaturedAdminTable;
 
     // ========== TELEGRAM NOTIFIKASI ==========
@@ -2845,6 +2909,7 @@
     // ========== END CROSSCHECK ==========
     (async () => {
         initInfoBar();
+        loadTickerSetting();
         await loadUserRoles();
         await loadJadwal();
         renderJadwalSection();

@@ -548,6 +548,7 @@
     .admin-tab-btn.active.tab-telegram{color:#0088cc;border-bottom-color:#0088cc;}
     .admin-tab-btn.active.tab-telegram .tab-count{background:#e8f4fd;color:#0088cc;}
     .admin-panel-section-header.telegram{background:linear-gradient(135deg,#e8f4fd,#d0eaf8);border:1px solid #90cdf4;}
+    .admin-panel-section-header.pengaturan{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #bae6fd;}
     .tg-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
     @media(max-width:768px){.tg-settings-grid{grid-template-columns:1fr;}}
     .tg-recipients-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
