@@ -2,7 +2,7 @@
         :root{--primary:#1a6fa8;--primary-light:#2580be;--primary-subtle:#e8f4fd;--accent:#0ea5e9;--white:#fff;--bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text-1:#0f172a;--text-2:#475569;--text-3:#94a3b8;--green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;--red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;--blue-bg:#eff6ff;--blue-text:#1d4ed8;--whatsapp:#25D366;--whatsapp-dark:#128C7E;--shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);--shadow-lg:0 10px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.02);--radius:8px;--radius-lg:12px;--transition:0.15s ease;}
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-1);line-height:1.5;font-size:14px;}
-        .portal-header{background:linear-gradient(135deg,#1a6fa8 0%,#1559a0 100%);padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:9999;box-shadow:0 2px 16px rgba(21,89,160,0.25);}
+        .portal-header{background:#1a6fa8;padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:9999;box-shadow:0 2px 16px rgba(21,89,160,0.25);}
         .logo-area{text-decoration:none;color:#fff;flex-shrink:0;display:flex;align-items:center;gap:10px;}
         .logo-icon{width:34px;height:34px;background:rgba(255,255,255,0.18);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;}
         .logo-area h3{font-size:15px;font-weight:700;line-height:1.2;}
@@ -148,8 +148,6 @@
         .empty-state .empty-icon{font-size:36px;margin-bottom:10px;opacity:.35;}
         .btn-reset{background:var(--primary);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:background var(--transition);}
         .btn-reset:hover{background:var(--primary-light);}
-        .portal-footer-simple{padding:20px 16px;text-align:center;border-top:1px solid var(--border);background:#fff;margin-top:28px;}
-        .footer-text{font-size:12px;color:var(--text-3);font-weight:500;}
         .loading-state{text-align:center;padding:60px 20px;}
         .loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
         @keyframes spin{to{transform:rotate(360deg);}}
@@ -246,7 +244,7 @@
         .admin-login-box button:hover{background:var(--primary-light);}
         input[type="date"]{color-scheme:light;}
         @media (max-width:1024px){.nav-links,.search-wrapper{display:none;}.hamburger-btn{display:flex;align-items:center;}}
-        @media (max-width:768px){.page-header-inner{padding:14px 16px;}.page-title h2{font-size:15px;}tbody td{padding:12px 10px;}th{padding:10px;}.portal-header{padding:0 12px;}.page-header{padding:20px 12px 0;}.main-content{padding:12px 12px 0;}.portal-footer-simple{padding:16px 12px;}.admin-modal-body{padding:18px;}.admin-modal{padding:12px 12px 0;}.detail-info-grid{grid-template-columns:1fr;}.detail-modal-content{max-width:95%;}.wa-float{bottom:16px;right:16px;}.wa-float a{width:50px;height:50px;font-size:26px;}}
+        @media (max-width:768px){.page-header-inner{padding:14px 16px;}.page-title h2{font-size:15px;}tbody td{padding:12px 10px;}th{padding:10px;}.portal-header{padding:0 12px;}.page-header{padding:20px 12px 0;}.main-content{padding:12px 12px 0;}.admin-modal-body{padding:18px;}.admin-modal{padding:12px 12px 0;}.detail-info-grid{grid-template-columns:1fr;}.detail-modal-content{max-width:95%;}.wa-float{bottom:16px;right:16px;}.wa-float a{width:50px;height:50px;font-size:26px;}}
         @media (max-width:520px){.col-maskapai,.col-durasi{display:none;}.logo-area h3{font-size:13px;}}
         @media (min-width:1600px){.page-header,.main-content{padding-left:24px;padding-right:24px;}.portal-header{padding-left:24px;padding-right:24px;}}
         @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}.ticker-text{animation:none;padding-left:0;white-space:normal;}}
