@@ -334,7 +334,7 @@
             const row = document.createElement('tr');
             if (diffMs >= 0 && Math.floor(diffMs / (1000*60*60*24)) <= 30) row.classList.add('row-urgent');
             row.innerHTML = `<td><span class="package-name${item.link_poster?' has-poster':''}" onclick="openDetailModal('${item.id}')"${item.link_poster?` data-poster="${escapeHtml(item.link_poster)}" data-nama="${escapeHtml(item.nama||'')}" onmouseenter="showPosterPopup(event,this)" onmouseleave="hidePosterPopup()"`:''} title="${item.link_poster?'Hover untuk preview poster — ':''}${escapeHtml(item.nama||'')}">${escapeHtml(item.nama||'')}${item.link_poster?'<i class="fas fa-image" style="margin-left:5px;font-size:10px;color:var(--primary);opacity:.6;vertical-align:middle;"></i>':''}</span><span class="countdown ${cdClass}"><i class="fa-solid fa-clock"></i> ${escapeHtml(cdText)}</span>${(diffMs >= 0 && Math.floor(diffMs/(1000*60*60*24))<=30)?'<span class="urgent-badge"><i class="fa-solid fa-bolt"></i> Segera!</span>':''}</td>
-                <td class="col-harga">${item.harga_quint?`<span class="price-main">${escapeHtml(item.harga_quint)}</span><span class="price-sub">per orang (Quint)</span>`:'<span style="color:var(--text-3);">—</span>'}</td>
+                <td class="col-harga">${item.harga_quint?`<span class="price-main">${escapeHtml(item.harga_quint)}</span>`:'<span style="color:var(--text-3);">—</span>'}</td>
                 <td class="date-cell">${escapeHtml(item.tgl||'')}</td>
                 <td class="col-durasi"><span class="badge">⏱ ${escapeHtml(item.durasi||'')}</span></td>
                 <td class="col-maskapai"><div class="maskapai-cell"><span class="maskapai-dot ${maskapaiDot}"></span>${escapeHtml(item.maskapai||'')}</div></td>
@@ -1770,7 +1770,7 @@
                     ${p.maskapai ? `<div class="featured-meta-row"><i class="fas fa-plane"></i>${escapeHtml(p.maskapai)}</div>` : ''}
                 </div>
                 ${p.harga_quint ? `<div class="featured-card-price">
-                    <div><span class="featured-price-main">${escapeHtml(p.harga_quint)}</span><br><span class="featured-price-sub">per orang (Quint)</span></div>
+                    <div><span class="featured-price-main">${escapeHtml(p.harga_quint)}</span></div>
                     <span class="status-pill ${isAvailable ? 'status-available' : 'status-expired'}" style="font-size:9px;">${isAvailable ? 'Tersedia' : 'Expired'}</span>
                 </div>` : ''}
                 <div class="featured-card-actions" onclick="event.stopPropagation()">
