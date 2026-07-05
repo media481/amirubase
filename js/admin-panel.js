@@ -20,12 +20,14 @@
         if (adminLoggedIn) {
             const isAdmin = currentRole === 'administrator';
 
-            // Tampilkan role badge di header modal
+            // Tampilkan role badge & tombol logout di header modal
             const roleBadge = document.getElementById('adminRoleBadge');
             if (roleBadge) {
                 roleBadge.style.display = 'inline';
                 roleBadge.textContent = isAdmin ? '\u{1F451} Administrator' : '\u{1F3A7} CS';
             }
+            const headerLogoutBtn = document.getElementById('adminHeaderLogoutBtn');
+            if (headerLogoutBtn) headerLogoutBtn.style.display = 'flex';
 
             const { data } = await supabaseClient.from('programs').select('*').order('created_at');
             adminPrograms = data || [];
@@ -37,14 +39,9 @@
 
             container.innerHTML = `
             <!-- TOOLBAR -->
-            ${isAdmin ? `
-            <div class="admin-toolbar">
-                <button class="admin-btn admin-btn-primary" onclick="showAdminForm()"><i class="fas fa-plus"></i> Program Baru</button>
-                <button class="admin-btn" onclick="logoutAdmin()" style="margin-left:auto;"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>` : `
+            ${isAdmin ? '' : `
             <div class="admin-toolbar" style="background:#faf5ff;border-color:#c4b5fd;align-items:center;">
                 <span style="font-size:13px;font-weight:600;color:#5b21b6;"><i class="fas fa-headset"></i> Login sebagai CS &mdash; hanya dapat mengelola Jadwal Tamu</span>
-                <button class="admin-btn" onclick="logoutAdmin()" style="margin-left:auto;"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>`}
 
             <!-- FORM TAMBAH/EDIT (hanya administrator) -->
@@ -329,6 +326,10 @@
             }
             renderJadwalAdminTable();
         } else {
+            const roleBadge = document.getElementById('adminRoleBadge');
+            if (roleBadge) roleBadge.style.display = 'none';
+            const headerLogoutBtn = document.getElementById('adminHeaderLogoutBtn');
+            if (headerLogoutBtn) headerLogoutBtn.style.display = 'none';
             container.innerHTML = `<div class="admin-login-box">
                 <div class="icon"><i class="fas fa-shield-alt"></i></div>
                 <h3>Admin Panel</h3>
@@ -786,5 +787,5 @@
     
     function sortAdminTable(column){adminSortAsc=adminSortColumn===column?!adminSortAsc:true;adminSortColumn=column;const programs=[...adminPrograms];programs.sort((a,b)=>{if(column==='tgl'){const dateA=parseDateFromString(a.tgl),dateB=parseDateFromString(b.tgl);return adminSortAsc?dateA-dateB:dateB-dateA;}const vA=String(a[column]||'').toLowerCase(),vB=String(b[column]||'').toLowerCase();return adminSortAsc?vA.localeCompare(vB):vB.localeCompare(vA);});adminPrograms=programs;renderAdminTable();}
     
-    function logoutAdmin(){adminLoggedIn=false;currentRole=null;sessionStorage.removeItem('admin_logged_in');sessionStorage.removeItem('admin_role');sessionStorage.removeItem('admin_login_time');if(sessionTimeout)clearTimeout(sessionTimeout);const roleBadge=document.getElementById('adminRoleBadge');if(roleBadge)roleBadge.style.display='none';renderAdminPanel();}
+    function logoutAdmin(){adminLoggedIn=false;currentRole=null;sessionStorage.removeItem('admin_logged_in');sessionStorage.removeItem('admin_role');sessionStorage.removeItem('admin_login_time');if(sessionTimeout)clearTimeout(sessionTimeout);const roleBadge=document.getElementById('adminRoleBadge');if(roleBadge)roleBadge.style.display='none';const headerLogoutBtn=document.getElementById('adminHeaderLogoutBtn');if(headerLogoutBtn)headerLogoutBtn.style.display='none';renderAdminPanel();}
     
