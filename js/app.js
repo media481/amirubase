@@ -601,7 +601,7 @@
             const roleBadge = document.getElementById('adminRoleBadge');
             if (roleBadge) {
                 roleBadge.style.display = 'inline';
-                roleBadge.textContent = isAdmin ? '\u{1F451} Administrator' : '\u{1F3A7} CS';
+                roleBadge.textContent = isAdmin ? 'Administrator' : 'CS';
             }
             const headerLogoutBtn = document.getElementById('adminHeaderLogoutBtn');
             if (headerLogoutBtn) headerLogoutBtn.style.display = 'flex';
