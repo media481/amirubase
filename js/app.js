@@ -727,7 +727,7 @@
                             <th class="sortable-header" onclick="sortAdminTable('nama')">Nama Program <i class="fas fa-sort"></i></th>
                             <th class="sortable-header" onclick="sortAdminTable('harga_quint')">Harga <i class="fas fa-sort"></i></th>
                             <th class="sortable-header" onclick="sortAdminTable('tgl')">Tanggal <i class="fas fa-sort"></i></th>
-                            <th>Aksi</th>
+                            <th style="text-align:right;">Aksi</th>
                         </tr></thead>
                         <tbody id="adminTableBody"></tbody>
                     </table>
@@ -774,7 +774,7 @@
                             <th>Jumlah</th>
                             <th>Keperluan</th>
                             <th>Status</th>
-                            <th>Aksi</th>
+                            <th style="text-align:right;">Aksi</th>
                         </tr></thead>
                         <tbody id="jadwalAdminTableBody"></tbody>
                     </table>
@@ -1036,7 +1036,7 @@
         </div>
         <div class="kb-jamaah-table-wrap">
             <table class="kb-jamaah-table">
-                <thead><tr><th>#</th><th>Nama Jamaah</th><th>No. Paspor</th><th>Asal Daerah</th><th>WhatsApp</th><th>Status Bayar</th><th>Aksi</th></tr></thead>
+                <thead><tr><th>#</th><th>Nama Jamaah</th><th>No. Paspor</th><th>Asal Daerah</th><th>WhatsApp</th><th>Status Bayar</th><th style="text-align:right;">Aksi</th></tr></thead>
                 <tbody>${tableRows}</tbody>
             </table>
         </div>`;
