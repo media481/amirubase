@@ -388,7 +388,9 @@
 
     /* ===== PUBLIC TABS ===== */
     .pub-tabs-wrapper{max-width:1600px;margin:0 auto;padding:16px 16px 0;}
-    .pub-tabs-bar{display:flex;gap:0;background:#fff;border-radius:var(--radius-lg) var(--radius-lg) 0 0;border:1px solid var(--border);border-bottom:none;overflow:hidden;}
+    .pub-tabs-bar{display:flex;align-items:center;gap:0;background:#fff;border-radius:var(--radius-lg) var(--radius-lg) 0 0;border:1px solid var(--border);border-bottom:none;overflow:hidden;flex-wrap:wrap;}
+    .pub-tabs-bar .stats-row{flex:0 0 auto;display:flex;gap:6px;flex-wrap:nowrap;padding:0 16px;}
+    .pub-tabs-bar .stat-chip{padding:5px 10px;font-size:11px;white-space:nowrap;}
     .pub-tab-btn{flex:1;padding:13px 20px;font-size:13px;font-weight:700;color:var(--text-3);background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;transition:color var(--transition),background var(--transition),border-color var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;}
     .pub-tab-btn:hover{color:var(--text-1);background:var(--surface2);}
     .pub-tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);background:#fff;}
@@ -413,7 +415,7 @@
     .pub-tab-panel .table-container{border-radius:var(--radius);border:1px solid var(--border);}
     .pub-tab-panel .page-header-inner{border-radius:var(--radius);margin-bottom:14px;}
     .pub-tab-btn.active.tab-keberangkatan{color:#0369a1;border-bottom-color:#0369a1;}
-    @media(max-width:768px){.pub-tabs-bar{flex-direction:row;}.pub-tab-btn{font-size:12px;padding:11px 12px;gap:5px;}.pub-tab-body{padding:14px;}}
+    @media(max-width:768px){.pub-tabs-bar{flex-direction:row;}.pub-tab-btn{font-size:12px;padding:11px 12px;gap:5px;}.pub-tab-body{padding:14px;}.pub-tabs-bar .stats-row{flex:1 1 100%;justify-content:center;padding:8px 10px;border-top:1px solid var(--border);}}
     @media(min-width:1600px){.pub-tabs-wrapper{padding-left:24px;padding-right:24px;}}
 
     /* ===== DETAIL KEBERANGKATAN ===== */
