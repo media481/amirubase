@@ -295,7 +295,7 @@
                     }
                 } catch (_) {}
             }
-            loadingEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Gagal memuat data: ${sanitizeHtml(msg)}</p><button class="btn-reset" onclick="location.reload()">Coba Lagi</button></div>`;
+            loadingEl.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div><p>Gagal memuat data: ${sanitizeHtml(msg)}</p><button class="btn-reset" onclick="location.reload()">Coba Lagi</button></div>`;
         }
     }
 
@@ -308,7 +308,7 @@
     function renderTable(data) {
         const tbody = document.getElementById('tableBody'); if (!tbody) return;
         const now = new Date();
-        if (!data || !data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>Belum ada program. Klik "Admin" untuk menambah.</p></div></td></tr>`; return; }
+        if (!data || !data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-inbox"></i></div><p>Belum ada program. Klik "Admin" untuk menambah.</p></div></td></tr>`; return; }
         tbody.innerHTML = '';
         data.forEach(item => {
             const isAvailable = item.dateObj >= now, statusClass = isAvailable ? "status-available" : "status-expired";
@@ -333,12 +333,12 @@
             else if (maskapaiLower.includes('air asia') || maskapaiLower.includes('airasia')) maskapaiDot='airasia';
             const row = document.createElement('tr');
             if (diffMs >= 0 && Math.floor(diffMs / (1000*60*60*24)) <= 30) row.classList.add('row-urgent');
-            row.innerHTML = `<td><span class="package-name${item.link_poster?' has-poster':''}" onclick="openDetailModal('${item.id}')"${item.link_poster?` data-poster="${escapeHtml(item.link_poster)}" data-nama="${escapeHtml(item.nama||'')}" onmouseenter="showPosterPopup(event,this)" onmouseleave="hidePosterPopup()"`:''} title="${item.link_poster?'Hover untuk preview poster — ':''}${escapeHtml(item.nama||'')}">${escapeHtml(item.nama||'')}${item.link_poster?'<i class="fas fa-image" style="margin-left:5px;font-size:10px;color:var(--primary);opacity:.6;vertical-align:middle;"></i>':''}</span><span class="countdown ${cdClass}">🕐 ${escapeHtml(cdText)}</span>${(diffMs >= 0 && Math.floor(diffMs/(1000*60*60*24))<=30)?'<span class="urgent-badge">🔥 Segera!</span>':''}</td>
+            row.innerHTML = `<td><span class="package-name${item.link_poster?' has-poster':''}" onclick="openDetailModal('${item.id}')"${item.link_poster?` data-poster="${escapeHtml(item.link_poster)}" data-nama="${escapeHtml(item.nama||'')}" onmouseenter="showPosterPopup(event,this)" onmouseleave="hidePosterPopup()"`:''} title="${item.link_poster?'Hover untuk preview poster — ':''}${escapeHtml(item.nama||'')}">${escapeHtml(item.nama||'')}${item.link_poster?'<i class="fas fa-image" style="margin-left:5px;font-size:10px;color:var(--primary);opacity:.6;vertical-align:middle;"></i>':''}</span><span class="countdown ${cdClass}"><i class="fa-solid fa-clock"></i> ${escapeHtml(cdText)}</span>${(diffMs >= 0 && Math.floor(diffMs/(1000*60*60*24))<=30)?'<span class="urgent-badge"><i class="fa-solid fa-bolt"></i> Segera!</span>':''}</td>
                 <td class="col-harga">${item.harga_quint?`<span class="price-main">${escapeHtml(item.harga_quint)}</span><span class="price-sub">per orang (Quint)</span>`:'<span style="color:var(--text-3);">—</span>'}</td>
-                <td class="date-cell">📅 ${escapeHtml(item.tgl||'')}</td>
+                <td class="date-cell"><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(item.tgl||'')}</td>
                 <td class="col-durasi"><span class="badge">⏱ ${escapeHtml(item.durasi||'')}</span></td>
                 <td class="col-maskapai"><div class="maskapai-cell"><span class="maskapai-dot ${maskapaiDot}"></span>${escapeHtml(item.maskapai||'')}</div></td>
-                <td><div class="actions-cell">${item.link_form?`<a href="${escapeHtml(item.link_form)}" target="_blank" class="btn-icon" data-tip="Form Daftar">📋</a>`:'<span class="btn-icon disabled">📋</span>'}${item.link_itinerary?`<a href="${escapeHtml(item.link_itinerary)}" target="_blank" class="btn-icon" data-tip="Itinerary">📄</a>`:'<span class="btn-icon disabled">📄</span>'}${item.link_poster?`<a href="${escapeHtml(item.link_poster)}" target="_blank" class="btn-icon" data-tip="Poster">🖼️</a>`:'<span class="btn-icon disabled">🖼️</span>'}${item.link_metaads?`<a href="${escapeHtml(item.link_metaads)}" target="_blank" class="btn-icon" data-tip="Meta Ads">🔗</a>`:'<span class="btn-icon disabled">🔗</span>'}${item.link_dokumentasi?`<a href="${escapeHtml(item.link_dokumentasi)}" target="_blank" class="btn-icon" data-tip="Dokumentasi">📂</a>`:'<span class="btn-icon disabled">📂</span>'}</div></td>
+                <td><div class="actions-cell">${item.link_form?`<a href="${escapeHtml(item.link_form)}" target="_blank" class="btn-icon" data-tip="Form Daftar"><i class="fa-solid fa-clipboard-list"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-clipboard-list"></i></span>'}${item.link_itinerary?`<a href="${escapeHtml(item.link_itinerary)}" target="_blank" class="btn-icon" data-tip="Itinerary"><i class="fa-solid fa-file-lines"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-file-lines"></i></span>'}${item.link_poster?`<a href="${escapeHtml(item.link_poster)}" target="_blank" class="btn-icon" data-tip="Poster"><i class="fa-solid fa-image"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-image"></i></span>'}${item.link_metaads?`<a href="${escapeHtml(item.link_metaads)}" target="_blank" class="btn-icon" data-tip="Meta Ads"><i class="fa-solid fa-link"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-link"></i></span>'}${item.link_dokumentasi?`<a href="${escapeHtml(item.link_dokumentasi)}" target="_blank" class="btn-icon" data-tip="Dokumentasi"><i class="fa-solid fa-folder-open"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-folder-open"></i></span>'}</div></td>
                 <td><span class="status-pill ${statusClass}">${isAvailable?"Tersedia":"Expired"}</span></td>`;
             tbody.appendChild(row);
         });
@@ -367,12 +367,12 @@
     }
     function buildInfoBarText({ lokasi, suhu, cuacaText, tanggalStr, greeting, quote }) {
         const parts = [];
-        if (lokasi) parts.push(`📍 ${lokasi}`);
-        if (suhu != null) parts.push(`🌡️ ${suhu}°C${cuacaText ? ' · ' + cuacaText : ''}`);
-        parts.push(`📅 ${tanggalStr}`);
-        parts.push(`👋 ${greeting}, Tim!`);
+        if (lokasi) parts.push(`<i class="fa-solid fa-location-dot"></i> ${lokasi}`);
+        if (suhu != null) parts.push(`<i class="fa-solid fa-temperature-half"></i> ${suhu}°C${cuacaText ? ' · ' + cuacaText : ''}`);
+        parts.push(`<i class="fa-solid fa-calendar-days"></i> ${tanggalStr}`);
+        parts.push(`<i class="fa-solid fa-hand"></i> ${greeting}, Tim!`);
         const mainLine = parts.join(' <span class="sep">|</span> ');
-        const quotePart = `<span class="ib-quote-sep"> <span class="sep">|</span> <span class="ib-quote">💡 "${quote}"</span></span>`;
+        const quotePart = `<span class="ib-quote-sep"> <span class="sep">|</span> <span class="ib-quote"><i class="fa-solid fa-lightbulb"></i> "${quote}"</span></span>`;
         return mainLine + quotePart;
     }
     // Mapping kode cuaca Open-Meteo (WMO) ke teks singkat Bahasa Indonesia
@@ -469,7 +469,7 @@
     // ========== END INFO BAR ==========
 
     function renderStats() { const now = new Date(); const visible = dataUmroh.filter(p=>p.is_active!==false); const total = visible.length, active = visible.filter(i=>i.dateObj>=now).length, past = total-active; document.getElementById('statsRow') && (document.getElementById('statsRow').innerHTML = `<span class="stat-chip total"><i class="fa-solid fa-layer-group"></i> ${total} Paket</span><span class="stat-chip active"><i class="fa-solid fa-circle-check"></i> ${active} Tersedia</span><span class="stat-chip inactive"><i class="fa-solid fa-clock-rotate-left"></i> ${past} Expired</span>`); }
-    function initTicker() { const now = new Date(); const active = dataUmroh.filter(i=>i.is_active!==false && i.dateObj>=now).map(i=>`✨ ${escapeHtml(i.nama)} — ${escapeHtml(i.tgl)} (${escapeHtml(i.maskapai)})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); const ticker = document.getElementById('navTicker'); ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); applyTickerVisibility(); }
+    function initTicker() { const now = new Date(); const active = dataUmroh.filter(i=>i.is_active!==false && i.dateObj>=now).map(i=>`<i class="fa-solid fa-plane-departure"></i> ${escapeHtml(i.nama)} — ${escapeHtml(i.tgl)} (${escapeHtml(i.maskapai)})`).join(' &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; '); const ticker = document.getElementById('navTicker'); ticker && (ticker.innerHTML = active || "PT Amiru Haramain Indonesia."); applyTickerVisibility(); }
 
     // ========== RUNNING TEXT (TICKER) TOGGLE ==========
     // Status disimpan di Supabase tabel tg_config (key: 'ticker_enabled'), berlaku global untuk semua pengunjung
