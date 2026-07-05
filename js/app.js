@@ -241,7 +241,7 @@
             if (cached && cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_DURATION)) {
                 dataUmroh = JSON.parse(cached);
                 dataUmroh.forEach(p => { if (p.tgl && !p.dateObj) p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-                currentData = dataUmroh.filter(p => p.is_active !== false).sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
+                currentData = dataUmroh.filter(p => p.is_active !== false && p.isAvailable).sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
                 renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
                 loadingEl.style.display = 'none'; tableEl.style.display = 'table';
                 return;
@@ -263,7 +263,7 @@
             sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
             dataUmroh = plainData;
             dataUmroh.forEach(p => { p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-            currentData = dataUmroh.filter(p => p.is_active !== false).sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
+            currentData = dataUmroh.filter(p => p.is_active !== false && p.isAvailable).sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
             renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
             loadingEl.style.display = 'none'; tableEl.style.display = 'table';
         } catch (err) {
@@ -288,7 +288,7 @@
                         sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
                         dataUmroh = plainData;
                         dataUmroh.forEach(p => { p.dateObj = parseDateFromString(p.tgl); p.isAvailable = p.dateObj >= new Date(); });
-                        currentData = dataUmroh.filter(p => p.is_active !== false).sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
+                        currentData = dataUmroh.filter(p => p.is_active !== false && p.isAvailable).sort((a,b) => (a.dateObj||0) - (b.dateObj||0));
                         renderTable(currentData); renderStats(); initTicker(); renderFeaturedSection();
                         loadingEl.style.display = 'none'; tableEl.style.display = 'table';
                         return;
@@ -525,12 +525,11 @@
 
     // Search with DEBOUNCE (300ms)
     function filterData(term) {
-        const t = term.toLowerCase().trim(), now = new Date();
-        const visiblePrograms = dataUmroh.filter(p => p.is_active !== false);
+        const t = term.toLowerCase().trim();
+        const visiblePrograms = dataUmroh.filter(p => p.is_active !== false && p.isAvailable);
         if (!t) { currentData = [...visiblePrograms].sort((a,b) => (a.dateObj||0) - (b.dateObj||0)); }
         else {
             currentData = visiblePrograms.filter(item => {
-                const status = item.dateObj >= now ? 'tersedia' : 'expired';
                 // Pecah kata kunci: semua kata harus match di field manapun
                 const keywords = t.split(/\s+/).filter(Boolean);
                 const haystack = [
@@ -539,8 +538,7 @@
                     item.tgl || '',
                     item.durasi || '',
                     item.harga_quint || '',
-                    item.teks_wa || '',
-                    status
+                    item.teks_wa || ''
                 ].join(' ').toLowerCase();
                 return keywords.every(kw => haystack.includes(kw));
             });
@@ -549,7 +547,7 @@
         else renderTable(currentData);
     }
 
-    function resetSearch() { document.getElementById('searchInput').value = ''; document.getElementById('searchInputMobile').value = ''; currentData = dataUmroh.filter(p => p.is_active !== false).sort((a,b) => (a.dateObj||0) - (b.dateObj||0)); renderTable(currentData); }
+    function resetSearch() { document.getElementById('searchInput').value = ''; document.getElementById('searchInputMobile').value = ''; currentData = dataUmroh.filter(p => p.is_active !== false && p.isAvailable).sort((a,b) => (a.dateObj||0) - (b.dateObj||0)); renderTable(currentData); }
 
     // Debounce untuk search
     function handleSearchInput(e) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => filterData(e.target.value), 300); }
@@ -1754,7 +1752,7 @@
         const grid = document.getElementById('featuredGrid');
         if (!grid) return;
 
-        const featuredPrograms = dataUmroh.filter(p => ids.includes(String(p.id)) && p.is_active !== false);
+        const featuredPrograms = dataUmroh.filter(p => ids.includes(String(p.id)) && p.is_active !== false && p.isAvailable);
 
         if (!featuredPrograms.length) {
             grid.innerHTML = '<div class="featured-empty"><i class="fa-solid fa-star"></i>Belum ada program unggulan yang dipilih.</div>';
