@@ -38,13 +38,6 @@
         .drawer-admin{padding:14px;border-top:1px solid var(--border);}
         .drawer-admin a{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--primary);color:#fff;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;cursor:pointer;}
         .drawer-admin a:hover{background:var(--primary-light);}
-        .ticker-wrapper{background:#fff;border-bottom:1px solid var(--border);height:36px;display:flex;align-items:center;overflow:hidden;}
-        .ticker-label{background:#ef4444;color:#fff;padding:0 16px;height:100%;display:flex;align-items:center;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;position:relative;gap:5px;}
-        .ticker-label::after{content:'';position:absolute;right:-9px;top:0;border-top:18px solid transparent;border-bottom:18px solid transparent;border-left:9px solid #ef4444;}
-        .ticker-content{flex:1;overflow:hidden;}
-        .ticker-text{display:inline-block;white-space:nowrap;padding-left:100%;animation:ticker-move 95s linear infinite;font-size:12.5px;font-weight:500;color:var(--text-2);}
-        @keyframes ticker-move{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
-        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
         .page-header{padding:24px 16px 0;max-width:1600px;margin:0 auto;}
         .page-header-inner{background:#fff;border-radius:var(--radius-lg);padding:18px 24px;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
         .page-title-row{display:flex;align-items:center;gap:12px;}
@@ -96,13 +89,6 @@
         .program-status-badge{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;vertical-align:middle;}
         .program-status-badge.off{background:#f3f4f6;color:#6b7280;border:1px solid #d1d5db;}
 
-        /* ===== INFO BAR: lokasi/cuaca/tanggal/salam/quote (statis, 1 baris) ===== */
-        .infobar-wrapper{background:linear-gradient(90deg,var(--primary) 0%,var(--primary-light) 100%);height:32px;display:flex;align-items:center;padding:0 16px;overflow:hidden;}
-        .infobar-content{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:flex-start;}
-        .infobar-text{display:inline-block;font-size:12px;font-weight:600;color:#fff;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-        .infobar-text .ib-quote{font-style:italic;opacity:.95;}
-        .infobar-text .sep{margin:0 8px;opacity:.6;}
-        @media (max-width:640px){.infobar-text{font-size:10.5px;} .infobar-text .ib-quote-sep{display:none;}}
         .price-main{font-weight:600;color:var(--text-1);font-size:13px;display:block;}
         .price-sub{font-size:10px;color:var(--text-3);font-weight:600;}
         .date-cell{font-size:13px;font-weight:600;color:var(--text-1);white-space:nowrap;}
@@ -249,7 +235,7 @@
         @media (max-width:768px){.page-header-inner{padding:14px 16px;}.page-title h2{font-size:15px;}tbody td{padding:12px 10px;}th{padding:10px;}.portal-header{padding:0 12px;}.page-header{padding:20px 12px 0;}.main-content{padding:12px 12px 0;}.admin-modal-body{padding:18px;}.admin-modal{padding:12px 12px 0;}.detail-info-grid{grid-template-columns:1fr;}.detail-modal-content{max-width:95%;}.wa-float{bottom:16px;right:16px;}.wa-float a{width:50px;height:50px;font-size:26px;}}
         @media (max-width:520px){.col-maskapai,.col-durasi{display:none;}.logo-area h3{font-size:13px;}}
         @media (min-width:1600px){.page-header,.main-content{padding-left:24px;padding-right:24px;}.portal-header{padding-left:24px;padding-right:24px;}}
-        @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}.ticker-text{animation:none;padding-left:0;white-space:normal;}}
+        @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
     
     /* ===== ADMIN TABS ===== */
     .admin-tabs-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;scrollbar-width:none;}
@@ -278,10 +264,6 @@
         color-scheme: light !important;
         color: var(--text-1) !important;
         background-color: #ffffff !important;
-    }
-    .ticker-label {
-        padding: 0 20px 0 16px !important;
-        white-space: nowrap !important;
     }
     @media (max-width: 768px) {
         .actions-cell {
