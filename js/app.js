@@ -198,6 +198,124 @@
         return teks;
     }
 
+    // ========== GENERATE TEKS WA DENGAN AI (logika dari Generator Caption) ==========
+    // System prompt sama persis dengan tool "Generator Caption — Amiru Tour" agar gaya & struktur caption konsisten
+    const WA_CAPTION_SYSTEM_PROMPT = `Kamu adalah copywriter marketing untuk biro umroh "Amiru Tour". Tugasmu mengubah catatan kasar/konsep program dari direktur menjadi SATU caption WhatsApp siap kirim dalam Bahasa Indonesia, mengikuti pola format berikut secara konsisten (struktur section, gaya bullet/emoji), dengan isi yang disesuaikan sepenuhnya dari konsep yang diberikan user:
+
+CONTOH POLA YANG HARUS DIIKUTI STRUKTURNYA:
+🕋 [JUDUL PROGRAM DENGAN EMOJI RELEVAN] 🕋
+📅 [Durasi] Hari: [Tanggal mulai] – [Tanggal selesai]
+[1-2 kalimat pembuka yang menarik, spesifik ke keunikan program ini — bukan kalimat generik]
+
+✈️ Fasilitas:
+✅ [Maskapai]
+✅ [Transportasi/kereta jika ada]
+✅ Hotel Madinah: [nama hotel] [bintang] ([durasi malam])
+✅ Hotel Makkah: [nama hotel] [bintang] ([durasi malam])
+✅ [fasilitas unik lain jika ada di konsep, misal city tour, tabligh akbar, dst]
+
+💰 Biaya Program:
+[Tulis tiap kategori/paket harga sesuai input, dengan format rapi per kategori kamar: Quad/Quint, Triple, Double, dst. Jika ada beberapa paket (misal upgrade hotel), buat sub-section terpisah]
+
+✅ Termasuk:
+- [list sesuai input]
+
+❌ Tidak Termasuk:
+- [list sesuai input]
+
+📞 Info & Itinerary:
+[nomor WA yang diberikan, masing-masing di baris sendiri]
+
+ATURAN KETAT:
+1. JANGAN mengubah, membulatkan, atau mengarang ulang angka harga maupun tanggal — salin persis dari input.
+2. JANGAN menambahkan section atau fasilitas yang tidak disebutkan di konsep (misal jangan mengada-adakan upgrade hotel kalau tidak ada di input).
+3. Pilih emoji header dan emoji fasilitas yang relevan dengan tema spesifik program ini (city tour, tabligh akbar, Al Ula, dst), jangan asal tempel emoji.
+4. Kalimat pembuka harus terasa ditulis khusus untuk program ini, bukan template kosong seperti "kesempatan langka beribadah di tanah suci" jika tidak relevan dengan isi konsep.
+5. Jika konsep tidak menyebutkan info tertentu (misal tidak ada kereta cepat), jangan ditulis sama sekali.
+6. Output HANYA berupa teks caption final. JANGAN ada kalimat pembuka/penutup dari kamu, JANGAN ada markdown code fence, JANGAN ada penjelasan tambahan.`;
+
+    // Susun "konsep" dari data form yang sudah diisi admin, dipakai sebagai input ke AI
+    function buildWaConceptFromForm(data) {
+        const lines = [];
+        lines.push(`*${(data.nama || 'PROGRAM UMROH').toUpperCase()}*`);
+        if (data.durasi) lines.push(`Program ${data.durasi}`);
+        if (data.tgl) lines.push(data.tgl);
+
+        if (data.maskapai) lines.push(`*PESAWAT*\n${data.maskapai}`);
+
+        if (data.hotel_madinah) {
+            lines.push(`*HOTEL MADINAH*\n${data.hotel_madinah}${data.makan_madinah ? '\nMakan: ' + data.makan_madinah : ''}`);
+        }
+        if (data.hotel_makkah) {
+            lines.push(`*HOTEL MAKKAH*\n${data.hotel_makkah}${data.makan_makkah ? '\nMakan: ' + data.makan_makkah : ''}`);
+        }
+
+        const hargaLines = [];
+        if (data.harga_quad) hargaLines.push(`${data.harga_quad} Quad`);
+        if (data.harga_triple) hargaLines.push(`${data.harga_triple} Triple`);
+        if (data.harga_double) hargaLines.push(`${data.harga_double} Double`);
+        if (!hargaLines.length && data.harga_quint) hargaLines.push(`${data.harga_quint} Quad`);
+        if (hargaLines.length) lines.push(`*BIAYA PROGRAM*\n${hargaLines.join('\n')}`);
+
+        if (data.termasuk) lines.push(`*Termasuk*\n${data.termasuk}`);
+        if (data.tidak_termasuk) lines.push(`*Tidak Termasuk*\n${data.tidak_termasuk}`);
+        if (data.catatan_cx) lines.push(`*Catatan Tambahan*\n${data.catatan_cx}`);
+
+        return lines.join('\n\n');
+    }
+
+    async function generateAIWAText() {
+        const data = getAdminFormData();
+        if (!data.nama) {
+            alert('Isi dulu Nama Program sebelum generate teks WA dengan AI.');
+            return;
+        }
+
+        const btn = document.getElementById('aiGenerateWaBtn');
+        const btnText = document.getElementById('aiGenerateWaBtnText');
+        const status = document.getElementById('aiGenerateWaStatus');
+        const textarea = document.getElementById('admin_teks_wa');
+        if (!textarea) return;
+
+        const konsep = buildWaConceptFromForm(data);
+        const contacts = 'wa.me/6285122336300\nwa.me/6285196241819';
+        const userMsg = `KONSEP PROGRAM:\n${konsep}\n\nNOMOR WA KONTAK YANG DIPAKAI DI BAGIAN PENUTUP:\n${contacts}`;
+
+        if (btn) btn.disabled = true;
+        if (btnText) btnText.textContent = 'Menyusun...';
+        if (status) { status.textContent = ''; status.style.color = '#64748b'; }
+
+        try {
+            const response = await fetch("https://api.anthropic.com/v1/messages", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    model: "claude-sonnet-4-6",
+                    max_tokens: 1000,
+                    system: WA_CAPTION_SYSTEM_PROMPT,
+                    messages: [{ role: "user", content: userMsg }]
+                })
+            });
+            if (!response.ok) throw new Error('Gagal memanggil API (status ' + response.status + ')');
+            const resData = await response.json();
+            const textBlocks = (resData.content || []).filter(b => b.type === 'text').map(b => b.text);
+            const result = textBlocks.join('\n').trim();
+            if (!result) throw new Error('Tidak ada hasil teks dari model.');
+
+            textarea.value = result;
+            if (status) { status.textContent = '✅ Teks berhasil dibuat, cek & sunting bila perlu.'; status.style.color = '#16a34a'; }
+        } catch (err) {
+            console.error(err);
+            if (status) { status.textContent = '❌ ' + (err?.message || 'Gagal generate teks.'); status.style.color = '#dc2626'; }
+        } finally {
+            if (btn) btn.disabled = false;
+            if (btnText) btnText.textContent = 'Generate dengan AI';
+        }
+    }
+    window.generateAIWAText = generateAIWAText;
+    // ========== END GENERATE TEKS WA DENGAN AI ==========
+
+
     function formatHargaJuta(hargaStr) {
         // Input: "Rp 28.950.000" atau "28950000" → output: "Rp28,95 jt"
         if (!hargaStr) return '';
@@ -485,7 +603,11 @@
                     <div class="admin-form-group"><label>Link Poster</label><input type="url" id="admin_link_poster" placeholder="https://..."></div>
                     <div class="admin-form-group"><label>Link Meta Ads</label><input type="url" id="admin_link_metaads" placeholder="https://..."></div>
                     <div class="admin-form-group"><label>Link Dokumentasi</label><input type="url" id="admin_link_dokumentasi" placeholder="https://..."></div>
-                    <div class="admin-form-group admin-full-width"><label>Teks WA</label><textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis" maxlength="5000"></textarea></div>
+                    <div class="admin-form-group admin-full-width">
+                        <label>Teks WA</label>
+                        <div id="aiGenerateWaStatus" style="font-size:11.5px;color:#64748b;margin-bottom:4px;min-height:14px;"></div>
+                        <textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis, atau isi field lain lalu klik 'Generate Teks WA (AI)' di bawah" maxlength="5000"></textarea>
+                    </div>
                 </div>
                 <!-- ADMIN-ONLY: Data Lengkap untuk Crosscheck -->
                 <div style="padding:0 20px;margin-bottom:4px;">
@@ -507,6 +629,7 @@
                 </div>
                 <div class="form-actions">
                     <button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button>
+                    <button class="admin-btn" id="aiGenerateWaBtn" onclick="generateAIWAText()"><i class="fas fa-wand-magic-sparkles"></i> <span id="aiGenerateWaBtnText">Generate Teks WA (AI)</span></button>
                     <button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button>
                     <button class="admin-btn" onclick="hideAdminForm()">Batal</button>
                 </div>
