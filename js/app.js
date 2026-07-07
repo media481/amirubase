@@ -248,7 +248,7 @@
         return teks;
     }
 
-    // Dipanggil dari tombol "Generate Teks WA" di form — instan, tanpa panggilan jaringan
+    // Dipanggil dari tombol "Refresh Teks WA" di form — instan, tanpa panggilan jaringan
     function generateAIWAText() {
         const data = getAdminFormData();
         if (!data.nama) {
@@ -556,7 +556,7 @@
                     <div class="admin-form-group admin-full-width">
                         <label>Teks WA</label>
                         <div id="aiGenerateWaStatus" style="font-size:11.5px;color:#64748b;margin-bottom:4px;min-height:14px;"></div>
-                        <textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis, atau isi field lain lalu klik 'Generate Teks WA' di bawah" maxlength="5000"></textarea>
+                        <textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis, atau isi field lain lalu klik 'Refresh Teks WA' di bawah" maxlength="5000"></textarea>
                     </div>
                 </div>
                 <!-- ADMIN-ONLY: Data Lengkap untuk Crosscheck -->
@@ -579,8 +579,7 @@
                 </div>
                 <div class="form-actions">
                     <button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button>
-                    <button class="admin-btn" id="aiGenerateWaBtn" onclick="generateAIWAText()"><i class="fas fa-wand-magic-sparkles"></i> <span id="aiGenerateWaBtnText">Generate Teks WA</span></button>
-                    <button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button>
+                    <button class="admin-btn" id="aiGenerateWaBtn" onclick="generateAIWAText()"><i class="fas fa-rotate"></i> <span id="aiGenerateWaBtnText">Refresh Teks WA</span></button>
                     <button class="admin-btn" onclick="hideAdminForm()">Batal</button>
                 </div>
             </div>` : ''}
@@ -1138,7 +1137,6 @@
     window.onDeleteConfirmInput = onDeleteConfirmInput;
     window.confirmDeleteProgram = confirmDeleteProgram;
     async function clearAllAdminData(){if(confirm('⚠️ PERINGATAN: Hapus SEMUA program?')){try{const{data}=await supabaseClient.from('programs').select('id');for(const prog of data)await deleteProgramById(prog.id);await loadDataFromSupabase(true);await renderAdminPanel();showToast('Semua program dihapus');}catch(err){showToast('Gagal: '+err.message);}}}
-    function previewAdminWA(){const data=getAdminFormData();const waText=data.teks_wa||generateAutoWAText(data);alert('📱 Preview Teks WA:\n\n'+waText);}
     async function exportAdminData() {
         showToast('⏳ Menyiapkan backup...');
         try {
@@ -1580,7 +1578,7 @@
         setTimeout(() => status.style.display = 'none', 6000);
         showToast('Form berhasil diisi otomatis (' + parts.length + ' field)');
     };
-    window.resetSearch=resetSearch;window.openAdminModal=openAdminModal;window.closeAdminModal=closeAdminModal;window.checkAdminLogin=checkAdminLogin;window.logoutAdmin=logoutAdmin;window.showAdminForm=showAdminForm;window.hideAdminForm=hideAdminForm;window.saveAdminProgram=saveAdminProgram;window.editAdminProgram=editAdminProgram;window.duplicateAdminProgram=duplicateAdminProgram;window.deleteAdminProgram=deleteAdminProgram;window.clearAllAdminData=clearAllAdminData;window.exportAdminData=exportAdminData;window.importAdminData=importAdminData;window.previewAdminWA=previewAdminWA;window.sortAdminTable=sortAdminTable;window.openDetailModal=openDetailModal;window.closeDetailModal=closeDetailModal;window.copyDetailWAText=copyDetailWAText;
+    window.resetSearch=resetSearch;window.openAdminModal=openAdminModal;window.closeAdminModal=closeAdminModal;window.checkAdminLogin=checkAdminLogin;window.logoutAdmin=logoutAdmin;window.showAdminForm=showAdminForm;window.hideAdminForm=hideAdminForm;window.saveAdminProgram=saveAdminProgram;window.editAdminProgram=editAdminProgram;window.duplicateAdminProgram=duplicateAdminProgram;window.deleteAdminProgram=deleteAdminProgram;window.clearAllAdminData=clearAllAdminData;window.exportAdminData=exportAdminData;window.importAdminData=importAdminData;window.sortAdminTable=sortAdminTable;window.openDetailModal=openDetailModal;window.closeDetailModal=closeDetailModal;window.copyDetailWAText=copyDetailWAText;
 
     function showCsLockWarning() { showToast('🔒 Fitur ini hanya untuk Administrator'); }
     window.showCsLockWarning = showCsLockWarning;

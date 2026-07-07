@@ -296,7 +296,7 @@
 
 
 <!-- App JS -->
-<script src="js/app.js?v=1783267191"></script>
+<script src="js/app.js?v=1783392624"></script>
 
 <!-- PWA Service Worker -->
 <script>
@@ -305,6 +305,15 @@
             navigator.serviceWorker.register('service-worker.js')
                 .then((reg) => console.log('[PWA] Service worker terdaftar:', reg.scope))
                 .catch((err) => console.warn('[PWA] Gagal mendaftarkan service worker:', err));
+        });
+
+        // Reload otomatis sekali saat service worker versi baru mengambil alih,
+        // supaya pengguna yang sudah install PWA sebelumnya langsung dapat update terbaru
+        let swAlreadyRefreshed = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (swAlreadyRefreshed) return;
+            swAlreadyRefreshed = true;
+            window.location.reload();
         });
     }
 </script>
