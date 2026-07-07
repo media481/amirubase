@@ -138,59 +138,109 @@
         return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
     }
 
+    // ========== GENERATE TEKS WA (native, tanpa AI) ==========
+    // Mengikuti pola struktur yang sama dengan tool "Generator Caption — Amiru Tour":
+    // 🕋 Judul -> 📅 Tanggal -> kalimat pembuka -> ✈️ Fasilitas -> 💰 Biaya -> ✅ Termasuk -> ❌ Tidak Termasuk -> 📞 Kontak
+    // Semua disusun murni dari field form, tanpa memanggil API/AI.
+
+    // Hash string sederhana & deterministik, dipakai untuk memilih variasi kalimat pembuka generik
+    function simpleStringHash(str) {
+        let h = 0;
+        for (let i = 0; i < str.length; i++) { h = (h * 31 + str.charCodeAt(i)) >>> 0; }
+        return h;
+    }
+
+    // Pilih emoji tema header berdasarkan kata kunci yang ada di nama program / catatan admin
+    function detectThemeEmoji(text) {
+        const t = text.toLowerCase();
+        if (t.includes('al ula') || t.includes('alula')) return '🏜️';
+        if (t.includes('tabligh')) return '📢';
+        if (t.includes('dubai')) return '🏙️';
+        if (t.includes('turki') || t.includes('turkey')) return '🕌';
+        if (t.includes('ramadhan') || t.includes('ramadan')) return '🌙';
+        if (t.includes('aqsa') || t.includes('al-aqsa')) return '🕌';
+        return '🕋';
+    }
+
+    // Deteksi keunikan program (city tour, Al Ula, tabligh akbar, dst) dari nama/catatan/termasuk
+    function detectProgramHighlights(text) {
+        const t = text.toLowerCase();
+        const map = [
+            ['tabligh akbar', 'Tabligh Akbar bersama ulama'],
+            ['al ula', 'wisata Al Ula'],
+            ['alula', 'wisata Al Ula'],
+            ['city tour', 'City Tour'],
+            ['dubai', 'wisata Dubai'],
+            ['turki', 'wisata Turki'],
+            ['aqsa', 'ziarah Masjid Al-Aqsa'],
+            ['kereta cepat', 'kereta cepat Haramain'],
+        ];
+        const found = [];
+        map.forEach(([key, label]) => { if (t.includes(key) && !found.includes(label)) found.push(label); });
+        return found;
+    }
+
+    const WA_OPENERS_GENERIC = [
+        'Wujudkan niat suci ke Tanah Suci bersama pelayanan terbaik Amiru Tour.',
+        'Perjalanan ibadah yang nyaman, aman, dan penuh berkah bersama Amiru Tour.',
+        'Kesempatan beribadah dengan bimbingan pembimbing berpengalaman — kuota terbatas!',
+        'Rasakan pengalaman umroh yang khusyuk dengan fasilitas terbaik dari Amiru Tour.',
+        'Jangan tunda niat baik — daftar sekarang sebelum kuota penuh!',
+    ];
+
+    // Susun kalimat pembuka: pakai keunikan program kalau terdeteksi, kalau tidak fallback ke variasi generik (dipilih deterministik per nama program)
+    function buildOpeningSentence(data) {
+        const text = [data.nama, data.catatan_cx, data.termasuk].filter(Boolean).join(' ');
+        const highlights = detectProgramHighlights(text);
+        if (highlights.length) {
+            return `Program spesial dengan tambahan ${highlights.join(' & ')} — kuota terbatas, segera daftar!`;
+        }
+        const idx = simpleStringHash(data.nama || 'amiru') % WA_OPENERS_GENERIC.length;
+        return WA_OPENERS_GENERIC[idx];
+    }
+
     function generateAutoWAText(data) {
-        const s = v => (v || '').replace(/javascript:/gi, 'blocked:');
+        const s = v => (v || '').toString().replace(/javascript:/gi, 'blocked:');
+        const namaUpper = s(data.nama || 'PROGRAM UMROH').toUpperCase();
+        const emoji = detectThemeEmoji(s(data.nama) + ' ' + s(data.catatan_cx));
 
         // Judul
-        let teks = `🌟 *${s(data.nama || 'PROGRAM UMROH').toUpperCase()}* 🌟\n`;
-        teks += `    Bersama Amiru Tour\n`;
+        let teks = `${emoji} *${namaUpper}* ${emoji}\n`;
 
         // Tanggal & durasi
-        const durasi = data.durasi ? data.durasi.replace(/\s*hari/i,'').trim() : '';
-        if (data.tgl && durasi) teks += `📅 Berangkat ${s(data.tgl)} (${durasi} Hari)\n`;
-        else if (data.tgl) teks += `📅 Berangkat ${s(data.tgl)}\n`;
+        const durasi = data.durasi ? data.durasi.replace(/\s*hari/i, '').trim() : '';
+        if (data.tgl && durasi) teks += `📅 ${durasi} Hari: ${s(data.tgl)}\n`;
+        else if (data.tgl) teks += `📅 ${s(data.tgl)}\n`;
 
-        // Maskapai
-        if (data.maskapai) teks += `✈️ ${s(data.maskapai)}\n`;
+        // Kalimat pembuka
+        teks += `${buildOpeningSentence(data)}\n\n`;
 
-        // Program wisata (dari field atau kosong)
-        if (data.program_wisata) teks += `🕌 Program: ${s(data.program_wisata)}\n`;
+        // Fasilitas
+        const fasilitas = [];
+        if (data.maskapai) fasilitas.push(`✅ ${s(data.maskapai)}`);
+        if (data.hotel_madinah) fasilitas.push(`✅ Hotel Madinah: ${s(data.hotel_madinah)}${data.makan_madinah ? ` (Makan ${s(data.makan_madinah)})` : ''}`);
+        if (data.hotel_makkah) fasilitas.push(`✅ Hotel Makkah: ${s(data.hotel_makkah)}${data.makan_makkah ? ` (Makan ${s(data.makan_makkah)})` : ''}`);
+        if (fasilitas.length) teks += `✈️ Fasilitas:\n${fasilitas.join('\n')}\n\n`;
 
-        // Hotel
-        const hotelLines = [];
-        if (data.hotel_madinah) {
-            const jarakMadinah = data.hotel_madinah_jarak || '';
-            hotelLines.push(`* Madinah ${data.hotel_madinah_hari||''}${data.hotel_madinah_hari?'D':''}: ${s(data.hotel_madinah)}${jarakMadinah ? ' ('+jarakMadinah+')' : ''}`);
-        }
-        if (data.hotel_makkah) {
-            const jarakMakkah = data.hotel_makkah_jarak || '';
-            hotelLines.push(`* Mekah ${data.hotel_makkah_hari||''}${data.hotel_makkah_hari?'D':''}: ${s(data.hotel_makkah)}${jarakMakkah ? ' ('+jarakMakkah+')' : ''}`);
-        }
-        if (hotelLines.length) {
-            teks += `🏨 Hotel Dekat & Strategis:\n${hotelLines.join('\n')}\n`;
-        }
-
-        // Harga
+        // Biaya
         const hargaLines = [];
-        if (data.harga_quad)   hargaLines.push(`* Quad ${formatHargaJuta(data.harga_quad)}`);
-        if (data.harga_triple) hargaLines.push(`* Triple ${formatHargaJuta(data.harga_triple)}`);
-        if (data.harga_double) hargaLines.push(`* Double ${formatHargaJuta(data.harga_double)}`);
-        if (!hargaLines.length && data.harga_quint) hargaLines.push(`* Quad ${formatHargaJuta(data.harga_quint)}`);
-        if (hargaLines.length) {
-            teks += `💰 Harga Paket Start Jakarta:\n${hargaLines.join('\n')}\n`;
-        }
+        if (data.harga_quad) hargaLines.push(`* Quad: ${s(data.harga_quad)}`);
+        if (data.harga_triple) hargaLines.push(`* Triple: ${s(data.harga_triple)}`);
+        if (data.harga_double) hargaLines.push(`* Double: ${s(data.harga_double)}`);
+        if (!hargaLines.length && data.harga_quint) hargaLines.push(`* Quad: ${s(data.harga_quint)}`);
+        if (hargaLines.length) teks += `💰 Biaya Program:\n${hargaLines.join('\n')}\n\n`;
 
         // Termasuk
         const termasukList = data.termasuk
-            ? data.termasuk.split('\n').map(i=>i.trim()).filter(Boolean)
+            ? data.termasuk.split('\n').map(i => i.trim()).filter(Boolean)
             : ['Tiket Pesawat PP', 'Visa Umroh', 'Fullboard Hotel', 'Perlengkapan Dasar', 'Handling Bandara', 'Asuransi', 'Zamzam 5L'];
-        teks += `✅ Termasuk: ${termasukList.join(', ')}\n`;
+        if (termasukList.length) teks += `✅ Termasuk:\n${termasukList.map(i => '- ' + s(i)).join('\n')}\n\n`;
 
         // Tidak termasuk
         const tidakList = data.tidak_termasuk
-            ? data.tidak_termasuk.split('\n').map(i=>i.trim()).filter(Boolean)
+            ? data.tidak_termasuk.split('\n').map(i => i.trim()).filter(Boolean)
             : ['Paspor', 'Vaksin', 'Tiket Domestik', 'Hotel Transit', 'Pengeluaran pribadi'];
-        teks += `❌ Tidak termasuk: ${tidakList.join(', ')}\n`;
+        if (tidakList.length) teks += `❌ Tidak Termasuk:\n${tidakList.map(i => '- ' + s(i)).join('\n')}\n\n`;
 
         // Footer
         teks += `📞 Info & Itinerary:\nwa.me/6285122336300\nwa.me/6285196241819`;
@@ -198,122 +248,22 @@
         return teks;
     }
 
-    // ========== GENERATE TEKS WA DENGAN AI (logika dari Generator Caption) ==========
-    // System prompt sama persis dengan tool "Generator Caption — Amiru Tour" agar gaya & struktur caption konsisten
-    const WA_CAPTION_SYSTEM_PROMPT = `Kamu adalah copywriter marketing untuk biro umroh "Amiru Tour". Tugasmu mengubah catatan kasar/konsep program dari direktur menjadi SATU caption WhatsApp siap kirim dalam Bahasa Indonesia, mengikuti pola format berikut secara konsisten (struktur section, gaya bullet/emoji), dengan isi yang disesuaikan sepenuhnya dari konsep yang diberikan user:
-
-CONTOH POLA YANG HARUS DIIKUTI STRUKTURNYA:
-🕋 [JUDUL PROGRAM DENGAN EMOJI RELEVAN] 🕋
-📅 [Durasi] Hari: [Tanggal mulai] – [Tanggal selesai]
-[1-2 kalimat pembuka yang menarik, spesifik ke keunikan program ini — bukan kalimat generik]
-
-✈️ Fasilitas:
-✅ [Maskapai]
-✅ [Transportasi/kereta jika ada]
-✅ Hotel Madinah: [nama hotel] [bintang] ([durasi malam])
-✅ Hotel Makkah: [nama hotel] [bintang] ([durasi malam])
-✅ [fasilitas unik lain jika ada di konsep, misal city tour, tabligh akbar, dst]
-
-💰 Biaya Program:
-[Tulis tiap kategori/paket harga sesuai input, dengan format rapi per kategori kamar: Quad/Quint, Triple, Double, dst. Jika ada beberapa paket (misal upgrade hotel), buat sub-section terpisah]
-
-✅ Termasuk:
-- [list sesuai input]
-
-❌ Tidak Termasuk:
-- [list sesuai input]
-
-📞 Info & Itinerary:
-[nomor WA yang diberikan, masing-masing di baris sendiri]
-
-ATURAN KETAT:
-1. JANGAN mengubah, membulatkan, atau mengarang ulang angka harga maupun tanggal — salin persis dari input.
-2. JANGAN menambahkan section atau fasilitas yang tidak disebutkan di konsep (misal jangan mengada-adakan upgrade hotel kalau tidak ada di input).
-3. Pilih emoji header dan emoji fasilitas yang relevan dengan tema spesifik program ini (city tour, tabligh akbar, Al Ula, dst), jangan asal tempel emoji.
-4. Kalimat pembuka harus terasa ditulis khusus untuk program ini, bukan template kosong seperti "kesempatan langka beribadah di tanah suci" jika tidak relevan dengan isi konsep.
-5. Jika konsep tidak menyebutkan info tertentu (misal tidak ada kereta cepat), jangan ditulis sama sekali.
-6. Output HANYA berupa teks caption final. JANGAN ada kalimat pembuka/penutup dari kamu, JANGAN ada markdown code fence, JANGAN ada penjelasan tambahan.`;
-
-    // Susun "konsep" dari data form yang sudah diisi admin, dipakai sebagai input ke AI
-    function buildWaConceptFromForm(data) {
-        const lines = [];
-        lines.push(`*${(data.nama || 'PROGRAM UMROH').toUpperCase()}*`);
-        if (data.durasi) lines.push(`Program ${data.durasi}`);
-        if (data.tgl) lines.push(data.tgl);
-
-        if (data.maskapai) lines.push(`*PESAWAT*\n${data.maskapai}`);
-
-        if (data.hotel_madinah) {
-            lines.push(`*HOTEL MADINAH*\n${data.hotel_madinah}${data.makan_madinah ? '\nMakan: ' + data.makan_madinah : ''}`);
-        }
-        if (data.hotel_makkah) {
-            lines.push(`*HOTEL MAKKAH*\n${data.hotel_makkah}${data.makan_makkah ? '\nMakan: ' + data.makan_makkah : ''}`);
-        }
-
-        const hargaLines = [];
-        if (data.harga_quad) hargaLines.push(`${data.harga_quad} Quad`);
-        if (data.harga_triple) hargaLines.push(`${data.harga_triple} Triple`);
-        if (data.harga_double) hargaLines.push(`${data.harga_double} Double`);
-        if (!hargaLines.length && data.harga_quint) hargaLines.push(`${data.harga_quint} Quad`);
-        if (hargaLines.length) lines.push(`*BIAYA PROGRAM*\n${hargaLines.join('\n')}`);
-
-        if (data.termasuk) lines.push(`*Termasuk*\n${data.termasuk}`);
-        if (data.tidak_termasuk) lines.push(`*Tidak Termasuk*\n${data.tidak_termasuk}`);
-        if (data.catatan_cx) lines.push(`*Catatan Tambahan*\n${data.catatan_cx}`);
-
-        return lines.join('\n\n');
-    }
-
-    async function generateAIWAText() {
+    // Dipanggil dari tombol "Generate Teks WA" di form — instan, tanpa panggilan jaringan
+    function generateAIWAText() {
         const data = getAdminFormData();
         if (!data.nama) {
-            alert('Isi dulu Nama Program sebelum generate teks WA dengan AI.');
+            alert('Isi dulu Nama Program sebelum generate teks WA.');
             return;
         }
-
-        const btn = document.getElementById('aiGenerateWaBtn');
-        const btnText = document.getElementById('aiGenerateWaBtnText');
         const status = document.getElementById('aiGenerateWaStatus');
         const textarea = document.getElementById('admin_teks_wa');
         if (!textarea) return;
 
-        const konsep = buildWaConceptFromForm(data);
-        const contacts = 'wa.me/6285122336300\nwa.me/6285196241819';
-        const userMsg = `KONSEP PROGRAM:\n${konsep}\n\nNOMOR WA KONTAK YANG DIPAKAI DI BAGIAN PENUTUP:\n${contacts}`;
-
-        if (btn) btn.disabled = true;
-        if (btnText) btnText.textContent = 'Menyusun...';
-        if (status) { status.textContent = ''; status.style.color = '#64748b'; }
-
-        try {
-            const response = await fetch("https://api.anthropic.com/v1/messages", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "claude-sonnet-4-6",
-                    max_tokens: 1000,
-                    system: WA_CAPTION_SYSTEM_PROMPT,
-                    messages: [{ role: "user", content: userMsg }]
-                })
-            });
-            if (!response.ok) throw new Error('Gagal memanggil API (status ' + response.status + ')');
-            const resData = await response.json();
-            const textBlocks = (resData.content || []).filter(b => b.type === 'text').map(b => b.text);
-            const result = textBlocks.join('\n').trim();
-            if (!result) throw new Error('Tidak ada hasil teks dari model.');
-
-            textarea.value = result;
-            if (status) { status.textContent = '✅ Teks berhasil dibuat, cek & sunting bila perlu.'; status.style.color = '#16a34a'; }
-        } catch (err) {
-            console.error(err);
-            if (status) { status.textContent = '❌ ' + (err?.message || 'Gagal generate teks.'); status.style.color = '#dc2626'; }
-        } finally {
-            if (btn) btn.disabled = false;
-            if (btnText) btnText.textContent = 'Generate dengan AI';
-        }
+        textarea.value = generateAutoWAText(data);
+        if (status) { status.textContent = '✅ Teks berhasil dibuat dari data form, cek & sunting bila perlu.'; status.style.color = '#16a34a'; }
     }
     window.generateAIWAText = generateAIWAText;
-    // ========== END GENERATE TEKS WA DENGAN AI ==========
+    // ========== END GENERATE TEKS WA ==========
 
 
     function formatHargaJuta(hargaStr) {
@@ -606,7 +556,7 @@ ATURAN KETAT:
                     <div class="admin-form-group admin-full-width">
                         <label>Teks WA</label>
                         <div id="aiGenerateWaStatus" style="font-size:11.5px;color:#64748b;margin-bottom:4px;min-height:14px;"></div>
-                        <textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis, atau isi field lain lalu klik 'Generate Teks WA (AI)' di bawah" maxlength="5000"></textarea>
+                        <textarea id="admin_teks_wa" rows="4" placeholder="Kosongkan untuk generate otomatis, atau isi field lain lalu klik 'Generate Teks WA' di bawah" maxlength="5000"></textarea>
                     </div>
                 </div>
                 <!-- ADMIN-ONLY: Data Lengkap untuk Crosscheck -->
@@ -629,7 +579,7 @@ ATURAN KETAT:
                 </div>
                 <div class="form-actions">
                     <button class="admin-btn admin-btn-primary" onclick="saveAdminProgram()"><i class="fas fa-save"></i> Simpan</button>
-                    <button class="admin-btn" id="aiGenerateWaBtn" onclick="generateAIWAText()"><i class="fas fa-wand-magic-sparkles"></i> <span id="aiGenerateWaBtnText">Generate Teks WA (AI)</span></button>
+                    <button class="admin-btn" id="aiGenerateWaBtn" onclick="generateAIWAText()"><i class="fas fa-wand-magic-sparkles"></i> <span id="aiGenerateWaBtnText">Generate Teks WA</span></button>
                     <button class="admin-btn" onclick="previewAdminWA()"><i class="fab fa-whatsapp"></i> Preview WA</button>
                     <button class="admin-btn" onclick="hideAdminForm()">Batal</button>
                 </div>
