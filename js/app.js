@@ -404,7 +404,7 @@
                 <td class="date-cell">${escapeHtml(item.tgl||'')}</td>
                 <td class="col-durasi"><span class="badge">⏱ ${escapeHtml(item.durasi||'')}</span></td>
                 <td class="col-maskapai"><div class="maskapai-cell"><span class="maskapai-dot ${maskapaiDot}"></span>${escapeHtml(item.maskapai||'')}</div></td>
-                <td><div class="actions-cell">${item.link_form?`<a href="${escapeHtml(item.link_form)}" target="_blank" class="btn-icon" data-tip="Form Daftar"><i class="fa-solid fa-clipboard-list"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-clipboard-list"></i></span>'}${item.link_itinerary?`<a href="${escapeHtml(item.link_itinerary)}" target="_blank" class="btn-icon" data-tip="Itinerary"><i class="fa-solid fa-file-lines"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-file-lines"></i></span>'}${item.link_poster?`<a href="${escapeHtml(item.link_poster)}" target="_blank" class="btn-icon" data-tip="Poster"><i class="fa-solid fa-image"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-image"></i></span>'}${item.link_metaads?`<a href="${escapeHtml(item.link_metaads)}" target="_blank" class="btn-icon" data-tip="Meta Ads"><i class="fa-solid fa-link"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-link"></i></span>'}${item.link_dokumentasi?`<a href="${escapeHtml(item.link_dokumentasi)}" target="_blank" class="btn-icon" data-tip="Dokumentasi"><i class="fa-solid fa-folder-open"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-folder-open"></i></span>'}</div></td>
+                <td><div class="actions-cell">${item.link_itinerary?`<a href="${escapeHtml(item.link_itinerary)}" target="_blank" class="btn-icon" data-tip="Itinerary"><i class="fa-solid fa-file-lines"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-file-lines"></i></span>'}${item.link_poster?`<a href="${escapeHtml(item.link_poster)}" target="_blank" class="btn-icon" data-tip="Poster"><i class="fa-solid fa-image"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-image"></i></span>'}${item.link_metaads?`<a href="${escapeHtml(item.link_metaads)}" target="_blank" class="btn-icon" data-tip="Meta Ads"><i class="fa-solid fa-link"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-link"></i></span>'}${item.link_dokumentasi?`<a href="${escapeHtml(item.link_dokumentasi)}" target="_blank" class="btn-icon" data-tip="Dokumentasi"><i class="fa-solid fa-folder-open"></i></a>`:'<span class="btn-icon disabled"><i class="fa-solid fa-folder-open"></i></span>'}</div></td>
                 <td><span class="status-pill ${statusClass}">${isAvailable?"Tersedia":"Expired"}</span></td>`;
             tbody.appendChild(row);
         });
@@ -467,7 +467,7 @@
         document.getElementById('detailModalBody').innerHTML = `
             <div class="detail-info-grid"><div class="detail-info-item"><span class="detail-info-label">Nama Program</span><span class="detail-info-value">${escapeHtml(program.nama||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Tanggal</span><span class="detail-info-value">${escapeHtml(program.tgl||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Durasi</span><span class="detail-info-value">${escapeHtml(program.durasi||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Maskapai</span><span class="detail-info-value">${escapeHtml(program.maskapai||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Harga</span><span class="detail-info-value">${escapeHtml(program.harga_quint||'-')}</span></div><div class="detail-info-item"><span class="detail-info-label">Status</span><span class="detail-info-value" style="color:${program.isAvailable?'#16a34a':'#dc2626'}">${program.isAvailable?'Tersedia':'Expired'}</span></div></div>
             <div class="detail-wa-section"><div class="label"><i class="fab fa-whatsapp"></i> Teks Marketing WhatsApp</div><div class="detail-wa-text" id="detailWAText">${escapeHtml(waText).replace(/\n/g,'<br>').replace(/javascript:/gi,'blocked:')}</div><button class="btn btn-wa-copy" onclick="copyDetailWAText()"><i class="fas fa-copy"></i> Salin Teks WA</button></div>
-            <div class="detail-actions">${program.link_form?`<a href="${escapeHtml(program.link_form)}" target="_blank" class="btn btn-register"><i class="fas fa-edit"></i> Form Pendaftaran</a>`:''}${program.link_itinerary?`<a href="${escapeHtml(program.link_itinerary)}" target="_blank" class="btn btn-link"><i class="fas fa-map"></i> Itinerary</a>`:''}${program.link_poster?`<a href="${escapeHtml(program.link_poster)}" target="_blank" class="btn btn-link"><i class="fas fa-image"></i> Poster</a>`:''}${program.link_metaads?`<a href="${escapeHtml(program.link_metaads)}" target="_blank" class="btn btn-link"><i class="fas fa-chart-line"></i> Meta Ads</a>`:''}${program.link_dokumentasi?`<a href="${escapeHtml(program.link_dokumentasi)}" target="_blank" class="btn btn-link"><i class="fas fa-folder"></i> Dokumentasi</a>`:''}</div>`;
+            <div class="detail-actions">${program.link_itinerary?`<a href="${escapeHtml(program.link_itinerary)}" target="_blank" class="btn btn-link"><i class="fas fa-map"></i> Itinerary</a>`:''}${program.link_poster?`<a href="${escapeHtml(program.link_poster)}" target="_blank" class="btn btn-link"><i class="fas fa-image"></i> Poster</a>`:''}${program.link_metaads?`<a href="${escapeHtml(program.link_metaads)}" target="_blank" class="btn btn-link"><i class="fas fa-chart-line"></i> Meta Ads</a>`:''}${program.link_dokumentasi?`<a href="${escapeHtml(program.link_dokumentasi)}" target="_blank" class="btn btn-link"><i class="fas fa-folder"></i> Dokumentasi</a>`:''}</div>`;
         window.currentDetailWAText = waText;
         const detailModalEl = document.getElementById('detailModal');
         detailModalEl.style.display = '';
@@ -548,7 +548,6 @@
                     <div class="admin-form-group"><label>Durasi</label><input type="text" id="admin_durasi" placeholder="9 Hari" maxlength="50"></div>
                     <div class="admin-form-group"><label>Maskapai</label><select id="admin_maskapai">${renderMaskapaiOptions()}</select></div>
                     <div class="admin-form-group"><label>Harga</label><input type="text" id="admin_harga_quint" placeholder="Rp 32.500.000" maxlength="50"></div>
-                    <div class="admin-form-group"><label>Link Form</label><input type="url" id="admin_link_form" placeholder="https://..."></div>
                     <div class="admin-form-group"><label>Link Itinerary</label><input type="url" id="admin_link_itinerary" placeholder="https://..."></div>
                     <div class="admin-form-group"><label>Link Poster</label><input type="url" id="admin_link_poster" placeholder="https://..."></div>
                     <div class="admin-form-group"><label>Link Meta Ads</label><input type="url" id="admin_link_metaads" placeholder="https://..."></div>
@@ -1027,7 +1026,7 @@
         const formData=getAdminFormData(); 
         
         // Validasi keamanan URL
-        const urlFields = ['link_form', 'link_itinerary', 'link_poster', 'link_metaads', 'link_dokumentasi'];
+        const urlFields = ['link_itinerary', 'link_poster', 'link_metaads', 'link_dokumentasi'];
         for (const field of urlFields) {
             if (formData[field] && !isValidUrl(formData[field])) {
                 alert(`Link ${field.replace('_',' ')} tidak valid! Gunakan format https://...`);
@@ -1649,7 +1648,6 @@
                 </div>` : ''}
                 <div class="featured-card-actions" onclick="event.stopPropagation()">
                     <button class="featured-btn featured-btn-detail" onclick="openDetailModal('${p.id}')"><i class="fas fa-info-circle"></i> Detail</button>
-                    ${p.link_form ? `<button class="featured-btn featured-btn-wa" onclick="window.open('${escapeHtml(p.link_form)}','_blank')"><i class="fas fa-edit"></i> Daftar</button>` : ''}
                 </div>
             </div>`;
         }).join('');
