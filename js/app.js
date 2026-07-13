@@ -921,6 +921,7 @@
                 <span class="kb-chip total"><i class="fa-solid fa-users" style="margin-right:4px;"></i>${jamaah.length} Jamaah</span>
                 <span class="kb-chip lunas">${totalLunas} Lunas</span>
                 ${totalDp>0?`<span class="kb-chip dp">${totalDp} DP</span>`:''}
+                <button class="kb-chip archive" onclick="openKwtArsipModal()"><i class="fa-solid fa-box-archive"></i> Arsip Kuitansi</button>
             </div>
         </div>
         <div class="kb-jamaah-table-wrap">
@@ -1168,24 +1169,12 @@
     }
     window.renderKwtPreview = renderKwtPreview;
 
-    function downloadKuitansiPDF() {
-        const nomor = document.getElementById('kwt_nomor').value.trim();
-        const tempatTanggal = document.getElementById('kwt_tempat_tanggal').value.trim();
-        const dari = document.getElementById('kwt_dari').value.trim();
-        const jumlahRaw = document.getElementById('kwt_jumlah').value.replace(/\D/g, '');
-        const terbilangVal = document.getElementById('kwt_terbilang').value.trim();
-        const keterangan = document.getElementById('kwt_keterangan').value.trim();
-        const penerima = document.getElementById('kwt_penerima').value.trim();
-
-        if (!dari) { showToast('⚠️ Nama pemberi (Sudah Terima Dari) wajib diisi'); return; }
-        if (!jumlahRaw) { showToast('⚠️ Jumlah wajib diisi'); return; }
-        if (!window.jspdf) { showToast('❌ Library PDF belum termuat, coba lagi sebentar'); return; }
-
-        if (penerima) localStorage.setItem(KWT_PENERIMA_KEY, penerima);
-
+    // Membangun dokumen PDF kuitansi dari objek data (dipakai untuk download baru & download ulang dari arsip)
+    function buildKuitansiPDFDoc(data) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ unit: 'mm', format: [210, 99] });
         const M = 8, W = 210, H = 99;
+        const { nomor, tempatTanggal, dari, jumlahRaw, terbilangVal, keterangan, penerima } = data;
 
         // Border luar
         doc.setDrawColor(20, 60, 90);
@@ -1251,16 +1240,179 @@
         doc.setLineWidth(0.2);
         doc.line(sigX + 8, boxY + 15, sigX + 50, boxY + 15);
 
-        const filename = `Kuitansi_${(dari || 'jamaah').replace(/[^a-zA-Z0-9]+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
-        doc.save(filename);
+        return doc;
+    }
+
+    function kwtFilename(dari) {
+        return `Kuitansi_${(dari || 'jamaah').replace(/[^a-zA-Z0-9]+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+    }
+
+    function downloadKuitansiPDF() {
+        const nomor = document.getElementById('kwt_nomor').value.trim();
+        const tempatTanggal = document.getElementById('kwt_tempat_tanggal').value.trim();
+        const dari = document.getElementById('kwt_dari').value.trim();
+        const jumlahRaw = document.getElementById('kwt_jumlah').value.replace(/\D/g, '');
+        const terbilangVal = document.getElementById('kwt_terbilang').value.trim();
+        const keterangan = document.getElementById('kwt_keterangan').value.trim();
+        const penerima = document.getElementById('kwt_penerima').value.trim();
+
+        if (!dari) { showToast('⚠️ Nama pemberi (Sudah Terima Dari) wajib diisi'); return; }
+        if (!jumlahRaw) { showToast('⚠️ Jumlah wajib diisi'); return; }
+        if (!window.jspdf) { showToast('❌ Library PDF belum termuat, coba lagi sebentar'); return; }
+
+        if (penerima) localStorage.setItem(KWT_PENERIMA_KEY, penerima);
+
+        const data = { nomor, tempatTanggal, dari, jumlahRaw, terbilangVal, keterangan, penerima };
+        const doc = buildKuitansiPDFDoc(data);
+        doc.save(kwtFilename(dari));
+
+        saveKwtArsip(data);
         closeKuitansiModal();
-        showToast('✅ Kuitansi berhasil didownload');
+        showToast('✅ Kuitansi berhasil didownload & disimpan ke arsip');
     }
 
     window.openKuitansiModal = openKuitansiModal;
     window.closeKuitansiModal = closeKuitansiModal;
     window.downloadKuitansiPDF = downloadKuitansiPDF;
     // ========== END KUITANSI ==========
+
+    // ========== ARSIP KUITANSI ==========
+    let kwtArsipList = [];
+    let kwtArsipSearch = '';
+
+    async function saveKwtArsip(data) {
+        try {
+            const payload = {
+                id: crypto.randomUUID(),
+                jamaah_id: kwtActiveJamaahId || null,
+                nomor: data.nomor || '',
+                tempat_tanggal: data.tempatTanggal || '',
+                dari: data.dari || '',
+                jumlah: Number(data.jumlahRaw) || 0,
+                terbilang: data.terbilangVal || '',
+                keterangan: data.keterangan || '',
+                penerima: data.penerima || '',
+                created_at: new Date().toISOString(),
+            };
+            const { error } = await supabaseClient.from('kwt_kuitansi').insert([payload]);
+            if (error) throw error;
+            kwtArsipList.unshift(payload);
+        } catch (err) {
+            console.error('saveKwtArsip error:', err?.message || err);
+            showToast('⚠️ PDF terdownload, tapi gagal disimpan ke arsip: ' + (err?.message || 'error tidak diketahui'));
+        }
+    }
+
+    async function loadKwtArsip() {
+        try {
+            const { data, error } = await supabaseClient.from('kwt_kuitansi').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            kwtArsipList = data || [];
+        } catch (err) {
+            const msg = err?.message || String(err);
+            if (msg.includes('DataCloneError') || msg.includes('postMessage')) {
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/kwt_kuitansi?select=*&order=created_at.desc`, {
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+                    });
+                    kwtArsipList = res.ok ? (await res.json()) : [];
+                    return;
+                } catch (_) {}
+            }
+            console.error('loadKwtArsip error:', msg);
+            kwtArsipList = [];
+        }
+    }
+
+    async function openKwtArsipModal() {
+        const modal = document.getElementById('kwtArsipModal');
+        modal.style.display = '';
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('kwtArsipSearchInput').value = '';
+        kwtArsipSearch = '';
+        document.getElementById('kwtArsipTableWrap').innerHTML = `<div class="kb-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Memuat arsip...</p></div>`;
+        await loadKwtArsip();
+        renderKwtArsipTable();
+    }
+    window.openKwtArsipModal = openKwtArsipModal;
+
+    function closeKwtArsipModal() {
+        document.getElementById('kwtArsipModal').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    window.closeKwtArsipModal = closeKwtArsipModal;
+
+    function searchKwtArsip(term) {
+        kwtArsipSearch = (term || '').toLowerCase().trim();
+        renderKwtArsipTable();
+    }
+    window.searchKwtArsip = searchKwtArsip;
+
+    function renderKwtArsipTable() {
+        const wrap = document.getElementById('kwtArsipTableWrap');
+        if (!wrap) return;
+        let list = kwtArsipList;
+        if (kwtArsipSearch) {
+            list = list.filter(r =>
+                (r.nomor || '').toLowerCase().includes(kwtArsipSearch) ||
+                (r.dari || '').toLowerCase().includes(kwtArsipSearch) ||
+                (r.keterangan || '').toLowerCase().includes(kwtArsipSearch)
+            );
+        }
+        if (list.length === 0) {
+            wrap.innerHTML = `<div class="kb-empty"><i class="fa-solid fa-box-archive"></i><p>Belum ada kuitansi yang diarsipkan.</p></div>`;
+            return;
+        }
+        const rows = list.map(r => {
+            const tgl = r.created_at ? new Date(r.created_at).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
+            const jumlahFmt = 'Rp ' + Number(r.jumlah || 0).toLocaleString('id-ID') + ',-';
+            return `<tr>
+                <td style="font-size:12px;color:var(--text-3);">${escapeHtml(tgl)}</td>
+                <td style="font-size:12.5px;font-weight:700;">${escapeHtml(r.nomor || '-')}</td>
+                <td style="font-size:12.5px;">${escapeHtml(r.dari || '-')}</td>
+                <td style="font-size:12.5px;font-weight:600;">${escapeHtml(jumlahFmt)}</td>
+                <td><div class="admin-action-btns">
+                    <button onclick="redownloadKwtArsip('${r.id}')" style="background:#e0f2fe;color:#0369a1;" title="Download ulang PDF"><i class="fa-solid fa-file-pdf"></i></button>
+                    <button onclick="deleteKwtArsip('${r.id}')" style="background:#fee2e2;color:#dc2626;" title="Hapus dari arsip"><i class="fas fa-trash"></i></button>
+                </div></td>
+            </tr>`;
+        }).join('');
+        wrap.innerHTML = `<table class="kb-jamaah-table">
+            <thead><tr><th>Tanggal Dibuat</th><th>Nomor</th><th>Sudah Terima Dari</th><th>Jumlah</th><th style="text-align:right;">Aksi</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    function redownloadKwtArsip(id) {
+        const r = kwtArsipList.find(x => String(x.id) === String(id));
+        if (!r) { showToast('⚠️ Data arsip tidak ditemukan'); return; }
+        if (!window.jspdf) { showToast('❌ Library PDF belum termuat, coba lagi sebentar'); return; }
+        const data = {
+            nomor: r.nomor, tempatTanggal: r.tempat_tanggal, dari: r.dari,
+            jumlahRaw: String(r.jumlah || 0), terbilangVal: r.terbilang,
+            keterangan: r.keterangan, penerima: r.penerima,
+        };
+        const doc = buildKuitansiPDFDoc(data);
+        doc.save(kwtFilename(r.dari));
+        showToast('✅ Kuitansi berhasil didownload ulang');
+    }
+    window.redownloadKwtArsip = redownloadKwtArsip;
+
+    async function deleteKwtArsip(id) {
+        if (!confirm('Hapus kuitansi ini dari arsip? PDF yang sudah didownload sebelumnya tidak terpengaruh.')) return;
+        try {
+            const { error } = await supabaseClient.from('kwt_kuitansi').delete().eq('id', id);
+            if (error) throw error;
+            kwtArsipList = kwtArsipList.filter(r => String(r.id) !== String(id));
+            renderKwtArsipTable();
+            showToast('🗑️ Kuitansi dihapus dari arsip');
+        } catch (err) {
+            showToast('❌ Gagal hapus: ' + (err?.message || 'error tidak diketahui'));
+        }
+    }
+    window.deleteKwtArsip = deleteKwtArsip;
+    // ========== END ARSIP KUITANSI ==========
     
     function renderAdminTable() {
         const tbody=document.getElementById('adminTableBody');

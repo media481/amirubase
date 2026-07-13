@@ -419,6 +419,8 @@
     .kb-chip.total{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;}
     .kb-chip.lunas{background:var(--green-bg);color:var(--green);border-color:var(--green-border);}
     .kb-chip.dp{background:#fff7ed;color:#c2410c;border-color:#fed7aa;}
+    .kb-chip.archive{background:#fdf4ff;color:#a21caf;border-color:#f0abfc;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:all var(--transition);}
+    .kb-chip.archive:hover{background:#a21caf;color:#fff;}
     .kb-jamaah-table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
     .kb-jamaah-table{width:100%;border-collapse:collapse;min-width:700px;}
     .kb-jamaah-table thead tr{border-bottom:1px solid var(--border);}
