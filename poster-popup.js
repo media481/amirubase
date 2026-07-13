@@ -1172,73 +1172,173 @@
     // Membangun dokumen PDF kuitansi dari objek data (dipakai untuk download baru & download ulang dari arsip)
     function buildKuitansiPDFDoc(data) {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ unit: 'mm', format: [210, 99] });
+        // orientation harus eksplisit 'landscape', kalau tidak jsPDF membalik format [210,99] jadi potret (99x210)
+        const doc = new jsPDF({ unit: 'mm', format: [210, 99], orientation: 'landscape' });
         const M = 8, W = 210, H = 99;
         const { nomor, tempatTanggal, dari, jumlahRaw, terbilangVal, keterangan, penerima } = data;
 
-        // Border luar
-        doc.setDrawColor(20, 60, 90);
-        doc.setLineWidth(0.6);
-        doc.rect(M, M, W - M * 2, H - M * 2);
+        const BLUE = [26, 111, 168];
+        const BLUE_DARK = [15, 50, 85];
+        const BORDER = [43, 43, 43];
+        const BOX_BORDER = [183, 194, 204];
+        const GRAY = [91, 107, 122];
+        const TXT = [22, 50, 79];
 
-        // Header
+        // Border luar (rounded, mengikuti kartu kuitansi asli)
+        doc.setDrawColor(...BORDER);
+        doc.setLineWidth(0.7);
+        doc.roundedRect(M, M, W - M * 2, H - M * 2, 3, 3);
+
+        const cx = M + 4;
+        const rightEdge = M + (W - M * 2) - 4;
+
+        // ---- Logo + wordmark "amirutour" ----
+        const logoX = cx, logoY = M + 4.5, logoS = 9;
+        doc.setFillColor(...BLUE);
+        doc.roundedRect(logoX, logoY, logoS, logoS, 1.5, 1.5, 'F');
+        doc.setFillColor(255, 255, 255);
+        doc.triangle(logoX + logoS / 2, logoY + 1.6, logoX + 1.8, logoY + 4.6, logoX + logoS - 1.8, logoY + 4.6, 'F');
+        doc.rect(logoX + 2.6, logoY + 4.6, logoS - 5.2, 3, 'F');
+
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(13);
-        doc.setTextColor(15, 50, 85);
-        doc.text('PT AMIRU HARAMAIN INDONESIA', W / 2, M + 8, { align: 'center' });
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bolditalic');
-        doc.text('KUITANSI', W / 2, M + 16, { align: 'center' });
-        doc.setDrawColor(150, 150, 150);
+        doc.setFontSize(6.3);
+        doc.setTextColor(...BLUE);
+        doc.text('amiru', logoX + logoS / 2, logoY + logoS + 3.2, { align: 'center' });
+        const amiruW = doc.getTextWidth('amiru');
+        doc.setTextColor(...GRAY);
+        doc.text('tour', logoX + logoS / 2 + amiruW / 2 + 0.5, logoY + logoS + 3.2);
+
+        doc.setDrawColor(...BOX_BORDER);
         doc.setLineWidth(0.3);
-        doc.line(M + 4, M + 19, W - M - 4, M + 19);
+        doc.line(logoX + 16, M + 3, logoX + 16, M + 19);
 
-        // Nomor
+        // ---- Nama perusahaan & alamat ----
+        const companyX = logoX + 20;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11.5);
+        doc.setTextColor(...BLUE_DARK);
+        doc.text('PT AMIRU HARAMAIN INDONESIA', companyX, M + 8);
+
+        doc.setFontSize(6.3);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(70, 82, 94);
+        doc.text('Kantor Pusat :', companyX, M + 11.8);
+        const kpW = doc.getTextWidth('Kantor Pusat :');
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
+        doc.setTextColor(...GRAY);
+        doc.text('Jl. Taman Kenari No A3 Kledokan, Caturtunggal, Kec. Depok, Kabupaten Sleman,', companyX + kpW + 1, M + 11.8);
+        doc.text('Daerah Istimewa Yogyakarta, Telp. 0851-2233-6300  Email : salam@amirutour.com', companyX, M + 14.8);
+
+        // ---- Badge "Kuitansi" + Nomor ----
+        const badgeW = 34, badgeH = 8.5, badgeX = rightEdge - badgeW, badgeY = M + 2.5;
+        doc.setFillColor(...BLUE);
+        doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 1.8, 1.8, 'F');
+        doc.setFont('helvetica', 'bolditalic');
+        doc.setFontSize(12.5);
+        doc.setTextColor(255, 255, 255);
+        doc.text('Kuitansi', badgeX + badgeW / 2, badgeY + badgeH / 2 + 1.6, { align: 'center' });
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.3);
         doc.setTextColor(0, 0, 0);
-        doc.text(`No. : ${nomor || '-'}`, W - M - 4, M + 26, { align: 'right' });
+        const nomorSpaced = (nomor || '-').split('').join(' ');
+        doc.text(`Nomor : ${nomorSpaced}`, rightEdge, badgeY + badgeH + 4.5, { align: 'right' });
 
-        // Field-field isi
-        let y = M + 30;
-        const labelX = M + 6, valueX = M + 46;
-        doc.setFontSize(10.5);
-        function fieldLine(label, value, yy) {
-            doc.setFont('helvetica', 'normal');
-            doc.text(label, labelX, yy);
-            doc.text(':', valueX - 4, yy);
+        doc.setDrawColor(...BOX_BORDER);
+        doc.setLineWidth(0.35);
+        doc.line(cx, M + 20.5, rightEdge, M + 20.5);
+
+        // ---- Baris-baris isian ----
+        const labelX = cx, colonX = cx + 27, boxX = cx + 29;
+        const boxWfull = rightEdge - boxX;
+        let y = M + 25;
+
+        function fieldLabel(text, yy) {
             doc.setFont('helvetica', 'bold');
-            const lines = doc.splitTextToSize(value || '-', W - valueX - M - 6);
-            doc.text(lines, valueX, yy);
-            return yy + (lines.length * 5.5);
+            doc.setFontSize(7.6);
+            doc.setTextColor(20, 20, 20);
+            if (text) doc.text(text, labelX, yy);
+            doc.text(':', colonX, yy);
         }
-        y = fieldLine('Sudah terima dari', dari, y);
-        y += 2;
-        y = fieldLine('Uang sebanyak', (terbilangVal ? terbilangVal + ' Rupiah' : '-'), y);
-        y += 2;
-        y = fieldLine('Untuk pembayaran', keterangan, y);
+        function fieldBox(x, yTop, w, h) {
+            doc.setDrawColor(...BOX_BORDER);
+            doc.setLineWidth(0.35);
+            doc.roundedRect(x, yTop, w, h, 1, 1);
+        }
+        function fieldBoxText(text, x, yTop, w, h) {
+            doc.setFont('helvetica', 'bolditalic');
+            doc.setFontSize(8.3);
+            doc.setTextColor(...TXT);
+            const lines = doc.splitTextToSize(text || '-', w - 4);
+            doc.text(lines, x + 2.5, yTop + h / 2 + 1.4 - ((lines.length - 1) * 1.6));
+        }
 
-        // Kotak nominal (kiri bawah)
-        const boxY = H - M - 22;
-        doc.setDrawColor(20, 60, 90);
-        doc.setLineWidth(0.5);
-        doc.rect(M + 6, boxY, 58, 13);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(12);
-        const rupiahFormatted = 'Rp ' + Number(jumlahRaw).toLocaleString('id-ID') + ',-';
-        doc.text(rupiahFormatted, M + 6 + 29, boxY + 8, { align: 'center' });
+        // Sudah Terima dari
+        fieldLabel('Sudah Terima dari', y);
+        fieldBox(boxX, y - 4.2, boxWfull, 6.2);
+        fieldBoxText(dari, boxX, y - 4.2, boxWfull, 6.2);
+        y += 8.2;
 
-        // Area tanda tangan (kanan bawah)
-        const sigX = W - M - 58;
+        // Banyaknya Uang
+        fieldLabel('Banyaknya Uang', y);
+        fieldBox(boxX, y - 4.2, boxWfull, 6.2);
+        fieldBoxText(terbilangVal ? terbilangVal + ' Rupiah' : '-', boxX, y - 4.2, boxWfull, 6.2);
+        y += 8.2;
+
+        // Baris kosong + checkbox Cash/Transfer
+        fieldLabel(null, y);
+        const shortBoxW = boxWfull * 0.56;
+        fieldBox(boxX, y - 4.2, shortBoxW, 6.2);
+        function checkbox(labelTxt, x, yy) {
+            doc.setDrawColor(40, 40, 40);
+            doc.setLineWidth(0.3);
+            doc.rect(x, yy - 3, 3, 3);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.setTextColor(...BLUE);
+            doc.text('✓', x + 0.5, yy - 0.6);
+            doc.setTextColor(20, 20, 20);
+            doc.setFontSize(7.6);
+            doc.text(labelTxt, x + 4.5, yy);
+            return x + 4.5 + doc.getTextWidth(labelTxt) + 5;
+        }
+        let ckx = boxX + shortBoxW + 5;
+        ckx = checkbox('Cash', ckx, y);
+        checkbox('Transfer', ckx, y);
+        y += 8.2;
+
+        // Untuk Pembayaran (kotak lebih tinggi) + tempat/tanggal & "Penerima" di kanan
+        const payBoxW = boxWfull * 0.72, payBoxH = 11;
+        fieldLabel('Untuk Pembayaran', y);
+        fieldBox(boxX, y - 4.2, payBoxW, payBoxH);
+        fieldBoxText(keterangan, boxX, y - 4.2, payBoxW, payBoxH);
+
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.text(tempatTanggal || '-', sigX + 29, boxY - 6, { align: 'center' });
-        doc.text('Penerima,', sigX + 29, boxY, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setTextColor(20, 20, 20);
+        doc.text(tempatTanggal || '-', rightEdge, y - 1, { align: 'right' });
+        doc.text('Penerima', rightEdge, y + 3, { align: 'right' });
+
+        // ---- Rp + tanda tangan ----
+        const bottomY = H - M - 12;
         doc.setFont('helvetica', 'bold');
-        doc.text(penerima || '-', sigX + 29, boxY + 17, { align: 'center' });
-        doc.setDrawColor(0, 0, 0);
-        doc.setLineWidth(0.2);
-        doc.line(sigX + 8, boxY + 15, sigX + 50, boxY + 15);
+        doc.setFontSize(11);
+        doc.setTextColor(20, 20, 20);
+        doc.text('Rp.', cx, bottomY + 6);
+        const rpBoxX = cx + 10, rpBoxW = 46, rpBoxH = 8;
+        fieldBox(rpBoxX, bottomY + 1.5, rpBoxW, rpBoxH);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(20, 20, 20);
+        const rupiahFormatted = jumlahRaw ? Number(jumlahRaw).toLocaleString('id-ID') + ',-' : '0,-';
+        doc.text(rupiahFormatted, rpBoxX + rpBoxW / 2, bottomY + 1.5 + rpBoxH / 2 + 1.3, { align: 'center' });
+
+        doc.setDrawColor(50, 50, 50);
+        doc.setLineWidth(0.3);
+        doc.line(rightEdge - 34, bottomY + 7, rightEdge, bottomY + 7);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.text(penerima || '-', rightEdge - 17, bottomY + 10.3, { align: 'center' });
 
         return doc;
     }
