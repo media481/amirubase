@@ -601,6 +601,10 @@
                     <i class="fas fa-plane-departure"></i> Keberangkatan
                     <span class="tab-count" id="tabCountKeberangkatan">${kbJamaahList.length}</span>
                 </button>
+                <button class="admin-tab-btn tab-keberangkatan" onclick="switchAdminTab('database-jamaah',this)">
+                    <i class="fa-solid fa-database"></i> Database Jamaah
+                    <span class="tab-count" id="tabCountDbJamaah">${kbJamaahList.length}</span>
+                </button>
                 ${isAdmin ? `
                 <button class="admin-tab-btn tab-crosscheck" onclick="switchAdminTab('crosscheck',this)">
                     <i class="fas fa-magnifying-glass-chart"></i> Crosscheck
@@ -701,6 +705,9 @@
                     <div class="kb-no-program"><i class="fa-solid fa-plane-departure"></i><p>Pilih program di atas untuk melihat data jamaah.</p></div>
                 </div>
             </div>
+
+            <!-- TAB: DATABASE JAMAAH (semua jamaah, lintas program) -->
+            <div class="admin-tab-panel" id="tab-database-jamaah"></div>
 
             <!-- TAB: TELEGRAM SETTINGS -->
             ${isAdmin ? `
@@ -806,6 +813,13 @@
                 renderKbAdminSelector();
             } else {
                 loadKbJamaah().then(() => renderKbAdminSelector());
+            }
+        }
+        if (name === 'database-jamaah') {
+            if (kbJamaahList.length > 0 || dataUmroh.length > 0) {
+                renderDbJamaahPanel();
+            } else {
+                loadKbJamaah().then(() => renderDbJamaahPanel());
             }
         }
         if (name === 'crosscheck') {
@@ -927,11 +941,143 @@
         if (error) { showToast('❌ Gagal hapus: ' + error.message); return; }
         kbJamaahList = kbJamaahList.filter(j => j.id !== id);
         renderKbAdminSelector(kbSelectedAdminProgram);
+        if (document.getElementById('tab-database-jamaah')?.classList.contains('active')) updateDbJamaahTable();
         showToast('🗑️ Data jamaah dihapus');
     }
     window.deleteKbJamaahAdmin = deleteKbJamaahAdmin;
     window.renderKbAdminSelector = renderKbAdminSelector;
     window.selectKbAdminProgram = selectKbAdminProgram;
+
+    // ========== DATABASE JAMAAH (semua jamaah, lintas program) ==========
+    let dbJamaahSearch = '';
+    let dbJamaahStatusFilter = 'semua';
+    let dbJamaahProgramFilter = 'semua';
+    let dbJamaahDebounceTimer = null;
+
+    function renderDbJamaahPanel() {
+        const container = document.getElementById('tab-database-jamaah');
+        if (!container) return;
+        const programOptions = dataUmroh.slice().sort((a,b) => (a.dateObj||0) - (b.dateObj||0))
+            .map(p => `<option value="${escapeHtml(String(p.id))}">${escapeHtml(p.nama||'Program')}</option>`).join('');
+        container.innerHTML = `
+        <div class="admin-panel-section-header keberangkatan">
+            <i class="fa-solid fa-database" style="color:#0369a1;"></i>
+            <div><div class="sec-title" style="color:#1e3a5f;">Database Jamaah</div><div class="sec-sub">Lihat &amp; cari seluruh data jamaah dari semua program dalam satu tabel</div></div>
+            <div class="sec-actions">
+                <button class="admin-btn" onclick="exportDbJamaahCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+                <button class="kb-add-btn" onclick="openKbModal()"><i class="fa-solid fa-user-plus"></i> Tambah Jamaah</button>
+            </div>
+        </div>
+        <div id="dbJamaahStats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+            <div style="flex:1;min-width:220px;position:relative;">
+                <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:12px;"></i>
+                <input type="text" id="dbJamaahSearchInput" placeholder="Cari nama, NIK, paspor, WA, asal daerah..." value="${escapeHtml(dbJamaahSearch)}"
+                    style="width:100%;padding:9px 12px 9px 32px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;"
+                    oninput="clearTimeout(dbJamaahDebounceTimer); dbJamaahDebounceTimer=setTimeout(()=>{dbJamaahSearch=this.value; updateDbJamaahTable();},300);">
+            </div>
+            <select id="dbJamaahStatusSelect" onchange="dbJamaahStatusFilter=this.value; updateDbJamaahTable();" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
+                <option value="semua">Semua Status</option>
+                <option value="lunas">Lunas</option>
+                <option value="dp">DP / Cicilan</option>
+                <option value="pending">Pending</option>
+            </select>
+            <select id="dbJamaahProgramSelect" onchange="dbJamaahProgramFilter=this.value; updateDbJamaahTable();" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;max-width:240px;">
+                <option value="semua">Semua Program</option>
+                ${programOptions}
+            </select>
+        </div>
+        <div class="kb-jamaah-table-wrap">
+            <table class="kb-jamaah-table">
+                <thead><tr><th>#</th><th>Nama Jamaah</th><th>Program</th><th>No. Paspor</th><th>Asal Daerah</th><th>WhatsApp</th><th>Status Bayar</th><th style="text-align:right;">Aksi</th></tr></thead>
+                <tbody id="dbJamaahTableBody"></tbody>
+            </table>
+        </div>`;
+        const statusSel = document.getElementById('dbJamaahStatusSelect'); if (statusSel) statusSel.value = dbJamaahStatusFilter;
+        const progSel = document.getElementById('dbJamaahProgramSelect'); if (progSel) progSel.value = dbJamaahProgramFilter;
+        updateDbJamaahTable();
+    }
+
+    function getDbJamaahFiltered() {
+        const keywords = dbJamaahSearch.toLowerCase().trim().split(/\s+/).filter(Boolean);
+        return kbJamaahList.filter(j => {
+            if (dbJamaahStatusFilter !== 'semua' && j.status !== dbJamaahStatusFilter) return false;
+            if (dbJamaahProgramFilter !== 'semua' && String(j.program_id) !== String(dbJamaahProgramFilter)) return false;
+            if (keywords.length === 0) return true;
+            const haystack = [j.nama, j.nik, j.paspor, j.wa, j.asal, j.catatan].filter(Boolean).join(' ').toLowerCase();
+            return keywords.every(kw => haystack.includes(kw));
+        }).sort((a,b) => (a.nama||'').localeCompare(b.nama||''));
+    }
+
+    function updateDbJamaahTable() {
+        const tbody = document.getElementById('dbJamaahTableBody');
+        const statsWrap = document.getElementById('dbJamaahStats');
+        if (!tbody) return;
+        const filtered = getDbJamaahFiltered();
+        const totalAll = kbJamaahList.length;
+        const totalLunas = kbJamaahList.filter(j => j.status === 'lunas').length;
+        const totalDp = kbJamaahList.filter(j => j.status === 'dp').length;
+        const totalPending = kbJamaahList.filter(j => j.status === 'pending').length;
+        if (statsWrap) {
+            statsWrap.innerHTML = `
+                <span class="kb-chip total"><i class="fa-solid fa-users" style="margin-right:4px;"></i>${totalAll} Total Jamaah</span>
+                <span class="kb-chip lunas">${totalLunas} Lunas</span>
+                ${totalDp > 0 ? `<span class="kb-chip dp">${totalDp} DP</span>` : ''}
+                ${totalPending > 0 ? `<span class="kb-chip" style="background:#fee2e2;color:#dc2626;border-color:#fecaca;">${totalPending} Pending</span>` : ''}
+                ${filtered.length !== totalAll ? `<span class="kb-chip" style="background:#eef2ff;color:#4338ca;border-color:#c7d2fe;">Menampilkan ${filtered.length} hasil</span>` : ''}
+            `;
+        }
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8"><div class="kb-empty"><i class="fa-solid fa-users"></i><p>${kbJamaahList.length === 0 ? 'Belum ada data jamaah.' : 'Tidak ada data yang cocok dengan pencarian/filter.'}</p></div></td></tr>`;
+        } else {
+            tbody.innerHTML = filtered.map((j, i) => {
+                const prog = dataUmroh.find(p => String(p.id) === String(j.program_id));
+                const statusClass = j.status === 'lunas' ? 'kb-status-lunas' : j.status === 'dp' ? 'kb-status-dp' : 'kb-status-pending';
+                const statusLabel = j.status === 'lunas' ? 'Lunas' : j.status === 'dp' ? 'DP / Cicil' : 'Pending';
+                return `<tr>
+                    <td style="color:var(--text-3);font-size:12px;">${i+1}</td>
+                    <td><span class="kb-jamaah-name">${escapeHtml(j.nama||'-')}</span>${j.nik?`<span class="kb-jamaah-nik">NIK: ${escapeHtml(j.nik)}</span>`:''}</td>
+                    <td style="font-size:12.5px;">${escapeHtml(prog?.nama || '(program dihapus)')}</td>
+                    <td style="font-size:12.5px;font-weight:600;">${escapeHtml(j.paspor||'-')}</td>
+                    <td style="font-size:12.5px;">${escapeHtml(j.asal||'-')}</td>
+                    <td style="font-size:12.5px;">${j.wa ? escapeHtml(j.wa) : '-'}</td>
+                    <td><span class="kb-status-pill ${statusClass}">${statusLabel}</span></td>
+                    <td><div class="admin-action-btns">
+                        <button onclick="kbEditFromAdmin=true;openKbModal('${j.id}');" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-edit"></i> Edit</button>
+                        ${j.wa ? `<button onclick="kbHubungi('${escapeHtml(j.wa)}','${escapeHtml(j.nama||'')}')" style="background:#dcfce7;color:#16a34a;"><i class="fab fa-whatsapp"></i></button>` : ''}
+                        <button onclick="deleteKbJamaahAdmin('${j.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i></button>
+                    </div></td>
+                </tr>`;
+            }).join('');
+        }
+        const badge = document.getElementById('tabCountDbJamaah');
+        if (badge) badge.textContent = totalAll;
+    }
+
+    function exportDbJamaahCSV() {
+        const filtered = getDbJamaahFiltered();
+        if (filtered.length === 0) { showToast('⚠️ Tidak ada data untuk diexport'); return; }
+        const statusLabelMap = { lunas: 'Lunas', dp: 'DP / Cicilan', pending: 'Pending' };
+        const header = ['No','Nama','NIK','No. Paspor','Program','Asal Daerah','WhatsApp','Status Bayar','Catatan'];
+        const csvEscape = (v) => { const s = String(v==null?'':v).replace(/"/g,'""'); return /[",\n]/.test(s) ? `"${s}"` : s; };
+        const rows = filtered.map((j, i) => {
+            const prog = dataUmroh.find(p => String(p.id) === String(j.program_id));
+            return [i+1, j.nama||'', j.nik||'', j.paspor||'', prog?.nama||'', j.asal||'', j.wa||'', statusLabelMap[j.status]||j.status||'', j.catatan||''].map(csvEscape).join(',');
+        });
+        const csvContent = '\uFEFF' + [header.join(','), ...rows].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `database_jamaah_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast(`✅ Export berhasil — ${filtered.length} data jamaah`);
+    }
+
+    window.renderDbJamaahPanel = renderDbJamaahPanel;
+    window.updateDbJamaahTable = updateDbJamaahTable;
+    window.exportDbJamaahCSV = exportDbJamaahCSV;
+    // ========== END DATABASE JAMAAH ==========
     
     function renderAdminTable() {
         const tbody=document.getElementById('adminTableBody');
@@ -2172,6 +2318,7 @@
             renderKbProgramSelector();
         }
         kbEditFromAdmin = false;
+        if (document.getElementById('tab-database-jamaah')?.classList.contains('active')) updateDbJamaahTable();
         showToast('✈️ Data jamaah berhasil disimpan!');
     }
 
