@@ -1501,8 +1501,11 @@
 
         // === FASILITAS TERMASUK & TIDAK TERMASUK ===
         // Format broadcast: item diawali "*" (bukan bullet), header "Biaya Sudah Termasuk" / "BIAYA BELUM TERMASUK"
-        let termasuk = [], tidak_termasuk = [];
+        let termasuk = [], tidak_termasuk = [], catatanBroadcast = [];
         let mode = null;
+        // Baris disclaimer/footer (mis. "biaya & jadwal sewaktu-waktu dapat berubah...") bukan item Termasuk/Tidak Termasuk asli —
+        // dikenali dari panjang baris atau kata kunci umum disclaimer, dialihkan ke Catatan Admin
+        const isDisclaimerLine = (txt) => txt.length > 70 || /sewaktu[\s-]*waktu|dapat\s*berubah|syarat\s*dan\s*ketentuan|s&k\s*berlaku/i.test(txt);
         for (const l of lines) {
             const lc = cleanAll(l).toLowerCase();
             // Deteksi header section — cek "tidak termasuk" dulu (lebih spesifik)
@@ -1515,11 +1518,27 @@
                 // Bersihkan: hapus * di awal/akhir, simbol bullet
                 const item = l.replace(/^\*+/, '').replace(/\*+$/, '').replace(/^[-•✓✈🕌🚌🍽️★]\s*/, '').replace(/^\d+\.\s*/, '').trim();
                 if (item && item.length > 1) {
-                    if (mode === 'termasuk') termasuk.push(item);
+                    if (isDisclaimerLine(item)) catatanBroadcast.push(item);
+                    else if (mode === 'termasuk') termasuk.push(item);
                     else tidak_termasuk.push(item);
                 }
             }
         }
+
+        // Sambungkan info wisata tambahan (city tour dll) ke daftar Termasuk, supaya ikut tersimpan & tampil di teks WA
+        if (program_wisata) termasuk.unshift(`Wisata Tambahan: ${program_wisata}`);
+
+        // Sambungkan info jarak hotel & lama menginap ke nama hotel, supaya ikut tersimpan (field admin_hotel_makkah/madinah)
+        // dan otomatis tampil di teks WA (generateAutoWAText memakai field hotel_makkah/hotel_madinah)
+        const enrichHotel = (nm, hari, jarak) => {
+            if (!nm) return nm;
+            const extra = [];
+            if (hari) extra.push(hari + ' malam');
+            if (jarak) extra.push(jarak);
+            return extra.length ? `${nm} (${extra.join(', ')})` : nm;
+        };
+        const hotelMakkahDisplay  = enrichHotel(hotel_makkah, hotel_makkah_hari, hotel_makkah_jarak);
+        const hotelMadinahDisplay = enrichHotel(hotel_madinah, hotel_madinah_hari, hotel_madinah_jarak);
 
         // Cocokkan maskapai ke select option
         const sel = document.getElementById('admin_maskapai');
@@ -1527,7 +1546,7 @@
             const opts = Array.from(sel.options);
             const kata = maskapai.toLowerCase().split(' ')[0];
             const found = opts.find(o => o.value.toLowerCase().includes(kata));
-            if (found) sel.value = found.value;
+            if (found) { sel.value = found.value; maskapai = found.value; } // pakai nama maskapai yang bersih (buang info rute/transit ikutan)
         }
 
         // Isi form publik
@@ -1544,10 +1563,7 @@
             tgl: (() => { for (const l of lines) { if (/\d{1,2}\s*[-\u2013]\s*\d{1,2}\s+[A-Za-z]+\s+\d{4}/.test(l)) return cleanAll(l); if (/\d{1,2}\s+[A-Za-z]+\s+\d{4}/.test(l)) return cleanAll(l); } return ''; })(),
             durasi, maskapai,
             harga_quad, harga_triple, harga_double, harga_quint,
-            hotel_makkah, hotel_madinah,
-            hotel_makkah_hari, hotel_madinah_hari,
-            hotel_makkah_jarak, hotel_madinah_jarak,
-            program_wisata,
+            hotel_makkah: hotelMakkahDisplay, hotel_madinah: hotelMadinahDisplay,
             termasuk: termasuk.join('\n'),
             tidak_termasuk: tidak_termasuk.join('\n')
         };
@@ -1558,12 +1574,13 @@
         setVal('admin_harga_quad', harga_quad);
         setVal('admin_harga_triple', harga_triple);
         setVal('admin_harga_double', harga_double);
-        setVal('admin_hotel_makkah', hotel_makkah);
-        setVal('admin_hotel_madinah', hotel_madinah);
+        setVal('admin_hotel_makkah', hotelMakkahDisplay);
+        setVal('admin_hotel_madinah', hotelMadinahDisplay);
         setVal('admin_makan_makkah', makan_makkah);
         setVal('admin_makan_madinah', makan_madinah);
         if (termasuk.length) setVal('admin_termasuk', termasuk.join('\n'));
         if (tidak_termasuk.length) setVal('admin_tidak_termasuk', tidak_termasuk.join('\n'));
+        if (catatanBroadcast.length) setVal('admin_catatan_cx', catatanBroadcast.join('\n'));
 
         // Status
         const parts = [];
