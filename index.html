@@ -1,454 +1,240 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amiru Repository</title>
-    <meta name="description" content="Repository Program Umroh PT Amiru Haramain Indonesia">
-    <meta name="theme-color" content="#1a6fa8">
 
-    <!-- PWA -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="apple-touch-icon" href="icons/icon-180.png">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Amiru Repository">
-
-    <!-- Security Headers via Meta Tags -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-
-    <!-- Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://rkdhssbyqqyheczejtix.supabase.co">
-
-    <!-- External CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-
-    <!-- App CSS -->
-    <link rel="stylesheet" href="css/style.css?v=1783267191">
-
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
-
-    <!-- jsPDF (untuk cetak Kuitansi jadi PDF) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head>
-<body>
-
-<header class="portal-header">
-    <a href="#" class="logo-area">
-        <div class="logo-icon">𝞚</div>
-        <div><h3>PT Amiru Haramain Indonesia</h3></div>
-    </a>
-    <div class="search-wrapper">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="searchInput" placeholder="Cari paket, maskapai, fitur...">
-    </div>
-    <nav class="nav-links">
-        <a href="https://drive.google.com/drive/folders/1YvMs0hxnenQaae50CuSmp3SobM822NnF?usp=sharing" class="nav-item" target="_blank" rel="noopener noreferrer">Video Promosi</a>
-        <a href="https://drive.google.com/open?id=1Kq_iZa6sPBHIG1YAxXhPMNglOkXSDU93&usp=drive_fs" class="nav-item" target="_blank" rel="noopener noreferrer">Semua Paket</a>
-        <a href="https://drive.google.com/open?id=1mhoSezYlh3S1xXILHAGc06UzNxeqYnfh&usp=drive_fs" class="nav-item" target="_blank" rel="noopener noreferrer">Media Cetak</a>
-        <a href="https://drive.google.com/open?id=1EUChpUcjVUJszl_X6MZIEFW0my09T1e5&usp=drive_fs" class="nav-item" target="_blank" rel="noopener noreferrer">Infografis</a>
-        <a href="https://canva.link/75lz6qng8iyea5r" class="nav-item" target="_blank" rel="noopener noreferrer">Konten FAQ</a>
-        <a href="#" class="profile-btn" onclick="openAdminModal()"><i class="fa-solid fa-lock"></i>Admin</a>
-    </nav>
-    <button class="hamburger-btn" onclick="openDrawer()"><i class="fa-solid fa-bars"></i></button>
-</header>
-
-<div class="mobile-overlay" id="mobileOverlay" onclick="closeDrawer()">
-    <div class="mobile-drawer" onclick="event.stopPropagation()">
-        <div class="drawer-header"><span><i class="fa-solid fa-mosque"></i> Menu Navigasi</span><button class="drawer-close" onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button></div>
-        <div class="drawer-search"><i class="fa-solid fa-magnifying-glass search-icon"></i><input type="text" id="searchInputMobile" placeholder="Cari paket, fitur..."></div>
-        <nav class="drawer-nav">
-            <a href="https://drive.google.com/open?id=1YLrU5P7YqxpPKCGlua51pOlEAJeYEhvz&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-pen"></i>Form Pendaftaran</a>
-            <a href="https://drive.google.com/open?id=1Kq_iZa6sPBHIG1YAxXhPMNglOkXSDU93&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-layer-group"></i>Semua Paket</a>
-            <a href="https://drive.google.com/open?id=1mhoSezYlh3S1xXILHAGc06UzNxeqYnfh&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-print"></i>Media Cetak</a>
-            <a href="https://drive.google.com/open?id=1EUChpUcjVUJszl_X6MZIEFW0my09T1e5&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-chart-pie"></i>Infografis</a>
-            <a href="https://drive.google.com/open?id=1WwfC3kP5v7cStq75A6N7gUnIonKBIoOQ&usp=drive_fs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-building"></i>Company Profile</a>
-        </nav>
-        <div class="drawer-admin"><a href="#" onclick="openAdminModal(); closeDrawer();"><i class="fa-solid fa-lock"></i>Masuk sebagai Admin</a></div>
-    </div>
-</div>
-
-
-<div id="adminModal" class="admin-modal" style="display:none;"><div class="admin-modal-content"><div class="admin-modal-header"><h2><i class="fas fa-database"></i> Kelola Program <span id="adminRoleBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--primary-subtle);color:var(--primary);margin-left:8px;display:none !important;"></span></h2><div style="display:flex;gap:10px;"><button id="adminHeaderLogoutBtn" onclick="logoutAdmin()" style="display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button><button onclick="closeAdminModal()"><i class="fas fa-arrow-left"></i> Kembali</button></div></div><div class="admin-modal-body" id="adminModalBody"></div></div></div>
-
-<!-- PUBLIC TABS -->
-<div class="pub-tabs-wrapper" id="pubTabsWrapper">
-    <div class="pub-tabs-bar">
-        <button class="pub-tab-btn active" id="pubTabBtnUmroh" onclick="switchPubTab('umroh', this)">
-            <span class="pub-tab-icon"></span> Program Umroh
-        </button>
-        <button class="pub-tab-btn tab-unggulan" id="pubTabBtnUnggulan" onclick="switchPubTab('unggulan', this)">
-            <span class="pub-tab-icon"></span> Program Unggulan
-        </button>
-        <button class="pub-tab-btn tab-info" id="pubTabBtnInfo" onclick="switchPubTab('info', this)">
-            <span class="pub-tab-icon"></span> Jadwal Tamu
-        </button>
-        <button class="pub-tab-btn tab-keberangkatan" id="pubTabBtnKeberangkatan" onclick="switchPubTab('keberangkatan', this)">
-            <span class="pub-tab-icon"></span> Detail Keberangkatan
-        </button>
-        <div class="stats-row" id="statsRow"></div>
-    </div>
-    <div class="pub-tab-body">
-
-        <!-- TAB: PROGRAM UMROH -->
-        <div class="pub-tab-panel active" id="pub-tab-umroh">
-            <div class="table-container">
-                <div id="loadingState" class="loading-state" style="padding:0;text-align:left;">
-                    <table class="skeleton-table">
-                        <tbody id="skeletonBody"></tbody>
-                    </table>
-                </div>
-                <table id="packageTable" style="display:none;">
-                    <thead><tr><th class="sortable col-nama" data-sort="nama">Nama Program <span id="icon-nama" class="sort-icon">&#x21D5;</span></th><th class="col-harga">Biaya Program</th><th class="sortable" data-sort="tgl">Berangkat <span id="icon-tgl" class="sort-icon">&#x21D5;</span></th><th class="col-durasi">Durasi</th><th class="sortable col-maskapai" data-sort="maskapai">Maskapai <span id="icon-maskapai" class="sort-icon">&#x21D5;</span></th><th>Aset &amp; Aksi</th><th class="sortable" data-sort="isAvailable">Status <span id="icon-isAvailable" class="sort-icon">&#x21D5;</span></th></tr></thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TAB: PROGRAM UNGGULAN -->
-        <div class="pub-tab-panel" id="pub-tab-unggulan">
-            <div class="pub-sub-section" id="featuredSection">
-                <div class="pub-sub-header">
-                    <div class="pub-sub-label unggulan"><i class="fa-solid fa-star"></i> Program Unggulan</div>
-                </div>
-                <div class="featured-grid" id="featuredGrid">
-                    <div class="featured-empty"><i class="fa-solid fa-star"></i>Belum ada program unggulan yang dipilih.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: JADWAL TAMU -->
-        <div class="pub-tab-panel" id="pub-tab-info">
-            <div class="pub-sub-section" id="jadwalSection">
-                <div class="pub-sub-header">
-                    <div class="pub-sub-label jadwal"><i class="fa-solid fa-calendar-check"></i> Jadwal Berkunjung Tamu</div>
-                    <div class="jadwal-today-badge" id="jadwalTodayCount" style="display:none;"><i class="fa-solid fa-bell"></i> <span id="jadwalTodayNum">0</span> tamu hari ini</div>
-                </div>
-                <div class="jadwal-grid" id="jadwalGrid">
-                    <div class="jadwal-empty"><i class="fa-solid fa-calendar-xmark"></i>Belum ada jadwal tamu yang tercatat.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: DETAIL KEBERANGKATAN -->
-        <div class="pub-tab-panel" id="pub-tab-keberangkatan">
-            <div class="pub-sub-header" style="margin-bottom:14px;">
-                <div class="pub-sub-label" style="color:#0369a1;"><i class="fa-solid fa-plane-departure" style="color:#0369a1;"></i> Detail Keberangkatan Jamaah</div>
-            </div>
-            <!-- Filter program -->
-            <div class="kb-program-selector" id="kbProgramSelector">
-                <div style="padding:24px;color:var(--text-3);font-size:13px;">Memuat data program...</div>
-            </div>
-            <!-- Konten jamaah -->
-            <div id="kbJamaahContent">
-                <div class="kb-no-program">
-                    <i class="fa-solid fa-plane-departure"></i>
-                    <p>Pilih program di atas untuk melihat daftar jamaah yang berangkat.</p>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<div class="toast" id="toast"><i class="fa-solid fa-check"></i> Teks berhasil disalin!</div>
-
-
-
-<div class="wa-float">
-    <a href="https://wa.me/6282234650150?text=Assalamualaikum%20Mas%20saya%20mau%20bertanya" target="_blank" rel="noopener noreferrer">
-        <i class="fab fa-whatsapp"></i>
-        <span class="tooltip">Hubungi Admin</span>
-    </a>
-</div>
-
-<!-- JADWAL TAMU MODAL FORM (Admin) -->
-<div id="jadwalModal" class="jadwal-modal" style="display:none;">
-    <div class="jadwal-modal-content">
-        <div class="jadwal-modal-header">
-            <h3><i class="fas fa-calendar-plus"></i> <span id="jadwalModalTitle">Tambah Jadwal Tamu</span></h3>
-            <button onclick="closeJadwalModal()">&times;</button>
-        </div>
-        <div class="jadwal-modal-body">
-            <div class="jadwal-form-group"><label>Nama Tamu / Rombongan *</label><input type="text" id="jf_nama" placeholder="Contoh: Keluarga Bapak Ahmad" maxlength="150"></div>
-            <div class="jadwal-form-group"><label>Asal Daerah</label><input type="text" id="jf_asal" placeholder="Contoh: Ponorogo, Jawa Timur" maxlength="100"></div>
-            <div class="jadwal-form-group"><label>Tanggal Kunjungan *</label><input type="date" id="jf_tgl" color-scheme="light"></div>
-            <div class="jadwal-form-group"><label>Jam Kunjungan</label><input type="time" id="jf_jam" placeholder="09:00"></div>
-            <div class="jadwal-form-group"><label>Jumlah Tamu</label><input type="number" id="jf_jumlah" placeholder="2" min="1" max="999"></div>
-            <div class="jadwal-form-group"><label>Keperluan</label><select id="jf_keperluan"><option value="">-- Pilih Keperluan --</option><option>Konsultasi Umroh</option><option>Pendaftaran Umroh</option><option>Pelunasan</option><option>Pengambilan Dokumen</option><option>Silaturahmi</option><option>Lain-lain</option></select></div>
-            <div class="jadwal-form-group"><label>No. WhatsApp Tamu</label><input type="tel" id="jf_wa" placeholder="628xxxxxxxxxx" maxlength="20"></div>
-            <div class="jadwal-form-group"><label>Catatan</label><textarea id="jf_catatan" rows="3" placeholder="Catatan tambahan..." maxlength="500"></textarea></div>
-            <div class="jadwal-form-actions">
-                <button class="jadwal-admin-btn" onclick="saveJadwalTamu()"><i class="fas fa-save"></i> Simpan</button>
-                <button class="jadwal-admin-btn secondary" onclick="closeJadwalModal()">Batal</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="kbModal" class="kb-modal" style="display:none;">
-    <div class="kb-modal-content">
-        <div class="kb-modal-header">
-            <h3><i class="fa-solid fa-user-plus"></i> <span id="kbModalTitle">Tambah Data Jamaah</span></h3>
-            <button onclick="closeKbModal()">&times;</button>
-        </div>
-        <div class="kb-modal-body">
-            <div class="kb-form-group">
-                <label>Program Keberangkatan *</label>
-                <select id="kb_program" onchange=""></select>
-            </div>
-            <div class="kb-form-row">
-                <div class="kb-form-group">
-                    <label>Nama Lengkap *</label>
-                    <input type="text" id="kb_nama" placeholder="Sesuai paspor" maxlength="150">
-                </div>
-                <div class="kb-form-group">
-                    <label>No. NIK / KTP</label>
-                    <input type="text" id="kb_nik" placeholder="16 digit NIK" maxlength="20">
-                </div>
-            </div>
-            <div class="kb-form-row">
-                <div class="kb-form-group">
-                    <label>No. Paspor</label>
-                    <input type="text" id="kb_paspor" placeholder="Contoh: A1234567" maxlength="20">
-                </div>
-                <div class="kb-form-group">
-                    <label>No. WhatsApp</label>
-                    <input type="tel" id="kb_wa" placeholder="628xxxxxxxxxx" maxlength="20">
-                </div>
-            </div>
-            <div class="kb-form-row">
-                <div class="kb-form-group">
-                    <label>Asal Daerah</label>
-                    <input type="text" id="kb_asal" placeholder="Kota/Kabupaten" maxlength="100">
-                </div>
-                <div class="kb-form-group">
-                    <label>Status Pembayaran</label>
-                    <select id="kb_status">
-                        <option value="lunas">Lunas</option>
-                        <option value="dp">DP / Cicilan</option>
-                        <option value="pending">Pending</option>
-                    </select>
-                </div>
-            </div>
-            <div class="kb-form-group">
-                <label>Catatan</label>
-                <textarea id="kb_catatan" rows="2" placeholder="Catatan tambahan..." maxlength="300"></textarea>
-            </div>
-            <div class="kb-form-actions">
-                <button class="kb-form-btn primary" onclick="saveKbJamaah()"><i class="fa-solid fa-save"></i> Simpan</button>
-                <button class="kb-form-btn secondary" onclick="closeKbModal()">Batal</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="kuitansiModal" class="kb-modal" style="display:none;">
-    <div class="kb-modal-content kwt-modal-content">
-        <div class="kb-modal-header">
-            <h3><i class="fa-solid fa-receipt"></i> Cetak Kuitansi</h3>
-            <div style="display:flex;gap:8px;align-items:center;">
-                <button onclick="openKwtArsipModal()" title="Lihat Arsip Kuitansi" style="width:auto;padding:0 12px;font-size:12px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-box-archive"></i> Arsip</button>
-                <button onclick="closeKuitansiModal()">&times;</button>
-            </div>
-        </div>
-        <div class="kb-modal-body kwt-modal-body">
-            <div class="kwt-form-col">
-                <div class="kb-form-row">
-                    <div class="kb-form-group">
-                        <label>Nomor Kuitansi</label>
-                        <input type="text" id="kwt_nomor" placeholder="Contoh: AHI-001" maxlength="40" oninput="renderKwtPreview()">
-                    </div>
-                    <div class="kb-form-group">
-                        <label>Tempat &amp; Tanggal</label>
-                        <input type="text" id="kwt_tempat_tanggal" placeholder="Yogyakarta, 13 Juli 2026" maxlength="60" oninput="renderKwtPreview()">
-                    </div>
-                </div>
-                <div class="kb-form-group">
-                    <label>Sudah Terima Dari</label>
-                    <input type="text" id="kwt_dari" placeholder="Nama jamaah / pemberi" maxlength="150" oninput="renderKwtPreview()">
-                </div>
-                <div class="kb-form-row">
-                    <div class="kb-form-group">
-                        <label>Jumlah (Rp) *</label>
-                        <input type="text" id="kwt_jumlah" inputmode="numeric" placeholder="Contoh: 23000000" oninput="onKwtJumlahInput()">
-                        <small id="kwt_jumlah_display" style="color:var(--text-3);font-size:11.5px;"></small>
-                    </div>
-                    <div class="kb-form-group">
-                        <label>Nama Penerima</label>
-                        <input type="text" id="kwt_penerima" placeholder="Nama staf/petugas" maxlength="80" oninput="renderKwtPreview()">
-                    </div>
-                </div>
-                <div class="kb-form-group">
-                    <label>Uang Sebanyak (Terbilang)</label>
-                    <input type="text" id="kwt_terbilang" placeholder="Otomatis dari jumlah, bisa diedit" maxlength="250" oninput="kwtTerbilangEdited=true;renderKwtPreview();">
-                </div>
-                <div class="kb-form-group">
-                    <label>Untuk Pembayaran</label>
-                    <textarea id="kwt_keterangan" rows="2" placeholder="Contoh: DP Program Umroh ..." maxlength="200" oninput="renderKwtPreview()"></textarea>
-                </div>
-                <div class="kb-form-actions">
-                    <button class="kb-form-btn primary" onclick="downloadKuitansiPDF()"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
-                    <button class="kb-form-btn secondary" onclick="closeKuitansiModal()">Batal</button>
-                </div>
-            </div>
-            <div class="kwt-preview-col">
-                <label class="kwt-preview-label">Preview</label>
-                <div class="kwt-preview-sheet" id="kwt_preview_sheet">
-                    <div class="kwt-preview-topbar">
-                        <div class="kwt-preview-brand">
-                            <div class="kwt-preview-brand-logo">
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2L4 8v2h2v10h4v-6h4v6h4V10h2V8L12 2z" fill="#fff"/>
-                                </svg>
-                            </div>
-                            <div class="kwt-preview-brand-word"><span class="kwt-brand-amiru">amiru</span><span class="kwt-brand-tour">tour</span></div>
-                        </div>
-                        <div class="kwt-preview-vdiv"></div>
-                        <div class="kwt-preview-company-block">
-                            <div class="kwt-preview-company">PT AMIRU HARAMAIN INDONESIA</div>
-                            <div class="kwt-preview-address"><b>Kantor Pusat :</b> Jl. Taman Kenari No A3 Kledokan, Caturtunggal, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta, Telp. 0851-2233-6300 &nbsp;Email : salam@amirutour.com</div>
-                        </div>
-                        <div class="kwt-preview-badge-block">
-                            <div class="kwt-preview-badge">Kuitansi</div>
-                            <div class="kwt-preview-nomor">Nomor : <span id="pv_nomor">-</span></div>
-                        </div>
-                    </div>
-                    <div class="kwt-preview-row">
-                        <span class="kwt-preview-label-sm">Sudah Terima dari</span>
-                        <span class="kwt-preview-colon">:</span>
-                        <span class="kwt-preview-box kwt-preview-val" id="pv_dari">-</span>
-                    </div>
-                    <div class="kwt-preview-row">
-                        <span class="kwt-preview-label-sm">Banyaknya Uang</span>
-                        <span class="kwt-preview-colon">:</span>
-                        <span class="kwt-preview-box kwt-preview-val" id="pv_terbilang">-</span>
-                    </div>
-                    <div class="kwt-preview-row">
-                        <span class="kwt-preview-label-sm"></span>
-                        <span class="kwt-preview-colon">:</span>
-                        <span class="kwt-preview-box kwt-preview-box-short">&nbsp;</span>
-                        <div class="kwt-preview-checks">
-                            <span><span class="kwt-check">✓</span>Cash</span>
-                            <span><span class="kwt-check">✓</span>Transfer</span>
-                        </div>
-                    </div>
-                    <div class="kwt-preview-row kwt-preview-row-payment">
-                        <span class="kwt-preview-label-sm">Untuk Pembayaran</span>
-                        <span class="kwt-preview-colon">:</span>
-                        <div class="kwt-preview-payment-wrap">
-                            <span class="kwt-preview-box kwt-preview-val kwt-preview-box-tall" id="pv_keterangan">-</span>
-                        </div>
-                        <div class="kwt-preview-sig">
-                            <div id="pv_tempat_tanggal">-</div>
-                            <div>Penerima</div>
-                        </div>
-                    </div>
-                    <div class="kwt-preview-bottom">
-                        <div class="kwt-preview-rp">
-                            <span class="kwt-preview-rp-label">Rp.</span>
-                            <span class="kwt-preview-rp-box" id="pv_jumlah">Rp 0,-</span>
-                        </div>
-                        <div class="kwt-preview-sig-name" id="pv_penerima">-</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="kwtArsipModal" class="kb-modal" style="display:none;">
-    <div class="kb-modal-content" style="max-width:820px;">
-        <div class="kb-modal-header">
-            <h3><i class="fa-solid fa-box-archive"></i> Arsip Kuitansi</h3>
-            <button onclick="closeKwtArsipModal()">&times;</button>
-        </div>
-        <div class="kb-modal-body">
-            <div class="kb-form-group" style="margin-bottom:16px;">
-                <input type="text" id="kwtArsipSearchInput" placeholder="Cari nomor, nama pemberi, atau keterangan..." oninput="searchKwtArsip(this.value)">
-            </div>
-            <div id="kwtArsipTableWrap" class="kb-jamaah-table-wrap"></div>
-        </div>
-    </div>
-</div>
-
-<div id="detailModal" class="detail-modal" style="display:none;"><div class="detail-modal-content"><div class="detail-modal-header"><h3><i class="fas fa-info-circle"></i> Detail Program Umroh</h3><button onclick="closeDetailModal()">&times;</button></div><div class="detail-modal-body" id="detailModalBody"></div></div></div>
-
-
-<!-- POSTER HOVER POPUP -->
-<div id="posterPopup">
-    <div class="poster-popup-inner">
-        <div class="poster-popup-img-wrap">
-            <div class="poster-popup-loading" id="posterPopupLoading">
-                <i class="fas fa-spinner"></i>
-                <span>Memuat poster...</span>
-            </div>
-            <div class="poster-popup-error" id="posterPopupError">
-                <i class="fas fa-image-slash"></i>
-                <span>Gagal memuat poster</span>
-            </div>
-            <img id="posterPopupImg" src="" alt="Poster" style="display:none;" 
-                onload="document.getElementById('posterPopupLoading').style.display='none';this.style.display='block';"
-                onerror="document.getElementById('posterPopupLoading').style.display='none';document.getElementById('posterPopupError').style.display='flex';this.style.display='none';">
-        </div>
-        <div class="poster-popup-label"><i class="fas fa-image"></i> <span id="posterPopupName"></span></div>
-    </div>
-</div>
-
-<div id="deleteConfirmModal" class="delete-confirm-modal" style="display:none;">
-    <div class="delete-confirm-box">
-        <div class="delete-confirm-header">
-            <i class="fas fa-triangle-exclamation"></i>
-            <h3>Hapus Program Umroh</h3>
-        </div>
-        <div class="delete-confirm-body">
-            <div class="delete-confirm-warning">
-                <i class="fas fa-circle-exclamation"></i>
-                <p><strong>Tindakan ini tidak dapat dibatalkan!</strong>Program akan dihapus permanen dari database dan tidak bisa dipulihkan.</p>
-            </div>
-            <div class="delete-confirm-label">Program yang akan dihapus</div>
-            <div class="delete-confirm-prog-name" id="deleteConfirmProgName"></div>
-            <div class="delete-confirm-label">Ketik nama program untuk konfirmasi</div>
-            <input type="text" class="delete-confirm-input" id="deleteConfirmInput" placeholder="Ketik nama program di sini..." oninput="onDeleteConfirmInput()">
-            <div class="delete-confirm-actions">
-                <button class="delete-confirm-btn-cancel" onclick="closeDeleteConfirmModal()"><i class="fas fa-xmark"></i> Batal</button>
-                <button class="delete-confirm-btn-hapus" id="deleteConfirmBtn" onclick="confirmDeleteProgram()" disabled><i class="fas fa-trash"></i> Hapus Permanen</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- App JS -->
-<script src="js/app.js?v=1783392624"></script>
-
-<!-- PWA Service Worker -->
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('service-worker.js')
-                .then((reg) => console.log('[PWA] Service worker terdaftar:', reg.scope))
-                .catch((err) => console.warn('[PWA] Gagal mendaftarkan service worker:', err));
-        });
-
-        // Reload otomatis sekali saat service worker versi baru mengambil alih,
-        // supaya pengguna yang sudah install PWA sebelumnya langsung dapat update terbaru
-        let swAlreadyRefreshed = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (swAlreadyRefreshed) return;
-            swAlreadyRefreshed = true;
-            window.location.reload();
-        });
+    async function loadJadwal() {
+        try {
+            const { data, error } = await supabaseClient.from('jadwal_tamu').select('*').order('tgl', { ascending: true });
+            if (error) throw error;
+            jadwalList = data || [];
+        } catch (err) {
+            const msg = err?.message || String(err);
+            if (msg.includes('DataCloneError') || msg.includes('postMessage')) {
+                // Fallback: REST API langsung
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/jadwal_tamu?select=*&order=tgl.asc`, {
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+                    });
+                    jadwalList = res.ok ? (await res.json()) : [];
+                    return;
+                } catch (_) {}
+            }
+            console.error('loadJadwal error:', msg);
+            jadwalList = [];
+        }
     }
-</script>
 
-</body>
-</html>
+    function getJadwalById(id) { return jadwalList.find(j => j.id === id); }
+
+    async function saveJadwalTamu() {
+        const nama = document.getElementById('jf_nama').value.trim();
+        const tgl = document.getElementById('jf_tgl').value;
+        if (!nama) { alert('Nama tamu wajib diisi!'); return; }
+        if (!tgl) { alert('Tanggal kunjungan wajib diisi!'); return; }
+        const entry = {
+            nama,
+            asal: document.getElementById('jf_asal').value.trim(),
+            tgl,
+            jam: document.getElementById('jf_jam').value,
+            jumlah: document.getElementById('jf_jumlah').value ? parseInt(document.getElementById('jf_jumlah').value) : null,
+            keperluan: document.getElementById('jf_keperluan').value,
+            wa: document.getElementById('jf_wa').value.trim(),
+            catatan: document.getElementById('jf_catatan').value.trim(),
+        };
+        let err = null;
+        if (editingJadwalId) {
+            const { error } = await supabaseClient.from('jadwal_tamu').update(entry).eq('id', editingJadwalId);
+            err = error;
+        } else {
+            const { error } = await supabaseClient.from('jadwal_tamu').insert([{ ...entry, id: crypto.randomUUID(), created_at: new Date().toISOString() }]);
+            err = error;
+        }
+        if (err) { showToast('❌ Gagal simpan: ' + err.message); return; }
+        const isEdit = !!editingJadwalId;
+        await loadJadwal();
+        closeJadwalModal();
+        renderJadwalSection();
+        renderJadwalAdminTable();
+        showToast('📅 Jadwal tamu berhasil disimpan!');
+        // Kirim notif Telegram
+        sendTelegramNotif(formatTgJadwal(entry, isEdit), 'jadwal');
+    }
+
+    async function deleteJadwalTamu(id) {
+        if (!confirm('Hapus jadwal tamu ini?')) return;
+        const { error } = await supabaseClient.from('jadwal_tamu').delete().eq('id', id);
+        if (error) { showToast('❌ Gagal hapus: ' + error.message); return; }
+        jadwalList = jadwalList.filter(j => j.id !== id);
+        renderJadwalSection();
+        renderJadwalAdminTable();
+        showToast('🗑️ Jadwal tamu dihapus');
+    }
+
+    function renderJadwalSection() {
+        const grid = document.getElementById('jadwalGrid');
+        const todayBadge = document.getElementById('jadwalTodayCount');
+        const todayNum = document.getElementById('jadwalTodayNum');
+        if (!grid) return;
+
+        const today = new Date(); today.setHours(0,0,0,0);
+        const todayStr = formatJadwalDate(today);
+
+        // Sort: hari ini dan mendatang dulu, lalu lampau
+        const upcoming = jadwalList.filter(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            return d >= today;
+        }).sort((a,b) => new Date(a.tgl) - new Date(b.tgl));
+        const past = jadwalList.filter(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            return d < today;
+        }).sort((a,b) => new Date(b.tgl) - new Date(a.tgl));
+        const sorted = [...upcoming, ...past];
+
+        const todayCount = jadwalList.filter(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            return d.getTime() === today.getTime();
+        }).length;
+
+        if (todayCount > 0) {
+            todayBadge.style.display = 'flex';
+            todayNum.textContent = todayCount;
+        } else {
+            todayBadge.style.display = 'none';
+        }
+
+        if (!sorted.length) {
+            grid.innerHTML = '<div class="jadwal-empty"><i class="fa-solid fa-calendar-xmark"></i>Belum ada jadwal tamu yang tercatat.</div>';
+            return;
+        }
+
+        grid.innerHTML = sorted.map(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            const isToday = d.getTime() === today.getTime();
+            const isPast = d < today;
+            let statusClass = isToday ? 'today' : (isPast ? 'past' : 'upcoming');
+            let statusLabel = isToday ? '🟣 Hari Ini' : (isPast ? 'Selesai' : 'Mendatang');
+            const cardClass = isToday ? 'today-card' : (isPast ? 'past-card' : '');
+            const tglFormatted = formatJadwalDateDisplay(j.tgl);
+            return `<div class="jadwal-card ${cardClass}">
+                <div class="jadwal-card-head">
+                    <span class="jadwal-card-name">${escapeHtml(j.nama||'')}</span>
+                    <span class="jadwal-status-pill ${statusClass}">${statusLabel}</span>
+                </div>
+                <div class="jadwal-meta">
+                    <div class="jadwal-meta-row"><i class="fas fa-calendar"></i>${escapeHtml(tglFormatted)}${j.jam ? ' · ' + escapeHtml(j.jam) : ''}</div>
+                    ${j.asal ? `<div class="jadwal-meta-row"><i class="fas fa-map-marker-alt"></i>${escapeHtml(j.asal)}</div>` : ''}
+                    ${j.jumlah ? `<div class="jadwal-meta-row"><i class="fas fa-users"></i>${escapeHtml(String(j.jumlah))} orang</div>` : ''}
+                    ${j.keperluan ? `<div class="jadwal-meta-row"><i class="fas fa-briefcase"></i>${escapeHtml(j.keperluan)}</div>` : ''}
+                    ${j.catatan ? `<div class="jadwal-meta-row"><i class="fas fa-sticky-note"></i>${escapeHtml(j.catatan)}</div>` : ''}
+                </div>
+                <div class="jadwal-card-footer">
+                    ${j.wa ? `<button class="jadwal-btn jadwal-btn-wa" onclick="hubungiTamu('${escapeHtml(j.wa)}','${escapeHtml(j.nama||'')}')"><i class="fab fa-whatsapp"></i> WA</button>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function formatJadwalDate(d) {
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function formatJadwalDateDisplay(isoStr) {
+        if (!isoStr) return '-';
+        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+        const d = new Date(isoStr);
+        if (isNaN(d.getTime())) return isoStr;
+        const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+        return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function openJadwalModal(id = null) {
+        editingJadwalId = id;
+        const title = document.getElementById('jadwalModalTitle');
+        if (id) {
+            const j = getJadwalById(id);
+            if (!j) return;
+            title.textContent = 'Edit Jadwal Tamu';
+            document.getElementById('jf_nama').value = j.nama || '';
+            document.getElementById('jf_asal').value = j.asal || '';
+            document.getElementById('jf_tgl').value = j.tgl || '';
+            document.getElementById('jf_jam').value = j.jam || '';
+            document.getElementById('jf_jumlah').value = j.jumlah || '';
+            document.getElementById('jf_keperluan').value = j.keperluan || '';
+            document.getElementById('jf_wa').value = j.wa || '';
+            document.getElementById('jf_catatan').value = j.catatan || '';
+        } else {
+            title.textContent = 'Tambah Jadwal Tamu';
+            ['jf_nama','jf_asal','jf_tgl','jf_jam','jf_jumlah','jf_wa','jf_catatan'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('jf_keperluan').value = '';
+        }
+        document.getElementById('jadwalModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeJadwalModal() {
+        document.getElementById('jadwalModal').classList.remove('show');
+        document.body.style.overflow = '';
+        editingJadwalId = null;
+    }
+
+    function hubungiTamu(wa, nama) {
+        const no = wa.replace(/\D/g,'');
+        const pesan = encodeURIComponent(`Assalamualaikum ${nama}, kami dari PT Amiru Haramain Indonesia mengingatkan jadwal kunjungan Anda. Terima kasih 🕋`);
+        window.open(`https://wa.me/${no}?text=${pesan}`, '_blank');
+    }
+
+    function renderJadwalAdminTable() {
+        const tbody = document.getElementById('jadwalAdminTableBody');
+        if (!tbody) return;
+        const tabBadge = document.getElementById('tabCountJadwal');
+        if (tabBadge) tabBadge.textContent = jadwalList.length;
+        const today = new Date(); today.setHours(0,0,0,0);
+        if (!jadwalList.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-3)">Belum ada jadwal tamu.</td></tr>';
+            return;
+        }
+        const sorted = [...jadwalList].sort((a,b) => new Date(a.tgl) - new Date(b.tgl));
+        tbody.innerHTML = sorted.map(j => {
+            const d = new Date(j.tgl); d.setHours(0,0,0,0);
+            const isToday = d.getTime() === today.getTime();
+            const isPast = d < today;
+            const statusLabel = isToday ? '🟣 Hari Ini' : (isPast ? 'Selesai' : '🔵 Mendatang');
+            return `<tr ${isToday ? 'style="background:#faf5ff;"' : ''}>
+                <td><strong>${escapeHtml(j.nama||'-')}</strong>${j.asal ? `<br><small style="color:var(--text-3)">${escapeHtml(j.asal)}</small>` : ''}</td>
+                <td style="white-space:nowrap">${escapeHtml(formatJadwalDateDisplay(j.tgl))}${j.jam ? '<br><small>'+escapeHtml(j.jam)+'</small>' : ''}</td>
+                <td>${j.jumlah ? escapeHtml(String(j.jumlah)) + ' orang' : '-'}</td>
+                <td>${escapeHtml(j.keperluan||'-')}</td>
+                <td>${statusLabel}</td>
+                <td><div class="admin-action-btns">
+                    <button onclick="openJadwalModal('${j.id}')" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-edit"></i> Edit</button>
+                    ${j.wa ? `<button onclick="hubungiTamu('${escapeHtml(j.wa)}','${escapeHtml(j.nama||'')}')" style="background:#dcfce7;color:#16a34a;"><i class="fab fa-whatsapp"></i> WA</button>` : ''}
+                    <button onclick="deleteJadwalTamu('${j.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i></button>
+                </div></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function switchPubTab(name, btn) {
+        document.querySelectorAll('.pub-tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.pub-tab-btn').forEach(b => b.classList.remove('active'));
+        const panel = document.getElementById('pub-tab-' + name);
+        if (panel) panel.classList.add('active');
+        if (btn) btn.classList.add('active');
+        // reinit sort listeners if switching to umroh tab
+        if (name === 'umroh') {
+            document.querySelectorAll('th.sortable').forEach(th => {
+                const key = th.getAttribute('data-sort');
+                if (key) th.onclick = () => sortTable(key);
+            });
+        }
+        // re-render featured if switching to unggulan tab
+        if (name === 'unggulan') {
+            renderFeaturedSection();
+        }
+        // render keberangkatan if switching to keberangkatan tab
+        if (name === 'keberangkatan') {
+            renderKbProgramSelector();
+        }
+    }
+    window.switchPubTab = switchPubTab;
+
+    // ========== DETAIL KEBERANGKATAN (Supabase) ==========
+    let kbJamaahList = [];
+    let kbSelectedProgram = null;
+    let editingKbId = null;
