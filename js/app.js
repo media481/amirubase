@@ -1407,7 +1407,7 @@
             let m = l.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
             if (m) {
                 const bln = BULAN[m[3].toLowerCase()];
-                if (bln) { tglISO = m[4] + '-' + bln + '-' + m[2].padStart(2,'0'); break; }
+                if (bln) { tglISO = m[4] + '-' + bln + '-' + m[1].padStart(2,'0'); break; }
             }
             m = l.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
             if (m) {
