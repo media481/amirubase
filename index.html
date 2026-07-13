@@ -35,6 +35,9 @@
 
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
+
+    <!-- jsPDF (untuk cetak Kuitansi jadi PDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -243,6 +246,54 @@
             <div class="kb-form-actions">
                 <button class="kb-form-btn primary" onclick="saveKbJamaah()"><i class="fa-solid fa-save"></i> Simpan</button>
                 <button class="kb-form-btn secondary" onclick="closeKbModal()">Batal</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="kuitansiModal" class="kb-modal" style="display:none;">
+    <div class="kb-modal-content" style="max-width:600px;">
+        <div class="kb-modal-header">
+            <h3><i class="fa-solid fa-receipt"></i> Cetak Kuitansi</h3>
+            <button onclick="closeKuitansiModal()">&times;</button>
+        </div>
+        <div class="kb-modal-body">
+            <div class="kb-form-row">
+                <div class="kb-form-group">
+                    <label>Nomor Kuitansi</label>
+                    <input type="text" id="kwt_nomor" placeholder="Contoh: AHI-001" maxlength="40">
+                </div>
+                <div class="kb-form-group">
+                    <label>Tempat &amp; Tanggal</label>
+                    <input type="text" id="kwt_tempat_tanggal" placeholder="Yogyakarta, 13 Juli 2026" maxlength="60">
+                </div>
+            </div>
+            <div class="kb-form-group">
+                <label>Sudah Terima Dari</label>
+                <input type="text" id="kwt_dari" placeholder="Nama jamaah / pemberi" maxlength="150">
+            </div>
+            <div class="kb-form-row">
+                <div class="kb-form-group">
+                    <label>Jumlah (Rp) *</label>
+                    <input type="text" id="kwt_jumlah" inputmode="numeric" placeholder="Contoh: 23000000" oninput="onKwtJumlahInput()">
+                    <small id="kwt_jumlah_display" style="color:var(--text-3);font-size:11.5px;"></small>
+                </div>
+                <div class="kb-form-group">
+                    <label>Nama Penerima</label>
+                    <input type="text" id="kwt_penerima" placeholder="Nama staf/petugas" maxlength="80">
+                </div>
+            </div>
+            <div class="kb-form-group">
+                <label>Uang Sebanyak (Terbilang)</label>
+                <input type="text" id="kwt_terbilang" placeholder="Otomatis dari jumlah, bisa diedit" maxlength="250" oninput="kwtTerbilangEdited=true;">
+            </div>
+            <div class="kb-form-group">
+                <label>Untuk Pembayaran</label>
+                <textarea id="kwt_keterangan" rows="2" placeholder="Contoh: DP Program Umroh ..." maxlength="200"></textarea>
+            </div>
+            <div class="kb-form-actions">
+                <button class="kb-form-btn primary" onclick="downloadKuitansiPDF()"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+                <button class="kb-form-btn secondary" onclick="closeKuitansiModal()">Batal</button>
             </div>
         </div>
     </div>

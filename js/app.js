@@ -900,6 +900,7 @@
                     <td><span class="kb-status-pill ${statusClass}">${statusLabel}</span></td>
                     <td><div class="admin-action-btns">
                         <button onclick="kbEditFromAdmin=true;openKbModal('${j.id}');" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-edit"></i> Edit</button>
+                        <button onclick="openKuitansiModal('${j.id}')" style="background:#e0f2fe;color:#0369a1;"><i class="fa-solid fa-receipt"></i></button>
                         ${j.wa ? `<button onclick="kbHubungi('${escapeHtml(j.wa)}','${escapeHtml(j.nama||'')}')" style="background:#dcfce7;color:#16a34a;"><i class="fab fa-whatsapp"></i></button>` : ''}
                         <button onclick="deleteKbJamaahAdmin('${j.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i></button>
                     </div></td>
@@ -1044,6 +1045,7 @@
                     <td><span class="kb-status-pill ${statusClass}">${statusLabel}</span></td>
                     <td><div class="admin-action-btns">
                         <button onclick="kbEditFromAdmin=true;openKbModal('${j.id}');" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-edit"></i> Edit</button>
+                        <button onclick="openKuitansiModal('${j.id}')" style="background:#e0f2fe;color:#0369a1;"><i class="fa-solid fa-receipt"></i></button>
                         ${j.wa ? `<button onclick="kbHubungi('${escapeHtml(j.wa)}','${escapeHtml(j.nama||'')}')" style="background:#dcfce7;color:#16a34a;"><i class="fab fa-whatsapp"></i></button>` : ''}
                         <button onclick="deleteKbJamaahAdmin('${j.id}')" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-trash"></i></button>
                     </div></td>
@@ -1078,6 +1080,170 @@
     window.updateDbJamaahTable = updateDbJamaahTable;
     window.exportDbJamaahCSV = exportDbJamaahCSV;
     // ========== END DATABASE JAMAAH ==========
+
+    // ========== KUITANSI (cetak PDF) ==========
+    const KWT_PENERIMA_KEY = 'amiru_kwt_last_penerima';
+    let kwtActiveJamaahId = null;
+    let kwtTerbilangEdited = false;
+
+    // Angka -> terbilang bahasa Indonesia (mendukung s.d. triliunan)
+    function terbilang(n) {
+        n = Math.floor(Math.abs(Number(n) || 0));
+        if (n === 0) return 'Nol';
+        const satuan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
+        function toWords(num) {
+            if (num < 12) return satuan[num];
+            if (num < 20) return (toWords(num - 10) + ' Belas').trim();
+            if (num < 100) return (toWords(Math.floor(num / 10)) + ' Puluh' + (num % 10 !== 0 ? ' ' + toWords(num % 10) : '')).trim();
+            if (num < 200) return ('Seratus' + (num - 100 !== 0 ? ' ' + toWords(num - 100) : '')).trim();
+            if (num < 1000) return (toWords(Math.floor(num / 100)) + ' Ratus' + (num % 100 !== 0 ? ' ' + toWords(num % 100) : '')).trim();
+            if (num < 2000) return ('Seribu' + (num - 1000 !== 0 ? ' ' + toWords(num - 1000) : '')).trim();
+            if (num < 1000000) return (toWords(Math.floor(num / 1000)) + ' Ribu' + (num % 1000 !== 0 ? ' ' + toWords(num % 1000) : '')).trim();
+            if (num < 1000000000) return (toWords(Math.floor(num / 1000000)) + ' Juta' + (num % 1000000 !== 0 ? ' ' + toWords(num % 1000000) : '')).trim();
+            if (num < 1000000000000) return (toWords(Math.floor(num / 1000000000)) + ' Miliar' + (num % 1000000000 !== 0 ? ' ' + toWords(num % 1000000000) : '')).trim();
+            return (toWords(Math.floor(num / 1000000000000)) + ' Triliun' + (num % 1000000000000 !== 0 ? ' ' + toWords(num % 1000000000000) : '')).trim();
+        }
+        return toWords(n).replace(/\s+/g, ' ').trim();
+    }
+
+    function openKuitansiModal(jamaahId) {
+        const j = kbJamaahList.find(x => String(x.id) === String(jamaahId));
+        if (!j) { showToast('⚠️ Data jamaah tidak ditemukan'); return; }
+        kwtActiveJamaahId = jamaahId;
+        kwtTerbilangEdited = false;
+        const prog = dataUmroh.find(p => String(p.id) === String(j.program_id));
+        const progName = prog?.nama || 'Umroh';
+
+        const statusKeterangan = j.status === 'lunas' ? `Pelunasan Program Umroh ${progName}`
+            : j.status === 'dp' ? `DP / Cicilan Program Umroh ${progName}`
+            : `Pembayaran Program Umroh ${progName}`;
+
+        const lastPenerima = localStorage.getItem(KWT_PENERIMA_KEY) || '';
+        const suggestNomor = `AHI-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${String(Math.floor(Math.random()*900)+100)}`;
+
+        document.getElementById('kwt_nomor').value = suggestNomor;
+        document.getElementById('kwt_tempat_tanggal').value = `Yogyakarta, ${formatDateToIndonesian(new Date())}`;
+        document.getElementById('kwt_dari').value = j.nama || '';
+        document.getElementById('kwt_jumlah').value = '';
+        document.getElementById('kwt_jumlah_display').textContent = '';
+        document.getElementById('kwt_terbilang').value = '';
+        document.getElementById('kwt_keterangan').value = statusKeterangan;
+        document.getElementById('kwt_penerima').value = lastPenerima;
+
+        document.getElementById('kuitansiModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('kwt_jumlah')?.focus(), 100);
+    }
+
+    function closeKuitansiModal() {
+        document.getElementById('kuitansiModal').classList.remove('show');
+        document.body.style.overflow = '';
+        kwtActiveJamaahId = null;
+    }
+
+    function onKwtJumlahInput() {
+        const el = document.getElementById('kwt_jumlah');
+        const digits = el.value.replace(/\D/g, '');
+        const display = document.getElementById('kwt_jumlah_display');
+        if (!digits) { display.textContent = ''; if (!kwtTerbilangEdited) document.getElementById('kwt_terbilang').value = ''; return; }
+        display.textContent = 'Rp ' + Number(digits).toLocaleString('id-ID') + ',-';
+        if (!kwtTerbilangEdited) document.getElementById('kwt_terbilang').value = terbilang(digits);
+    }
+    window.onKwtJumlahInput = onKwtJumlahInput;
+
+    function downloadKuitansiPDF() {
+        const nomor = document.getElementById('kwt_nomor').value.trim();
+        const tempatTanggal = document.getElementById('kwt_tempat_tanggal').value.trim();
+        const dari = document.getElementById('kwt_dari').value.trim();
+        const jumlahRaw = document.getElementById('kwt_jumlah').value.replace(/\D/g, '');
+        const terbilangVal = document.getElementById('kwt_terbilang').value.trim();
+        const keterangan = document.getElementById('kwt_keterangan').value.trim();
+        const penerima = document.getElementById('kwt_penerima').value.trim();
+
+        if (!dari) { showToast('⚠️ Nama pemberi (Sudah Terima Dari) wajib diisi'); return; }
+        if (!jumlahRaw) { showToast('⚠️ Jumlah wajib diisi'); return; }
+        if (!window.jspdf) { showToast('❌ Library PDF belum termuat, coba lagi sebentar'); return; }
+
+        if (penerima) localStorage.setItem(KWT_PENERIMA_KEY, penerima);
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: [210, 99] });
+        const M = 8, W = 210, H = 99;
+
+        // Border luar
+        doc.setDrawColor(20, 60, 90);
+        doc.setLineWidth(0.6);
+        doc.rect(M, M, W - M * 2, H - M * 2);
+
+        // Header
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(15, 50, 85);
+        doc.text('PT AMIRU HARAMAIN INDONESIA', W / 2, M + 8, { align: 'center' });
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bolditalic');
+        doc.text('KUITANSI', W / 2, M + 16, { align: 'center' });
+        doc.setDrawColor(150, 150, 150);
+        doc.setLineWidth(0.3);
+        doc.line(M + 4, M + 19, W - M - 4, M + 19);
+
+        // Nomor
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`No. : ${nomor || '-'}`, W - M - 4, M + 26, { align: 'right' });
+
+        // Field-field isi
+        let y = M + 30;
+        const labelX = M + 6, valueX = M + 46;
+        doc.setFontSize(10.5);
+        function fieldLine(label, value, yy) {
+            doc.setFont('helvetica', 'normal');
+            doc.text(label, labelX, yy);
+            doc.text(':', valueX - 4, yy);
+            doc.setFont('helvetica', 'bold');
+            const lines = doc.splitTextToSize(value || '-', W - valueX - M - 6);
+            doc.text(lines, valueX, yy);
+            return yy + (lines.length * 5.5);
+        }
+        y = fieldLine('Sudah terima dari', dari, y);
+        y += 2;
+        y = fieldLine('Uang sebanyak', (terbilangVal ? terbilangVal + ' Rupiah' : '-'), y);
+        y += 2;
+        y = fieldLine('Untuk pembayaran', keterangan, y);
+
+        // Kotak nominal (kiri bawah)
+        const boxY = H - M - 22;
+        doc.setDrawColor(20, 60, 90);
+        doc.setLineWidth(0.5);
+        doc.rect(M + 6, boxY, 58, 13);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        const rupiahFormatted = 'Rp ' + Number(jumlahRaw).toLocaleString('id-ID') + ',-';
+        doc.text(rupiahFormatted, M + 6 + 29, boxY + 8, { align: 'center' });
+
+        // Area tanda tangan (kanan bawah)
+        const sigX = W - M - 58;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text(tempatTanggal || '-', sigX + 29, boxY - 6, { align: 'center' });
+        doc.text('Penerima,', sigX + 29, boxY, { align: 'center' });
+        doc.setFont('helvetica', 'bold');
+        doc.text(penerima || '-', sigX + 29, boxY + 17, { align: 'center' });
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.2);
+        doc.line(sigX + 8, boxY + 15, sigX + 50, boxY + 15);
+
+        const filename = `Kuitansi_${(dari || 'jamaah').replace(/[^a-zA-Z0-9]+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+        doc.save(filename);
+        closeKuitansiModal();
+        showToast('✅ Kuitansi berhasil didownload');
+    }
+
+    window.openKuitansiModal = openKuitansiModal;
+    window.closeKuitansiModal = closeKuitansiModal;
+    window.downloadKuitansiPDF = downloadKuitansiPDF;
+    // ========== END KUITANSI ==========
     
     function renderAdminTable() {
         const tbody=document.getElementById('adminTableBody');
