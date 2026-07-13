@@ -79,14 +79,14 @@
 <!-- PUBLIC TABS -->
 <div class="pub-tabs-wrapper" id="pubTabsWrapper">
     <div class="pub-tabs-bar">
-        <button class="pub-tab-btn tab-info" id="pubTabBtnInfo" onclick="switchPubTab('info', this)">
-            <span class="pub-tab-icon"></span> Jadwal Tamu
+        <button class="pub-tab-btn active" id="pubTabBtnUmroh" onclick="switchPubTab('umroh', this)">
+            <span class="pub-tab-icon"></span> Program Umroh
         </button>
         <button class="pub-tab-btn tab-unggulan" id="pubTabBtnUnggulan" onclick="switchPubTab('unggulan', this)">
             <span class="pub-tab-icon"></span> Program Unggulan
         </button>
-        <button class="pub-tab-btn active" id="pubTabBtnUmroh" onclick="switchPubTab('umroh', this)">
-            <span class="pub-tab-icon"></span> Program Umroh
+        <button class="pub-tab-btn tab-info" id="pubTabBtnInfo" onclick="switchPubTab('info', this)">
+            <span class="pub-tab-icon"></span> Jadwal Tamu
         </button>
         <button class="pub-tab-btn tab-keberangkatan" id="pubTabBtnKeberangkatan" onclick="switchPubTab('keberangkatan', this)">
             <span class="pub-tab-icon"></span> Detail Keberangkatan
@@ -95,16 +95,18 @@
     </div>
     <div class="pub-tab-body">
 
-        <!-- TAB: JADWAL TAMU -->
-        <div class="pub-tab-panel" id="pub-tab-info">
-            <div class="pub-sub-section" id="jadwalSection">
-                <div class="pub-sub-header">
-                    <div class="pub-sub-label jadwal"><i class="fa-solid fa-calendar-check"></i> Jadwal Berkunjung Tamu</div>
-                    <div class="jadwal-today-badge" id="jadwalTodayCount" style="display:none;"><i class="fa-solid fa-bell"></i> <span id="jadwalTodayNum">0</span> tamu hari ini</div>
+        <!-- TAB: PROGRAM UMROH -->
+        <div class="pub-tab-panel active" id="pub-tab-umroh">
+            <div class="table-container">
+                <div id="loadingState" class="loading-state" style="padding:0;text-align:left;">
+                    <table class="skeleton-table">
+                        <tbody id="skeletonBody"></tbody>
+                    </table>
                 </div>
-                <div class="jadwal-grid" id="jadwalGrid">
-                    <div class="jadwal-empty"><i class="fa-solid fa-calendar-xmark"></i>Belum ada jadwal tamu yang tercatat.</div>
-                </div>
+                <table id="packageTable" style="display:none;">
+                    <thead><tr><th class="sortable col-nama" data-sort="nama">Nama Program <span id="icon-nama" class="sort-icon">&#x21D5;</span></th><th class="col-harga">Biaya Program</th><th class="sortable" data-sort="tgl">Berangkat <span id="icon-tgl" class="sort-icon">&#x21D5;</span></th><th class="col-durasi">Durasi</th><th class="sortable col-maskapai" data-sort="maskapai">Maskapai <span id="icon-maskapai" class="sort-icon">&#x21D5;</span></th><th>Aset &amp; Aksi</th><th class="sortable" data-sort="isAvailable">Status <span id="icon-isAvailable" class="sort-icon">&#x21D5;</span></th></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
             </div>
         </div>
 
@@ -120,18 +122,16 @@
             </div>
         </div>
 
-        <!-- TAB: PROGRAM UMROH -->
-        <div class="pub-tab-panel active" id="pub-tab-umroh">
-            <div class="table-container">
-                <div id="loadingState" class="loading-state" style="padding:0;text-align:left;">
-                    <table class="skeleton-table">
-                        <tbody id="skeletonBody"></tbody>
-                    </table>
+        <!-- TAB: JADWAL TAMU -->
+        <div class="pub-tab-panel" id="pub-tab-info">
+            <div class="pub-sub-section" id="jadwalSection">
+                <div class="pub-sub-header">
+                    <div class="pub-sub-label jadwal"><i class="fa-solid fa-calendar-check"></i> Jadwal Berkunjung Tamu</div>
+                    <div class="jadwal-today-badge" id="jadwalTodayCount" style="display:none;"><i class="fa-solid fa-bell"></i> <span id="jadwalTodayNum">0</span> tamu hari ini</div>
                 </div>
-                <table id="packageTable" style="display:none;">
-                    <thead><tr><th class="sortable col-nama" data-sort="nama">Nama Program <span id="icon-nama" class="sort-icon">&#x21D5;</span></th><th class="col-harga">Biaya Program</th><th class="sortable" data-sort="tgl">Berangkat <span id="icon-tgl" class="sort-icon">&#x21D5;</span></th><th class="col-durasi">Durasi</th><th class="sortable col-maskapai" data-sort="maskapai">Maskapai <span id="icon-maskapai" class="sort-icon">&#x21D5;</span></th><th>Aset &amp; Aksi</th><th class="sortable" data-sort="isAvailable">Status <span id="icon-isAvailable" class="sort-icon">&#x21D5;</span></th></tr></thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
+                <div class="jadwal-grid" id="jadwalGrid">
+                    <div class="jadwal-empty"><i class="fa-solid fa-calendar-xmark"></i>Belum ada jadwal tamu yang tercatat.</div>
+                </div>
             </div>
         </div>
 
