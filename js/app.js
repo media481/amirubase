@@ -1,4 +1,4 @@
-// ========== SUPABASE CONFIG ==========
+    // ========== SUPABASE CONFIG ==========
     const SUPABASE_URL = "https://rkdhssbyqqyheczejtix.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_YzVUaQ-f53v3JId4art8zg_AQWSSMU_";
     const MASKAPAI_LIST = ["Oman Air","Saudia Airlines","Lion Air","Garuda Indonesia","Emirates","Qatar Airways","Etihad Airways","Malindo Air","Air Asia"];
@@ -1134,6 +1134,7 @@
         kuitansiModalEl.style.display = '';
         kuitansiModalEl.classList.add('show');
         document.body.style.overflow = 'hidden';
+        renderKwtPreview();
         setTimeout(() => document.getElementById('kwt_jumlah')?.focus(), 100);
     }
 
@@ -1147,11 +1148,25 @@
         const el = document.getElementById('kwt_jumlah');
         const digits = el.value.replace(/\D/g, '');
         const display = document.getElementById('kwt_jumlah_display');
-        if (!digits) { display.textContent = ''; if (!kwtTerbilangEdited) document.getElementById('kwt_terbilang').value = ''; return; }
+        if (!digits) { display.textContent = ''; if (!kwtTerbilangEdited) document.getElementById('kwt_terbilang').value = ''; renderKwtPreview(); return; }
         display.textContent = 'Rp ' + Number(digits).toLocaleString('id-ID') + ',-';
         if (!kwtTerbilangEdited) document.getElementById('kwt_terbilang').value = terbilang(digits);
+        renderKwtPreview();
     }
     window.onKwtJumlahInput = onKwtJumlahInput;
+
+    function renderKwtPreview() {
+        const val = id => document.getElementById(id)?.value.trim() || '';
+        const jumlahRaw = val('kwt_jumlah').replace(/\D/g, '');
+        document.getElementById('pv_nomor').textContent = val('kwt_nomor') || '-';
+        document.getElementById('pv_dari').textContent = val('kwt_dari') || '-';
+        document.getElementById('pv_terbilang').textContent = val('kwt_terbilang') ? val('kwt_terbilang') + ' Rupiah' : '-';
+        document.getElementById('pv_keterangan').textContent = val('kwt_keterangan') || '-';
+        document.getElementById('pv_jumlah').textContent = jumlahRaw ? 'Rp ' + Number(jumlahRaw).toLocaleString('id-ID') + ',-' : 'Rp 0,-';
+        document.getElementById('pv_tempat_tanggal').textContent = val('kwt_tempat_tanggal') || '-';
+        document.getElementById('pv_penerima').textContent = val('kwt_penerima') || '-';
+    }
+    window.renderKwtPreview = renderKwtPreview;
 
     function downloadKuitansiPDF() {
         const nomor = document.getElementById('kwt_nomor').value.trim();
