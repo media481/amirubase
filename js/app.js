@@ -382,7 +382,7 @@
             let cdText = "sudah berangkat", cdClass = "expired";
             if (diffMs >= 0) {
                 const diffDays = Math.floor(diffMs / (1000*60*60*24));
-                const years = Math.floor(diffDays/365), months = Math.floor((diffDays%365)/30), days = diffDays%30;
+                const years = Math.floor(diffDays/365), remDays = diffDays%365, months = Math.floor(remDays/30), days = remDays%30;
                 const parts = []; if (years) parts.push(`${years}th`); if (months) parts.push(`${months}bl`); if (days) parts.push(`${days}hr`);
                 if (!parts.length) parts.push("hari ini!");
                 cdText = parts.join(" ") + (diffDays>0?" lagi":""); cdClass = diffDays<=30?"soon":diffDays<=90?"medium":"far";
@@ -512,7 +512,7 @@
 
             const { data } = await supabaseClient.from('programs').select('*').order('created_at');
             adminPrograms = data || [];
-            const featuredCount = getFeaturedIds().length;
+            const featuredCount = getActiveFeaturedCount();
             const jadwalCount = jadwalList.length;
             const programCount = adminPrograms.length;
 
@@ -1036,13 +1036,21 @@
         
         if(!formData.teks_wa)formData.teks_wa=generateAutoWAText(formData);
 
-        // Pack admin-only fields ke admin_data_lengkap JSON
+        // Pack admin-only fields ke admin_data_lengkap JSON (merge dengan data lama, mis. hasil OCR poster,
+        // supaya tidak hilang tiap kali program diedit/disimpan ulang)
         const adminOnlyFields = ['harga_quad','harga_triple','harga_double','hotel_makkah','hotel_madinah','makan_makkah','makan_madinah','termasuk','tidak_termasuk','catatan_cx'];
-        const adl = {};
-        adminOnlyFields.forEach(f => { if(formData[f]) adl[f] = formData[f]; });
+        let existingAdl = {};
+        if (editingProgramId) {
+            const existingProg = adminPrograms.find(p => String(p.id) === String(editingProgramId));
+            if (existingProg && existingProg.admin_data_lengkap) {
+                try { existingAdl = typeof existingProg.admin_data_lengkap === 'string' ? JSON.parse(existingProg.admin_data_lengkap) : existingProg.admin_data_lengkap; } catch(e) { existingAdl = {}; }
+            }
+        }
+        const adl = { ...existingAdl };
+        adminOnlyFields.forEach(f => { if(formData[f]) adl[f] = formData[f]; else delete adl[f]; });
         const saveData = { ...formData };
         adminOnlyFields.forEach(f => delete saveData[f]);
-        if (Object.keys(adl).length > 0) saveData.admin_data_lengkap = JSON.stringify(adl);
+        saveData.admin_data_lengkap = JSON.stringify(adl);
 
         try{
             const isEdit = !!editingProgramId;
@@ -1601,6 +1609,14 @@
 
     function getFeaturedIds() { return featuredIds; }
     function isFeatured(id) { return featuredIds.includes(String(id)); }
+    // Hanya hitung slot unggulan yang program-nya masih aktif & belum lewat tanggal —
+    // supaya program expired/nonaktif yang lupa dihapus dari unggulan tidak mengunci slot selamanya
+    function getActiveFeaturedCount() {
+        return featuredIds.filter(id => {
+            const p = dataUmroh.find(x => String(x.id) === id);
+            return p && p.is_active !== false && p.isAvailable;
+        }).length;
+    }
 
     async function toggleFeatured(id) {
         id = String(id);
@@ -1610,7 +1626,7 @@
             featuredIds = featuredIds.filter(i => i !== id);
             showToast('⭐ Program dihapus dari unggulan');
         } else {
-            if (featuredIds.length >= MAX_FEATURED) { showToast('⚠️ Maksimal ' + MAX_FEATURED + ' program unggulan!'); return; }
+            if (getActiveFeaturedCount() >= MAX_FEATURED) { showToast('⚠️ Maksimal ' + MAX_FEATURED + ' program unggulan!'); return; }
             const { error } = await supabaseClient.from('featured_programs').insert([{ program_id: id }]);
             if (error) { showToast('❌ Gagal: ' + error.message); return; }
             featuredIds.push(id);
@@ -1660,7 +1676,7 @@
             tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-3)">Belum ada program.</td></tr>';
             return;
         }
-        const currentCount = getFeaturedIds().length;
+        const currentCount = getActiveFeaturedCount();
         const isFull = currentCount >= MAX_FEATURED;
         // update counter badge if exists
         const counter = document.getElementById('featuredCounter');
@@ -2392,7 +2408,7 @@
         let changed = false;
 
         for (const prog of dataUmroh) {
-            if (!prog.tgl) continue;
+            if (!prog.tgl || prog.is_active === false) continue;
             const tglParts = prog.tgl.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/);
             if (!tglParts) continue;
             const bulanMap = {januari:0,februari:1,maret:2,april:3,mei:4,juni:5,juli:6,agustus:7,september:8,oktober:9,november:10,desember:11};
