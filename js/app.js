@@ -1,4 +1,4 @@
-    // ========== SUPABASE CONFIG ==========
+// ========== SUPABASE CONFIG ==========
     const SUPABASE_URL = "https://rkdhssbyqqyheczejtix.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_YzVUaQ-f53v3JId4art8zg_AQWSSMU_";
     const MASKAPAI_LIST = ["Oman Air","Saudia Airlines","Lion Air","Garuda Indonesia","Emirates","Qatar Airways","Etihad Airways","Malindo Air","Air Asia"];
@@ -1130,7 +1130,9 @@
         document.getElementById('kwt_keterangan').value = statusKeterangan;
         document.getElementById('kwt_penerima').value = lastPenerima;
 
-        document.getElementById('kuitansiModal').classList.add('show');
+        const kuitansiModalEl = document.getElementById('kuitansiModal');
+        kuitansiModalEl.style.display = '';
+        kuitansiModalEl.classList.add('show');
         document.body.style.overflow = 'hidden';
         setTimeout(() => document.getElementById('kwt_jumlah')?.focus(), 100);
     }
