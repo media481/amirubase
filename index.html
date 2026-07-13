@@ -303,22 +303,61 @@
             <div class="kwt-preview-col">
                 <label class="kwt-preview-label">Preview</label>
                 <div class="kwt-preview-sheet" id="kwt_preview_sheet">
-                    <div class="kwt-preview-header">
-                        <div class="kwt-preview-company">PT AMIRU HARAMAIN INDONESIA</div>
-                        <div class="kwt-preview-title">KUITANSI</div>
+                    <div class="kwt-preview-topbar">
+                        <div class="kwt-preview-brand">
+                            <div class="kwt-preview-brand-logo">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2L4 8v2h2v10h4v-6h4v6h4V10h2V8L12 2z" fill="#fff"/>
+                                </svg>
+                            </div>
+                            <div class="kwt-preview-brand-word"><span class="kwt-brand-amiru">amiru</span><span class="kwt-brand-tour">tour</span></div>
+                        </div>
+                        <div class="kwt-preview-vdiv"></div>
+                        <div class="kwt-preview-company-block">
+                            <div class="kwt-preview-company">PT AMIRU HARAMAIN INDONESIA</div>
+                            <div class="kwt-preview-address"><b>Kantor Pusat :</b> Jl. Taman Kenari No A3 Kledokan, Caturtunggal, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta, Telp. 0851-2233-6300 &nbsp;Email : salam@amirutour.com</div>
+                        </div>
+                        <div class="kwt-preview-badge-block">
+                            <div class="kwt-preview-badge">Kuitansi</div>
+                            <div class="kwt-preview-nomor">Nomor : <span id="pv_nomor">-</span></div>
+                        </div>
                     </div>
-                    <div class="kwt-preview-nomor">No. : <span id="pv_nomor">-</span></div>
-                    <div class="kwt-preview-field"><span class="kwt-preview-label-sm">Sudah terima dari</span><span class="kwt-preview-colon">:</span><span class="kwt-preview-val" id="pv_dari">-</span></div>
-                    <div class="kwt-preview-field"><span class="kwt-preview-label-sm">Uang sebanyak</span><span class="kwt-preview-colon">:</span><span class="kwt-preview-val" id="pv_terbilang">-</span></div>
-                    <div class="kwt-preview-field"><span class="kwt-preview-label-sm">Untuk pembayaran</span><span class="kwt-preview-colon">:</span><span class="kwt-preview-val" id="pv_keterangan">-</span></div>
-                    <div class="kwt-preview-bottom">
-                        <div class="kwt-preview-box" id="pv_jumlah">Rp 0,-</div>
+                    <div class="kwt-preview-row">
+                        <span class="kwt-preview-label-sm">Sudah Terima dari</span>
+                        <span class="kwt-preview-colon">:</span>
+                        <span class="kwt-preview-box kwt-preview-val" id="pv_dari">-</span>
+                    </div>
+                    <div class="kwt-preview-row">
+                        <span class="kwt-preview-label-sm">Banyaknya Uang</span>
+                        <span class="kwt-preview-colon">:</span>
+                        <span class="kwt-preview-box kwt-preview-val" id="pv_terbilang">-</span>
+                    </div>
+                    <div class="kwt-preview-row">
+                        <span class="kwt-preview-label-sm"></span>
+                        <span class="kwt-preview-colon">:</span>
+                        <span class="kwt-preview-box kwt-preview-box-short">&nbsp;</span>
+                        <div class="kwt-preview-checks">
+                            <span><span class="kwt-check">✓</span>Cash</span>
+                            <span><span class="kwt-check">✓</span>Transfer</span>
+                        </div>
+                    </div>
+                    <div class="kwt-preview-row kwt-preview-row-payment">
+                        <span class="kwt-preview-label-sm">Untuk Pembayaran</span>
+                        <span class="kwt-preview-colon">:</span>
+                        <div class="kwt-preview-payment-wrap">
+                            <span class="kwt-preview-box kwt-preview-val kwt-preview-box-tall" id="pv_keterangan">-</span>
+                        </div>
                         <div class="kwt-preview-sig">
                             <div id="pv_tempat_tanggal">-</div>
-                            <div>Penerima,</div>
-                            <div class="kwt-preview-sig-space"></div>
-                            <div class="kwt-preview-sig-name" id="pv_penerima">-</div>
+                            <div>Penerima</div>
                         </div>
+                    </div>
+                    <div class="kwt-preview-bottom">
+                        <div class="kwt-preview-rp">
+                            <span class="kwt-preview-rp-label">Rp.</span>
+                            <span class="kwt-preview-rp-box" id="pv_jumlah">Rp 0,-</span>
+                        </div>
+                        <div class="kwt-preview-sig-name" id="pv_penerima">-</div>
                     </div>
                 </div>
             </div>
