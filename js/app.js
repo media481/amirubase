@@ -3199,8 +3199,73 @@
         if (!str) return '';
         return String(str).split('/')[0].split('(')[0].toLowerCase().trim().replace(/\s+/g, ' ');
     }
+    // Tanggal: teks plain kadang tulis rentang penuh "20-28 Agustus 2026" (berangkat-pulang),
+    // sedangkan poster kadang cuma cantumkan satu tanggal "20 Agustus 2026" (biasanya tanggal berangkat) — atau sebaliknya.
+    // Juga dukung singkatan bulan ("Ags", "Sept", dst.) dan rentang yang lintas bulan ("31 Ags - 9 Sept 2026").
+    // Selama tanggalnya jatuh di dalam rentang & tahun sama, dianggap cocok (dengan catatan).
+    const CX_BULAN_MAP = {
+        januari:1, jan:1,
+        februari:2, feb:2,
+        maret:3, mar:3,
+        april:4, apr:4,
+        mei:5, may:5,
+        juni:6, jun:6,
+        juli:7, jul:7,
+        agustus:8, ags:8, agt:8, agu:8, aug:8,
+        september:9, sept:9, sep:9,
+        oktober:10, okt:10, oct:10,
+        november:11, nov:11,
+        desember:12, des:12, dec:12,
+    };
+    function cxMonthLookup(token) {
+        const t = (token || '').toLowerCase().replace(/[^a-z]/g, '');
+        if (!t) return null;
+        if (CX_BULAN_MAP[t]) return CX_BULAN_MAP[t];
+        // fallback: cocokkan 3 huruf pertama (jaga-jaga ada singkatan lain yang belum terdaftar persis)
+        const stem = t.slice(0, 3);
+        for (const k in CX_BULAN_MAP) { if (k.slice(0, 3) === stem) return CX_BULAN_MAP[k]; }
+        return null;
+    }
+    function cxParseTanggal(str) {
+        if (!str) return null;
+        const s = String(str).toLowerCase();
+        // Rentang lintas bulan: "31 ags - 9 sept 2026" / "31 agustus - 9 september 2026"
+        let m = s.match(/(\d{1,2})\s+([a-z]+)\.?\s*[-–]\s*(\d{1,2})\s+([a-z]+)\.?\s+(\d{4})/);
+        if (m) {
+            const bln1 = cxMonthLookup(m[2]), bln2 = cxMonthLookup(m[4]);
+            if (bln1 && bln2) return { startDay: parseInt(m[1]), startMonth: bln1, endDay: parseInt(m[3]), endMonth: bln2, year: parseInt(m[5]), isRange: true };
+        }
+        // Rentang satu bulan: "20-28 agustus 2026"
+        m = s.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s+([a-z]+)\.?\s+(\d{4})/);
+        if (m) {
+            const bln = cxMonthLookup(m[3]);
+            if (bln) return { startDay: parseInt(m[1]), startMonth: bln, endDay: parseInt(m[2]), endMonth: bln, year: parseInt(m[4]), isRange: true };
+        }
+        // Tanggal tunggal: "20 agustus 2026"
+        m = s.match(/(\d{1,2})\s+([a-z]+)\.?\s+(\d{4})/);
+        if (m) {
+            const bln = cxMonthLookup(m[2]);
+            if (bln) return { startDay: parseInt(m[1]), startMonth: bln, endDay: parseInt(m[1]), endMonth: bln, year: parseInt(m[3]), isRange: false };
+        }
+        return null;
+    }
+    // Return: null (gak kebaca / gak nyambung sama sekali), {match:true, exact:true} (identik),
+    // atau {match:true, exact:false} (cocok via toleransi rentang — perlu dikasih catatan di UI)
+    function cxDatesCompare(a, b) {
+        const da = cxParseTanggal(a), db = cxParseTanggal(b);
+        if (!da || !db) return { match: false };
+        if (da.year !== db.year) return { match: false };
+        // Encode month+day jadi satu angka urut (month*100+day) supaya rentang lintas bulan bisa dibandingkan
+        const daStart = da.startMonth * 100 + da.startDay, daEnd = da.endMonth * 100 + da.endDay;
+        const dbStart = db.startMonth * 100 + db.startDay, dbEnd = db.endMonth * 100 + db.endDay;
+        const overlap = daStart <= dbEnd && dbStart <= daEnd;
+        if (!overlap) return { match: false };
+        const exact = daStart === dbStart && daEnd === dbEnd;
+        return { match: true, exact };
+    }
     function cxValuesMatch(field, a, b) {
         if (!a || !b) return false;
+        if (field === 'tgl') return cxDatesCompare(a, b).match;
         if (field && field.indexOf('harga') === 0) {
             const na = cxNormalizeHarga(a), nb = cxNormalizeHarga(b);
             return na !== '' && na === nb;
@@ -3296,7 +3361,9 @@
 
             return rows.map(r => {
                 const hasBoth = r.plain && r.poster;
-                const isMatch = hasBoth && cxValuesMatch(r.field, r.plain, r.poster);
+                const dateInfo = (r.field === 'tgl' && hasBoth) ? cxDatesCompare(r.plain, r.poster) : null;
+                const isMatch = hasBoth && (dateInfo ? dateInfo.match : cxValuesMatch(r.field, r.plain, r.poster));
+                const showNote = dateInfo && dateInfo.match && !dateInfo.exact;
                 const rowClass = hasBoth ? (isMatch ? 'cx-match' : 'cx-mismatch') : '';
                 const pill = hasBoth ? `<span class="cx-match-pill ${isMatch?'ok':'no'}">${isMatch?'✓ Cocok':'✗ Beda'}</span>` : `<span class="cx-match-pill skip">—</span>`;
                 return `<div class="cx-compare-row ${rowClass}">
@@ -3313,6 +3380,7 @@
                         <div class="cx-compare-label" style="margin-bottom:4px;text-align:center;min-width:60px;">${escapeHtml(r.label)}</div>
                     </div>
                     ${pill}
+                    ${showNote ? `<div style="flex-basis:100%;font-size:11px;color:#a16207;background:#fefce8;border:1px solid #fde68a;border-radius:5px;padding:4px 8px;margin-top:6px;"><i class="fas fa-circle-info" style="margin-right:4px;"></i>Catatan: salah satu sumber pakai rentang tanggal, satunya tanggal tunggal — tetap dianggap cocok selama tanggalnya termasuk dalam rentang tersebut.</div>` : ''}
                 </div>`;
             }).join('');
         };
