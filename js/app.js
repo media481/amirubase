@@ -3187,6 +3187,12 @@
     function cxNormalizeMaskapai(str) {
         return String(str || '').toLowerCase().trim().replace(/\b(airlines?|airways|air)\b/gi, '').replace(/\s+/g, ' ').trim();
     }
+    // Hotel: teks plain sering lengkap "Nama Hotel / Setaraf (5 malam, 500m 7 menit jalan kaki)",
+    // sedangkan poster biasanya cuma cantumkan nama hotelnya saja — ambil nama inti sebelum "/" atau "(".
+    function cxNormalizeHotel(str) {
+        if (!str) return '';
+        return String(str).split('/')[0].split('(')[0].toLowerCase().trim().replace(/\s+/g, ' ');
+    }
     function cxValuesMatch(field, a, b) {
         if (!a || !b) return false;
         if (field && field.indexOf('harga') === 0) {
@@ -3195,6 +3201,11 @@
         }
         if (field === 'maskapai') {
             const na = cxNormalizeMaskapai(a), nb = cxNormalizeMaskapai(b);
+            if (!na || !nb) return false;
+            return na === nb || na.includes(nb) || nb.includes(na);
+        }
+        if (field === 'hotel_makkah' || field === 'hotel_madinah') {
+            const na = cxNormalizeHotel(a), nb = cxNormalizeHotel(b);
             if (!na || !nb) return false;
             return na === nb || na.includes(nb) || nb.includes(na);
         }
@@ -3272,8 +3283,6 @@
                 { label: 'Harga Double',    plain: adl.harga_double,   poster: null, field: 'harga_double' },
                 { label: 'Hotel Makkah',    plain: adl.hotel_makkah,   poster: null, field: 'hotel_makkah' },
                 { label: 'Hotel Madinah',   plain: adl.hotel_madinah,  poster: null, field: 'hotel_madinah' },
-                { label: 'Makan Makkah',    plain: adl.makan_makkah,   poster: null, field: 'makan_makkah' },
-                { label: 'Makan Madinah',   plain: adl.makan_madinah,  poster: null, field: 'makan_madinah' },
             ];
             // Baca data poster (dari adl.poster_data jika sudah disimpan)
             const pd = (() => { try { return adl.poster_data ? (typeof adl.poster_data === 'string' ? JSON.parse(adl.poster_data) : adl.poster_data) : {}; } catch(e) { return {}; } })();
@@ -3407,8 +3416,6 @@
             { key: 'harga_double',  label: 'Harga Double',  val: pd.harga_double || adl.harga_double  || '' },
             { key: 'hotel_makkah',  label: 'Hotel Makkah',  val: pd.hotel_makkah || adl.hotel_makkah  || '' },
             { key: 'hotel_madinah', label: 'Hotel Madinah', val: pd.hotel_madinah|| adl.hotel_madinah || '' },
-            { key: 'makan_makkah',  label: 'Makan Makkah',  val: pd.makan_makkah || adl.makan_makkah  || '' },
-            { key: 'makan_madinah', label: 'Makan Madinah', val: pd.makan_madinah|| adl.makan_madinah || '' },
         ];
 
         modal.innerHTML = `
@@ -3453,7 +3460,7 @@
         const prog = adminPrograms.find(p => String(p.id) === String(progId));
         if (!prog) return;
         const adl = (() => { try { return prog.admin_data_lengkap ? (typeof prog.admin_data_lengkap === 'string' ? JSON.parse(prog.admin_data_lengkap) : prog.admin_data_lengkap) : {}; } catch(e) { return {}; } })();
-        const keys = ['nama','tgl','durasi','maskapai','harga_quint','harga_quad','harga_triple','harga_double','hotel_makkah','hotel_madinah','makan_makkah','makan_madinah'];
+        const keys = ['nama','tgl','durasi','maskapai','harga_quint','harga_quad','harga_triple','harga_double','hotel_makkah','hotel_madinah'];
         const pd = {};
         keys.forEach(k => {
             const el = document.getElementById('cxp_' + k);
