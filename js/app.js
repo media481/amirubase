@@ -4,7 +4,8 @@
     const MASKAPAI_LIST = ["Oman Air","Saudia Airlines","Lion Air","Garuda Indonesia","Emirates","Qatar Airways","Etihad Airways","Malindo Air","Air Asia","IndiGo"];
     const CACHE_KEY = 'amiru_cached_data';
     const CACHE_TIME_KEY = 'amiru_cache_time';
-    const CACHE_DURATION = 300000;
+    const CACHE_DURATION = 60000; // 60 detik (sebelumnya 5 menit — terlalu lama, bikin teks WA yang baru diedit tidak langsung muncul di halaman publik)
+    const DATA_DIRTY_KEY = 'amiru_data_dirty'; // dipakai untuk broadcast antar-tab: begitu ada perubahan (insert/update/delete), tab lain (mis. halaman publik yang sudah terbuka) langsung ikut refresh
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB max file import
     const SESSION_DURATION = 30 * 60 * 1000; // 30 menit
 
@@ -365,10 +366,23 @@
         }
     }
 
-    async function insertProgram(programData) { const { data, error } = await supabaseClient.from('programs').insert([programData]).select(); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); return data[0]; }
-    async function upsertProgram(programData) { const { data, error } = await supabaseClient.from('programs').upsert([programData], { onConflict: 'id' }).select(); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); return data[0]; }
-    async function updateProgramById(id, programData) { const { data, error } = await supabaseClient.from('programs').update(programData).eq('id', id).select(); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); return data[0]; }
-    async function deleteProgramById(id) { const { error } = await supabaseClient.from('programs').delete().eq('id', id); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); }
+    // Broadcast ke tab lain (mis. halaman publik yang sudah terbuka duluan) bahwa data berubah,
+    // supaya tab tersebut langsung buang cache & ambil data terbaru tanpa nunggu 60 detik.
+    function broadcastDataDirty() { try { localStorage.setItem(DATA_DIRTY_KEY, Date.now().toString()); } catch (_) {} }
+
+    async function insertProgram(programData) { const { data, error } = await supabaseClient.from('programs').insert([programData]).select(); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); broadcastDataDirty(); return data[0]; }
+    async function upsertProgram(programData) { const { data, error } = await supabaseClient.from('programs').upsert([programData], { onConflict: 'id' }).select(); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); broadcastDataDirty(); return data[0]; }
+    async function updateProgramById(id, programData) { const { data, error } = await supabaseClient.from('programs').update(programData).eq('id', id).select(); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); broadcastDataDirty(); return data[0]; }
+    async function deleteProgramById(id) { const { error } = await supabaseClient.from('programs').delete().eq('id', id); if (error) throw error; sessionStorage.removeItem(CACHE_KEY); broadcastDataDirty(); }
+
+    // Tab lain (mis. halaman publik yang dibuka duluan di tab terpisah) mendengar perubahan ini
+    // dan langsung refresh data — tanpa perlu reload manual atau nunggu cache expired.
+    window.addEventListener('storage', (e) => {
+        if (e.key === DATA_DIRTY_KEY && e.newValue) {
+            sessionStorage.removeItem(CACHE_KEY);
+            loadDataFromSupabase(true);
+        }
+    });
 
     // Render Functions
     function renderTable(data) {
