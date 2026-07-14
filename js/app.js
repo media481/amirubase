@@ -1842,7 +1842,7 @@
     
     function sortAdminTable(column){adminSortAsc=adminSortColumn===column?!adminSortAsc:true;adminSortColumn=column;const programs=[...adminPrograms];programs.sort((a,b)=>{if(column==='tgl'){const dateA=parseDateFromString(a.tgl),dateB=parseDateFromString(b.tgl);return adminSortAsc?dateA-dateB:dateB-dateA;}const vA=String(a[column]||'').toLowerCase(),vB=String(b[column]||'').toLowerCase();return adminSortAsc?vA.localeCompare(vB):vB.localeCompare(vA);});adminPrograms=programs;renderAdminTable();}
     
-    function logoutAdmin(){adminLoggedIn=false;currentRole=null;sessionStorage.removeItem('admin_logged_in');sessionStorage.removeItem('admin_role');sessionStorage.removeItem('admin_login_time');if(sessionTimeout)clearTimeout(sessionTimeout);const roleBadge=document.getElementById('adminRoleBadge');if(roleBadge)roleBadge.style.display='none';const headerLogoutBtn=document.getElementById('adminHeaderLogoutBtn');if(headerLogoutBtn)headerLogoutBtn.style.display='none';renderAdminPanel();}
+    function logoutAdmin(){adminLoggedIn=false;currentRole=null;sessionStorage.removeItem('admin_logged_in');sessionStorage.removeItem('admin_role');sessionStorage.removeItem('admin_login_time');if(sessionTimeout)clearTimeout(sessionTimeout);const roleBadge=document.getElementById('adminRoleBadge');if(roleBadge)roleBadge.style.display='none';const headerLogoutBtn=document.getElementById('adminHeaderLogoutBtn');if(headerLogoutBtn)headerLogoutBtn.style.display='none';closeAdminModal();showToast('Berhasil logout');}
     
     function checkAdminLogin(){
         const pwd=document.getElementById('adminPasswordInput')?.value;
