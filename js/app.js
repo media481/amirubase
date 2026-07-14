@@ -3177,6 +3177,30 @@
     }
     window.autoScanPosterForProgram = autoScanPosterForProgram;
 
+    // ---- Toleransi perbandingan: field tertentu tidak perlu cocok 100% karakter ----
+    // Harga: abaikan "Rp", titik/koma pemisah ribuan, spasi — yang penting nominal angkanya sama.
+    function cxNormalizeHarga(str) {
+        if (!str) return '';
+        return String(str).replace(/[^0-9]/g, '');
+    }
+    // Maskapai: "Saudia Airlines" vs "Saudia" (poster kadang cuma logo/nama singkat) dianggap cocok.
+    function cxNormalizeMaskapai(str) {
+        return String(str || '').toLowerCase().trim().replace(/\b(airlines?|airways|air)\b/gi, '').replace(/\s+/g, ' ').trim();
+    }
+    function cxValuesMatch(field, a, b) {
+        if (!a || !b) return false;
+        if (field && field.indexOf('harga') === 0) {
+            const na = cxNormalizeHarga(a), nb = cxNormalizeHarga(b);
+            return na !== '' && na === nb;
+        }
+        if (field === 'maskapai') {
+            const na = cxNormalizeMaskapai(a), nb = cxNormalizeMaskapai(b);
+            if (!na || !nb) return false;
+            return na === nb || na.includes(nb) || nb.includes(na);
+        }
+        return a.toLowerCase().trim() === b.toLowerCase().trim();
+    }
+
     // Hitung berapa field yang tidak cocok antara teks plain & hasil OCR poster
     function cxCountMismatch(progId) {
         const prog = adminPrograms.find(p => String(p.id) === String(progId));
@@ -3184,11 +3208,11 @@
         const adl = (() => { try { return prog.admin_data_lengkap ? (typeof prog.admin_data_lengkap === 'string' ? JSON.parse(prog.admin_data_lengkap) : prog.admin_data_lengkap) : {}; } catch(e) { return {}; } })();
         const pd = adl.poster_data || {};
         const pairs = [
-            [prog.nama, pd.nama], [prog.tgl, pd.tgl], [prog.durasi, pd.durasi], [prog.maskapai, pd.maskapai],
-            [prog.harga_quint, pd.harga_quint], [adl.harga_quad, pd.harga_quad], [adl.harga_triple, pd.harga_triple],
-            [adl.harga_double, pd.harga_double], [adl.hotel_makkah, pd.hotel_makkah], [adl.hotel_madinah, pd.hotel_madinah],
+            ['nama', prog.nama, pd.nama], ['tgl', prog.tgl, pd.tgl], ['durasi', prog.durasi, pd.durasi], ['maskapai', prog.maskapai, pd.maskapai],
+            ['harga_quint', prog.harga_quint, pd.harga_quint], ['harga_quad', adl.harga_quad, pd.harga_quad], ['harga_triple', adl.harga_triple, pd.harga_triple],
+            ['harga_double', adl.harga_double, pd.harga_double], ['hotel_makkah', adl.hotel_makkah, pd.hotel_makkah], ['hotel_madinah', adl.hotel_madinah, pd.hotel_madinah],
         ];
-        return pairs.filter(([a, b]) => a && b && a.toLowerCase().trim() !== b.toLowerCase().trim()).length;
+        return pairs.filter(([field, a, b]) => a && b && !cxValuesMatch(field, a, b)).length;
     }
 
     function renderCxProgramSelector() {
@@ -3257,7 +3281,7 @@
 
             return rows.map(r => {
                 const hasBoth = r.plain && r.poster;
-                const isMatch = hasBoth && r.plain.toLowerCase().trim() === r.poster.toLowerCase().trim();
+                const isMatch = hasBoth && cxValuesMatch(r.field, r.plain, r.poster);
                 const rowClass = hasBoth ? (isMatch ? 'cx-match' : 'cx-mismatch') : '';
                 const pill = hasBoth ? `<span class="cx-match-pill ${isMatch?'ok':'no'}">${isMatch?'✓ Cocok':'✗ Beda'}</span>` : `<span class="cx-match-pill skip">—</span>`;
                 return `<div class="cx-compare-row ${rowClass}">
