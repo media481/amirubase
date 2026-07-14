@@ -1655,8 +1655,13 @@
             await loadDataFromSupabase(true);await renderAdminPanel();hideAdminForm();showToast('Program berhasil disimpan!');
             // Kirim notif Telegram
             sendTelegramNotif(formatTgProgram(formData, isEdit), 'program');
-            // Crosscheck otomatis: kalau ada link poster, baca & bandingkan otomatis di background (tidak menghalangi UI)
-            if (saveData.link_poster && savedRow && savedRow.id) {
+            // Crosscheck otomatis: hanya scan poster kalau BELUM PERNAH discan, atau link poster berganti.
+            // Kalau poster masih sama dengan yang terakhir discan (baik hasil OCR maupun sudah dikoreksi manual),
+            // JANGAN scan ulang otomatis — supaya koreksi manual admin tidak ketimpa diam-diam tiap kali Simpan,
+            // dan tidak boros panggilan AI Vision. Untuk refresh manual, admin bisa klik "Scan Ulang Poster".
+            const posterBelumPernahDiscan = !existingAdl.poster_data;
+            const posterBerganti = !!existingAdl.poster_scanned_link && existingAdl.poster_scanned_link !== saveData.link_poster;
+            if (saveData.link_poster && savedRow && savedRow.id && (posterBelumPernahDiscan || posterBerganti)) {
                 autoScanPosterForProgram(savedRow.id);
             }
         }catch(err){showToast('Gagal: '+err.message);} 
@@ -3155,6 +3160,7 @@
             adl.poster_data = parsed;
             adl.poster_data_source = 'ocr';
             adl.poster_scanned_at = new Date().toISOString();
+            adl.poster_scanned_link = prog.link_poster; // dipakai untuk deteksi "poster berganti" di saveAdminProgram
 
             await updateProgramById(progId, { admin_data_lengkap: JSON.stringify(adl) });
             const idx = adminPrograms.findIndex(p => String(p.id) === String(progId));
@@ -3469,6 +3475,7 @@
         adl.poster_data = pd;
         adl.poster_data_source = 'manual';
         adl.poster_scanned_at = new Date().toISOString();
+        adl.poster_scanned_link = prog.link_poster; // dipakai untuk deteksi "poster berganti" di saveAdminProgram
         try {
             await updateProgramById(progId, { admin_data_lengkap: JSON.stringify(adl) });
             // Update local
